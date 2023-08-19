@@ -136,5 +136,7 @@ void counterClockwiseTurn(double factor, double tolerance, double minimumSpeed, 
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
+
+  // Jake's first Auton attemp
   
 }
