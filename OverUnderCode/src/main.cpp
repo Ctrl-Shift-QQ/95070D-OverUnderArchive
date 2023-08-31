@@ -10,18 +10,20 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
-// LeftBack             motor         4               
-// LeftFront            motor         5               
-// LeftStack            motor         3               
-// RightFront           motor         6               
-// RightBack            motor         7               
-// RightStack           motor         8               
+// LeftBack             motor         3               
+// LeftFront            motor         1               
+// LeftStack            motor         2               
+// RightFront           motor         8               
+// RightBack            motor         10              
+// RightStack           motor         9               
 // Controller1          controller                    
 // Inertial             inertial      20              
+// Intake               motor         4               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
 #include <iostream>
+#include "DriverControl.h"
 
 using namespace vex;
 
@@ -133,10 +135,34 @@ void counterClockwiseTurn(double factor, double tolerance, double minimumSpeed, 
   RightStack.stop(brake);
 }
 
+void runIntake(){
+  //Clockwise = 1, Counter-clockwise = 2
+  int intakeDirection = 0;
+  if (Controller1.ButtonA.pressing()){
+    if (intakeDirection == 1){
+      intakeDirection = 0;
+      Intake.stop();
+    }
+    else{
+      intakeDirection = 1;
+      Intake.spin(forward);
+      vex::task::sleep(250);
+    }
+  }
+  if (Controller1.ButtonB.pressing()){
+    if (intakeDirection == 2){
+      intakeDirection = 0;
+      Intake.stop();
+    }
+    else{
+      intakeDirection = 2;
+      Intake.spin(reverse);
+      vex::task::sleep(250);
+    }
+  }
+}
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
-
-  // Jake's first Auton attemp
   
 }
