@@ -2,7 +2,6 @@
 #include <iostream>
 
 void autonomous(){
-  int auton = 0;
 }
 
 static int getSign(double input){
@@ -143,4 +142,17 @@ void turnCounterClockwise(double factor, double tolerance, double minimumSpeed, 
   RightFront.stop(brake);
   RightBack.stop(brake);
   RightStack.stop(brake);
+}
+
+void startIntake(double intakeVelocity){
+  DigitalOutA.set(true);
+  Intake.spin(forward, intakeVelocity, rpm);
+  wait(50, msec);
+}
+
+void startOutake(double intakeVelocity){
+  Intake.spin(reverse, intakeVelocity, rpm);
+  wait(100, msec);
+  DigitalOutA.set(true);
+  wait(50, msec);
 }

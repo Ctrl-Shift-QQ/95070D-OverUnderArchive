@@ -12,6 +12,7 @@ extern motor RightStack;
 extern controller Controller1;
 extern inertial Inertial;
 extern motor Intake;
+extern digital_out DigitalOutA;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
