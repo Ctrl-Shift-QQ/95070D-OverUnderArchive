@@ -18,7 +18,7 @@
 // RightStack           motor         9               
 // Controller1          controller                    
 // Inertial             inertial      20              
-// Intake               motor         4               
+// Intake               motor         7               
 // DigitalOutA          digital_out   A               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
@@ -32,4 +32,5 @@ using namespace vex;
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
+  autonOne();
 }

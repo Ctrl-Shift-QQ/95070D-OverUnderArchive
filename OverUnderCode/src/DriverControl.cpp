@@ -1,7 +1,9 @@
 #include "vex.h"
 #include <iostream>
 
-void runIntake(double intakeVelocity){
+/********** Functions for Driver Control **********/
+
+static void runIntake(double intakeVelocity){
   Intake.setVelocity(intakeVelocity, rpm);
   
   if (Controller1.ButtonA.pressing()){
@@ -18,11 +20,20 @@ void runIntake(double intakeVelocity){
   }
 }
 
-void tankDrive(){
+static void tankDrive(){
   LeftFront.spin(forward, Controller1.Axis2.position(), pct);
   LeftStack.spin(forward, Controller1.Axis2.position(), pct);
   LeftBack.spin(forward, Controller1.Axis2.position(), pct);
   RightFront.spin(forward, Controller1.Axis3.position(), pct);
   RightStack.spin(forward, Controller1.Axis3.position(), pct);
   RightStack.spin(forward, Controller1.Axis3.position(), pct);
+}
+
+/********** Driver Control Functions **********/
+
+void driverControl(){
+  while (true){
+    runIntake(350);
+    tankDrive();
+  }
 }

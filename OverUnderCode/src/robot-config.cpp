@@ -15,8 +15,8 @@ motor RightFront = motor(PORT8, ratio18_1, true);
 motor RightBack = motor(PORT10, ratio18_1, true);
 motor RightStack = motor(PORT9, ratio18_1, false);
 controller Controller1 = controller(primary);
-inertial Inertial = inertial(PORT20);
-motor Intake = motor(PORT4, ratio18_1, true);
+inertial Inertial = inertial(PORT6);
+motor Intake = motor(PORT7, ratio18_1, true);
 digital_out DigitalOutA = digital_out(Brain.ThreeWirePort.A);
 
 // VEXcode generated functions
