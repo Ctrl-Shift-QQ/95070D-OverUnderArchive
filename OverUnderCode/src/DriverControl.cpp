@@ -35,5 +35,8 @@ void driverControl(){
   while (true){
     runIntake(350);
     tankDrive();
+    
+
+    wait(20, msec);
   }
 }

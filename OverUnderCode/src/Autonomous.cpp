@@ -1,9 +1,6 @@
 #include "vex.h"
 #include <iostream>
-
-/* Uh oh */
-
-int auton = 0;
+#include "Autonomous.h"
 
 /********** Functions for Auton **********/
 
@@ -76,7 +73,6 @@ static void driveReverse(double factor, double tolerance, double minimumSpeed, d
       RightStack.spin(reverse, error * factor, percent);
     }
     wait(15, msec);
-
   }
   LeftFront.stop(brake);
   LeftBack.stop(brake);
@@ -165,62 +161,67 @@ static void outake(double intakeVelocity){
   wait(50, msec);
 }
 
+
+static  Auton currentAuton = AutonNone;
+
 static void autonSelector(){
-  int auton = 0;
   int runningSelector = true;
   while (runningSelector == true){
-    if (auton == 1){
-      Controller1.Screen.print("Auton 1: Safe Right");
+    if (currentAuton == AutonLeftSafe){
+      Controller1.Screen.print("Auton Selected, Safe Left");
     }
-    if (auton == 2){
-      Controller1.Screen.print("Auton 2: High Scoring Right");
+    if (currentAuton == AutonLeftRisky){
+      Controller1.Screen.print("Auton Selected, Risky Left");
     }
-    if (auton == 3){
-      Controller1.Screen.print("Auton 3: Safe Left");
+    if (currentAuton == AutonRightSafe){
+      Controller1.Screen.print("Auton Selected, Safe Right");
     }
-    if (auton == 4){
-      Controller1.Screen.print("Auton 4: High Scoring Left");
+    if (currentAuton == AutonRightRisky){
+      Controller1.Screen.print("Auton Selected, Risky Right");
     }
     if (Controller1.ButtonLeft.pressing()){
-      if (auton == 1){
-        auton = 4;
+      if (currentAuton == AutonLeftSafe){
+        currentAuton = AutonRightRisky;
       }
       else{
-        auton--;
+        currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
       }
       Controller1.Screen.clearScreen();
     }
     if (Controller1.ButtonRight.pressing()){
-      if (auton == 4){
-        auton = 1;
+      if (currentAuton == AutonRightRisky){
+        currentAuton = AutonLeftSafe;
       }
       else{
-        auton++;
+        currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) + 1);
       }
       Controller1.Screen.clearScreen();
     }
+    if (Controller1.ButtonA.pressing()){
+      runningSelector = false;
+    }
   }
+  Controller1.rumble(rumblePulse);
 }
 
 /********** Autons **********/
 
-void autonOne(){
-  //Place Preload into Goal
+void runAutonLeftSafe(){
+
+}
+
+void runAutonLeftRisky(){
+  
+}
+
+void runAutonRightSafe(){ //Safe Right Side Auton: Preload in Goal
   driveForward(1, 0.25, 25, 48 );
   turnClockwise(1, 0.3, 25, 90);
   outake(350);
   driveForward(1, 0.25, 10, 10);
 }
 
-void autonTwo(){
-  
-}
-
-void autonThree(){
-  
-}
-
-void autonFour(){
+void runAutonRightRisky(){
   
 }
 
@@ -235,16 +236,56 @@ void preAuton(){
 /********** Auton Function **********/
 
 void autonomous(){
-  if (auton == 1){
-    autonOne();
+  switch (currentAuton){
+    case AutonNone: {
+      break;
+    }
+    case AutonLeftSafe: {
+      runAutonLeftSafe();
+      break;
+    }
+    case AutonLeftRisky: {
+      runAutonLeftRisky();
+      break;
+    }
+    case AutonRightSafe: {
+      runAutonRightSafe();
+      break;
+    }
+    case AutonRightRisky: {
+      runAutonRightRisky();
+      break;
+    }
+    default: {
+      break;
+    }
   }
-  if (auton == 2){
-    autonTwo();
-  }
-  if (auton == 3){
-    autonThree();
-  }
-  if (auton == 4){
-    autonFour();
+}
+
+
+void runAuton(Auton testedAuton){
+  switch (testedAuton){
+    case AutonNone: {
+      break;
+    }
+    case AutonLeftSafe: {
+      runAutonLeftSafe();
+      break;
+    }
+    case AutonLeftRisky: {
+      runAutonLeftRisky();
+      break;
+    }
+    case AutonRightSafe: {
+      runAutonRightSafe();
+      break;
+    }
+    case AutonRightRisky: {
+      runAutonRightRisky();
+      break;
+    }
+    default: {
+      break;
+    }
   }
 }

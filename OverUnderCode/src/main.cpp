@@ -10,14 +10,14 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
-// LeftBack             motor         3               
-// LeftFront            motor         1               
-// LeftStack            motor         2               
-// RightFront           motor         8               
-// RightBack            motor         10              
-// RightStack           motor         9               
+// LeftFront            motor         8               
+// LeftBack             motor         9               
+// LeftStack            motor         10              
+// RightFront           motor         1               
+// RightBack            motor         2               
+// RightStack           motor         3               
 // Controller1          controller                    
-// Inertial             inertial      20              
+// Inertial             inertial      6               
 // Intake               motor         7               
 // DigitalOutA          digital_out   A               
 // ---- END VEXCODE CONFIGURED DEVICES ----
@@ -29,8 +29,14 @@
 
 using namespace vex;
 
+competition Competition;
+
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
-  autonOne();
+  Competition.drivercontrol(driverControl);
+  Competition.autonomous(autonomous);
+
+  preAuton();
 }
+

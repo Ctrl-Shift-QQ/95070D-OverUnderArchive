@@ -8,12 +8,12 @@ using code = vision::code;
 brain  Brain;
 
 // VEXcode device constructors
-motor LeftBack = motor(PORT3, ratio18_1, false);
-motor LeftFront = motor(PORT1, ratio18_1, false);
-motor LeftStack = motor(PORT2, ratio18_1, true);
-motor RightFront = motor(PORT8, ratio18_1, true);
-motor RightBack = motor(PORT10, ratio18_1, true);
-motor RightStack = motor(PORT9, ratio18_1, false);
+motor LeftFront = motor(PORT8, ratio6_1, true);
+motor LeftBack = motor(PORT9, ratio6_1, true);
+motor LeftStack = motor(PORT10, ratio6_1, false);
+motor RightFront = motor(PORT1, ratio6_1, false);
+motor RightBack = motor(PORT2, ratio6_1, false);
+motor RightStack = motor(PORT3, ratio6_1, true);
 controller Controller1 = controller(primary);
 inertial Inertial = inertial(PORT6);
 motor Intake = motor(PORT7, ratio18_1, true);
