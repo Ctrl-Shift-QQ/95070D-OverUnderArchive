@@ -20,6 +20,7 @@
 // Inertial             inertial      6               
 // Intake               motor         7               
 // DigitalOutA          digital_out   A               
+// Catapult             motor         4               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
@@ -36,7 +37,9 @@ int main() {
   vexcodeInit();
   Competition.drivercontrol(driverControl);
   Competition.autonomous(autonomous);
+  
+  testAuton(AutonRightSafe);
 
-  preAuton();
+  //preAuton();
 }
 

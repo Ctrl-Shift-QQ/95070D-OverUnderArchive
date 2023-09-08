@@ -8,7 +8,7 @@ typedef enum {
     AutonRightRisky,
 } Auton;
 
-void runAuton(Auton testedAuton);
+void testAuton(Auton testedAuton);
 
 //For Competition
 void preAuton();

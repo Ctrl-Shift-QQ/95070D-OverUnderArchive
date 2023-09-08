@@ -17,9 +17,11 @@ static int getSign(double input){
 }
 
 static void driveForward(double factor, double tolerance, double minimumSpeed, double target){
+  
   double error = target;
   double total = 0;
   LeftStack.setPosition(0, turns);
+  
   while (fabs(error) > tolerance){
     error = target - LeftStack.position(turns) * 3.25 * M_PI/2;
     total = error * factor;
@@ -50,9 +52,11 @@ static void driveForward(double factor, double tolerance, double minimumSpeed, d
 }
 
 static void driveReverse(double factor, double tolerance, double minimumSpeed, double target){
+  
   double error = -target;
   double total = 0;
   LeftStack.setPosition(0, turns);
+  
   while (fabs(error) > tolerance){
     error = -target + LeftStack.position(turns) * 3.25 * M_PI/2;
     total = error * factor;
@@ -83,9 +87,11 @@ static void driveReverse(double factor, double tolerance, double minimumSpeed, d
 }
 
 static void turnClockwise(double factor, double tolerance, double minimumSpeed, double target){
+  
   double error = target;
   double total = 0;
   Inertial.setRotation(0, degrees);
+  
   while (fabs(error) > tolerance){
     error = target - Inertial.rotation(degrees);
     total = error * factor;
@@ -116,9 +122,11 @@ static void turnClockwise(double factor, double tolerance, double minimumSpeed, 
 }
 
 static void turnCounterClockwise(double factor, double tolerance, double minimumSpeed, double target){
+  
   double error = -target;
   double total = 0;
   Inertial.setRotation(0, degrees);
+  
   while (fabs(error) > tolerance){
     error = -target + Inertial.rotation(degrees);
     total = error * factor;
@@ -148,21 +156,21 @@ static void turnCounterClockwise(double factor, double tolerance, double minimum
   RightStack.stop(brake);
 }
 
-static void intake(double intakeVelocity){
-  DigitalOutA.set(true);
-  Intake.spin(forward, intakeVelocity, rpm);
+static void intake(){
+  //DigitalOutA.set(true);
+  Intake.spin(forward, 350, rpm);
   wait(50, msec);
 }
 
-static void outake(double intakeVelocity){
-  Intake.spin(reverse, intakeVelocity, rpm);
-  wait(100, msec);
-  DigitalOutA.set(true);
+static void outake(){
+  Intake.spin(reverse, 350, rpm);
+  //wait(100, msec);
+  //DigitalOutA.set(true);
   wait(50, msec);
 }
 
 
-static  Auton currentAuton = AutonNone;
+static Auton currentAuton = AutonNone;
 
 static void autonSelector(){
   int runningSelector = true;
@@ -215,14 +223,24 @@ void runAutonLeftRisky(){
 }
 
 void runAutonRightSafe(){ //Safe Right Side Auton: Preload in Goal
-  driveForward(1, 0.25, 25, 48 );
-  turnClockwise(1, 0.3, 25, 90);
-  outake(350);
+  driveForward(1, 0.25, 25, 52);
+  turnClockwise(1, 0.5, 25, 90);
+  outake();
   driveForward(1, 0.25, 10, 10);
 }
 
 void runAutonRightRisky(){
-  
+  driveForward(1.5, 0.25, 40, 58);
+  turnClockwise(1, 0.3, 25, 90);
+  outake();
+  driveForward(1, 0.25, 10, 10);
+  turnCounterClockwise(1, 0.5, 25, 180);
+  intake();
+  driveForward(1, 0.25, 40, 24);
+  turnCounterClockwise(1, 0.5, 25, 180);
+  driveForward(1, 0.25, 40, 20);
+  outake();
+  driveForward(1, 0.25, 10, 20);
 }
 
 /********** Pre Auton **********/
@@ -262,8 +280,7 @@ void autonomous(){
   }
 }
 
-
-void runAuton(Auton testedAuton){
+void testAuton(Auton testedAuton){
   switch (testedAuton){
     case AutonNone: {
       break;
