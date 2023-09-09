@@ -174,7 +174,7 @@ static Auton currentAuton = AutonNone;
 
 static void autonSelector(){
   int runningSelector = true;
-  while (runningSelector == true){
+  while (runningSelector){
     if (currentAuton == AutonLeftSafe){
       Controller1.Screen.print("Auton Selected, Safe Left");
     }

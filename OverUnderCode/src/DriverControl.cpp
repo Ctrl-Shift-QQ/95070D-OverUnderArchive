@@ -25,18 +25,27 @@ static void runCatapult(){
 
   Catapult.setVelocity(75, percent);
 
-  if (LimitSwitch.pressing() == false){ 
-    Catapult.spin(forward);
-  }
   if (Controller1.ButtonL2.pressing()){
     Catapult.spin(forward);
   }
-  else if (Controller1.ButtonL1.pressing()){
+  
+  bool firingCata = false;
+
+  if (!LimitSwitch.pressing()){ 
     Catapult.spin(forward);
-    wait(50, msec);
+  }
+  else if (Controller1.ButtonL1.pressing()){
+    firingCata = true;
   }
   else{
     Catapult.stop();
+  }
+
+  if (LimitSwitch.pressing() && firingCata){
+    Catapult.spin(forward);
+  }
+  else{
+    firingCata = false;
   }
 }
 
