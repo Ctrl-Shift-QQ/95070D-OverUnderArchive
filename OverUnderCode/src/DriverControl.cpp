@@ -21,14 +21,22 @@ static void runIntake(){
   }
 }
 
-static void runCataput(){
+static void runCatapult(){
 
-  Catapult.setVelocity(100, percent);
-  if (Controller1.ButtonL1.pressing()){
-  
+  Catapult.setVelocity(75, percent);
+
+  if (LimitSwitch.pressing() == false){ 
+    Catapult.spin(forward);
   }
   if (Controller1.ButtonL2.pressing()){
     Catapult.spin(forward);
+  }
+  else if (Controller1.ButtonL1.pressing()){
+    Catapult.spin(forward);
+    wait(50, msec);
+  }
+  else{
+    Catapult.stop();
   }
 }
 
@@ -47,7 +55,7 @@ void driverControl(){
   while (true){
     runIntake();
     tankDrive();
-    
+    runCatapult();
 
     wait(20, msec);
   }

@@ -14,6 +14,7 @@ extern inertial Inertial;
 extern motor Intake;
 extern digital_out DigitalOutA;
 extern motor Catapult;
+extern limit LimitSwitch;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

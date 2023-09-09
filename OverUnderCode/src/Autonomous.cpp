@@ -222,7 +222,8 @@ void runAutonLeftRisky(){
   
 }
 
-void runAutonRightSafe(){ //Safe Right Side Auton: Preload in Goal
+void runAutonRightSafe(){ 
+  //Score Match Load
   driveForward(1, 0.25, 25, 52);
   turnClockwise(1, 0.5, 25, 90);
   outake();
@@ -230,17 +231,38 @@ void runAutonRightSafe(){ //Safe Right Side Auton: Preload in Goal
 }
 
 void runAutonRightRisky(){
+  //Score Match Load
   driveForward(1.5, 0.25, 40, 58);
   turnClockwise(1, 0.3, 25, 90);
   outake();
   driveForward(1, 0.25, 10, 10);
+
+  //Pick Up Triball One and Score It
   turnCounterClockwise(1, 0.5, 25, 180);
   intake();
   driveForward(1, 0.25, 40, 24);
   turnCounterClockwise(1, 0.5, 25, 180);
   driveForward(1, 0.25, 40, 20);
   outake();
-  driveForward(1, 0.25, 10, 20);
+  driveForward(1, 0.25, 10, 10);
+
+  //Pick Up Triball Two and Score It
+  turnClockwise(1, 0.25, 25, 180);
+  intake();
+  driveForward(1, 0.25, 40, 48);
+  turnClockwise(1, 0.5, 25, 180);
+  driveForward(1, 0.25, 40, 44);
+  outake();
+  driveForward(1, 0.25, 10, 10);
+
+  //Pick Up Triball Three and Score It
+  turnCounterClockwise(1, 0.5, 25, 30);
+  intake();
+  driveForward(1, 0.25, 40, 50);
+  turnCounterClockwise(1, 0.5, 25, 180);
+  driveForward(1, 0.25, 40, 46);
+  outake();
+  driveForward(1, 0.25, 10, 10);
 }
 
 /********** Pre Auton **********/

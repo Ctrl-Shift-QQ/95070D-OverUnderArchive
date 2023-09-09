@@ -21,6 +21,7 @@
 // Intake               motor         7               
 // DigitalOutA          digital_out   A               
 // Catapult             motor         4               
+// LimitSwitch          limit         B               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
