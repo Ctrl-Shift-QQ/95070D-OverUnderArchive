@@ -1,5 +1,7 @@
 
 //For Testing
+void callibrate(double seconds);
+
 typedef enum {
     AutonNone = 0,
     AutonLeftSafe,
@@ -12,8 +14,8 @@ void testAuton(Auton testedAuton);
 
 //For Competition
 void preAuton();
-void autonomous();
 
+void autonomous();
 
 
 

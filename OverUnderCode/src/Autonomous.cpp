@@ -16,14 +16,14 @@ static int getSign(double input){
   }
 }
 
-static void driveForward(double factor, double tolerance, double minimumSpeed, double target){
+void driveForward(double factor, double tolerance, double minimumSpeed, double target){
   
   double error = target;
   double total = 0;
-  LeftStack.setPosition(0, turns);
+  LeftFront.setPosition(0, turns);
   
   while (fabs(error) > tolerance){
-    error = target - LeftStack.position(turns) * 3.25 * M_PI/2;
+    error = target - LeftFront.position(turns) * 3.25 * M_PI/2;
     total = error * factor;
     if (fabs(total) < minimumSpeed){
       LeftFront.spin(forward, getSign(total) * minimumSpeed, percent);
@@ -49,16 +49,18 @@ static void driveForward(double factor, double tolerance, double minimumSpeed, d
   RightFront.stop(brake);
   RightBack.stop(brake);
   RightStack.stop(brake);
+
+  wait(100, msec);
 }
 
-static void driveReverse(double factor, double tolerance, double minimumSpeed, double target){
+void driveReverse(double factor, double tolerance, double minimumSpeed, double target){
   
-  double error = -target;
+  double error = target;
   double total = 0;
-  LeftStack.setPosition(0, turns);
+  LeftFront.setPosition(0, turns);
   
   while (fabs(error) > tolerance){
-    error = -target + LeftStack.position(turns) * 3.25 * M_PI/2;
+    error = target + LeftFront.position(turns) * 3.25 * M_PI/2;
     total = error * factor;
     if (fabs(total) < minimumSpeed){
       LeftFront.spin(reverse, getSign(total) * minimumSpeed, percent);
@@ -84,9 +86,11 @@ static void driveReverse(double factor, double tolerance, double minimumSpeed, d
   RightFront.stop(brake);
   RightBack.stop(brake);
   RightStack.stop(brake);
+
+  wait(100, msec);
 }
 
-static void turnClockwise(double factor, double tolerance, double minimumSpeed, double target){
+void turnClockwise(double factor, double tolerance, double minimumSpeed, double target){
   
   double error = target;
   double total = 0;
@@ -119,32 +123,34 @@ static void turnClockwise(double factor, double tolerance, double minimumSpeed, 
   RightFront.stop(brake);
   RightBack.stop(brake);
   RightStack.stop(brake);
+
+  wait(100, msec);
 }
 
 static void turnCounterClockwise(double factor, double tolerance, double minimumSpeed, double target){
   
-  double error = -target;
+  double error = target;
   double total = 0;
   Inertial.setRotation(0, degrees);
   
   while (fabs(error) > tolerance){
-    error = -target + Inertial.rotation(degrees);
+    error = target + Inertial.rotation(degrees);
     total = error * factor;
     if (fabs(total) < minimumSpeed){
-      LeftFront.spin(forward, getSign(total) * minimumSpeed, percent);
-      LeftBack.spin(forward, getSign(total) * minimumSpeed, percent);
-      LeftStack.spin(forward, getSign(total) * minimumSpeed, percent);
-      RightFront.spin(reverse, getSign(total) * minimumSpeed, percent);
-      RightBack.spin(reverse, getSign(total) * minimumSpeed, percent);
-      RightStack.spin(reverse, getSign(total) * minimumSpeed, percent);
+      LeftFront.spin(reverse, getSign(total) * minimumSpeed, percent);
+      LeftBack.spin(reverse, getSign(total) * minimumSpeed, percent);
+      LeftStack.spin(reverse, getSign(total) * minimumSpeed, percent);
+      RightFront.spin(forward, getSign(total) * minimumSpeed, percent);
+      RightBack.spin(forward, getSign(total) * minimumSpeed, percent);
+      RightStack.spin(forward, getSign(total) * minimumSpeed, percent);
     }
     else {
-      LeftFront.spin(forward, error * factor, percent);
-      LeftBack.spin(forward, error * factor, percent);
-      LeftStack.spin(forward, error * factor, percent);
-      RightFront.spin(reverse, error * factor, percent);
-      RightBack.spin(reverse, error * factor, percent);
-      RightStack.spin(reverse, error * factor, percent);
+      LeftFront.spin(reverse, error * factor, percent);
+      LeftBack.spin(reverse, error * factor, percent);
+      LeftStack.spin(reverse, error * factor, percent);
+      RightFront.spin(forward, error * factor, percent);
+      RightBack.spin(forward, error * factor, percent);
+      RightStack.spin(forward, error * factor, percent);
     }
     wait(15, msec);
   }
@@ -154,19 +160,21 @@ static void turnCounterClockwise(double factor, double tolerance, double minimum
   RightFront.stop(brake);
   RightBack.stop(brake);
   RightStack.stop(brake);
+
+  wait(100, msec);
 }
 
-static void intake(){
+static void intake(double waitTime){
   //DigitalOutA.set(true);
   Intake.spin(forward, 350, rpm);
-  wait(50, msec);
+  wait(waitTime, sec);
 }
 
-static void outake(){
+static void outake(double waitTime){
   Intake.spin(reverse, 350, rpm);
   //wait(100, msec);
   //DigitalOutA.set(true);
-  wait(50, msec);
+  wait(waitTime, sec);
 }
 
 
@@ -224,51 +232,47 @@ void runAutonLeftRisky(){
 
 void runAutonRightSafe(){ 
   //Score Match Load
-  driveForward(1, 0.25, 25, 52);
-  turnClockwise(1, 0.5, 25, 90);
-  outake();
-  driveForward(1, 0.25, 10, 10);
+  driveForward(0.5, 0.5, 25, 52);
+  turnClockwise(0.3, 0.25, 10, 90);
+  outake(0.5);
+  driveForward(1, 0.25, 50, 10);
+  Intake.stop();
 }
 
 void runAutonRightRisky(){
   //Score Match Load
-  driveForward(1.5, 0.25, 40, 58);
-  turnClockwise(1, 0.3, 25, 90);
-  outake();
-  driveForward(1, 0.25, 10, 10);
+  driveForward(1, 0.5, 30, 52);
+  turnClockwise(0.4, 0.25, 10, 90);
+  outake(0.4);
+  driveForward(1, 0.25, 50, 10);
 
   //Pick Up Triball One and Score It
-  turnCounterClockwise(1, 0.5, 25, 180);
-  intake();
-  driveForward(1, 0.25, 40, 24);
-  turnCounterClockwise(1, 0.5, 25, 180);
-  driveForward(1, 0.25, 40, 20);
-  outake();
-  driveForward(1, 0.25, 10, 10);
+  driveReverse(1, 0.5, 10, 10);
+  turnCounterClockwise(0.4, 0.25, 10, 130);
+  intake(0.3);
+  driveForward(1, 0.5, 30, 18);
+  turnClockwise(0.4, 0.25, 10, 130);
+  driveForward(1, 0.5, 30, 8);
+  outake(0.4);
+  driveForward(1, 0.5, 50, 10);
+  Intake.stop();
 
   //Pick Up Triball Two and Score It
-  turnClockwise(1, 0.25, 25, 180);
-  intake();
-  driveForward(1, 0.25, 40, 48);
-  turnClockwise(1, 0.5, 25, 180);
-  driveForward(1, 0.25, 40, 44);
-  outake();
-  driveForward(1, 0.25, 10, 10);
+  
 
   //Pick Up Triball Three and Score It
-  turnCounterClockwise(1, 0.5, 25, 30);
-  intake();
-  driveForward(1, 0.25, 40, 50);
-  turnCounterClockwise(1, 0.5, 25, 180);
-  driveForward(1, 0.25, 40, 46);
-  outake();
-  driveForward(1, 0.25, 10, 10);
+  
 }
 
 /********** Pre Auton **********/
 
+void callibrate(double seconds){
+  Inertial.calibrate();
+  wait(seconds, sec);
+}
+
 void preAuton(){
-  Inertial.calibrate(5000);
+  callibrate(5);
   DigitalOutA.set(false);
   autonSelector();
 }
