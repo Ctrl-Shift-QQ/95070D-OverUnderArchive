@@ -164,19 +164,39 @@ static void turnCounterClockwise(double factor, double tolerance, double minimum
   wait(100, msec);
 }
 
-static void intake(double waitTime){
-  //DigitalOutA.set(true);
-  Intake.spin(forward, 350, rpm);
-  wait(waitTime, sec);
+static void defaultDrive(double target){
+  driveForward(0.7, 0.5, 50, target);
 }
 
-static void outake(double waitTime){
+static void defaultTurn(std::string direction, double target){
+  if (direction == "Clockwise"){
+    turnClockwise(0.4, 1, 10, target);
+  }
+  if (direction == "CounterClockwise"){
+    turnCounterClockwise(0.4, 1, 10, target);  
+  }
+}
+
+static void backOut(){
+  driveReverse(0.7, 0.5, 50, 10);
+}
+
+static void scoreTriball(){
+  driveForward(0.7, 0.5, 70, 10);
+}
+
+static void intake(){
+  //DigitalOutA.set(true);
+  Intake.spin(forward, 350, rpm);
+  wait(0.3, sec);
+}
+
+static void outake(){
   Intake.spin(reverse, 350, rpm);
   //wait(100, msec);
   //DigitalOutA.set(true);
-  wait(waitTime, sec);
+  wait(0.75, sec);
 }
-
 
 static Auton currentAuton = AutonNone;
 
@@ -232,33 +252,44 @@ void runAutonLeftRisky(){
 
 void runAutonRightSafe(){ 
   //Score Match Load
-  driveForward(0.5, 0.5, 25, 52);
-  turnClockwise(0.3, 0.25, 10, 90);
-  outake(0.5);
-  driveForward(1, 0.25, 50, 10);
+  defaultDrive(52);
+  defaultTurn("Clockwise", 90);
+  outake();
+  scoreTriball();
   Intake.stop();
 }
 
 void runAutonRightRisky(){
   //Score Match Load
-  driveForward(1, 0.5, 30, 52);
-  turnClockwise(0.4, 0.25, 10, 90);
-  outake(0.4);
-  driveForward(1, 0.25, 50, 10);
+  defaultDrive(45);
+  defaultTurn("Clockwise", 90);
+  outake();
+  scoreTriball();
 
   //Pick Up Triball One and Score It
-  driveReverse(1, 0.5, 10, 10);
-  turnCounterClockwise(0.4, 0.25, 10, 130);
-  intake(0.3);
-  driveForward(1, 0.5, 30, 18);
-  turnClockwise(0.4, 0.25, 10, 130);
-  driveForward(1, 0.5, 30, 8);
-  outake(0.4);
-  driveForward(1, 0.5, 50, 10);
+  backOut();
+  defaultTurn("CounterClockwise", 135); //Face Triball
+  intake();
+  defaultDrive(15); //Triball Picked Up
+  wait(0.3, sec);
   Intake.stop();
+  defaultTurn("Clockwise", 135);
+  defaultDrive(10); 
+  outake();
+  scoreTriball(); //Triball Scored 
 
   //Pick Up Triball Two and Score It
-  
+  backOut();
+  defaultTurn("Clockwise", 180); //Face Triball
+  intake();
+  defaultDrive(18); //Triball Picked Up
+  wait(0.3, sec);
+  Intake.stop();
+  defaultTurn("CounterClockwise", 180);
+  defaultDrive(18);
+  outake();
+  scoreTriball(); //Triball Scored
+  Intake.stop();
 
   //Pick Up Triball Three and Score It
   
