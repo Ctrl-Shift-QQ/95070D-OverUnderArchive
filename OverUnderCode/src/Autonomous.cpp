@@ -164,38 +164,44 @@ static void turnCounterClockwise(double factor, double tolerance, double minimum
   wait(100, msec);
 }
 
+// factor, tolerance, minimumSpeed, target
+
 static void defaultDrive(double target){
-  driveForward(0.7, 0.5, 50, target);
+  driveForward(0.7, 0.5, 75, target);
 }
 
 static void defaultTurn(std::string direction, double target){
   if (direction == "Clockwise"){
-    turnClockwise(0.4, 1, 10, target);
+    turnClockwise(0.7, 1, 10, target);
   }
   if (direction == "CounterClockwise"){
-    turnCounterClockwise(0.4, 1, 10, target);  
+    turnCounterClockwise(0.7, 1, 10, target);  
   }
 }
 
 static void backOut(){
-  driveReverse(0.7, 0.5, 50, 10);
+  driveReverse(0.7, 0.5, 75, 10);
 }
 
 static void scoreTriball(){
-  driveForward(0.7, 0.5, 70, 10);
+  driveForward(0.7, 0.5, 90, 10);
 }
 
 static void intake(){
   //DigitalOutA.set(true);
-  Intake.spin(forward, 350, rpm);
-  wait(0.3, sec);
+  Intake.spin(forward, 75, percent);
 }
 
-static void outake(){
-  Intake.spin(reverse, 350, rpm);
+static void outake(double waitTime){
+  Intake.spin(reverse, 75, percent);
   //wait(100, msec);
   //DigitalOutA.set(true);
-  wait(0.75, sec);
+  wait(waitTime, sec);
+}
+
+static void stopIntake(){
+  wait(50, msec);
+  Intake.stop();
 }
 
 static Auton currentAuton = AutonNone;
@@ -254,57 +260,69 @@ void runAutonRightSafe(){
   //Score Match Load
   defaultDrive(52);
   defaultTurn("Clockwise", 90);
-  outake();
+  outake(0.5);
   scoreTriball();
-  Intake.stop();
+  backOut();
+  defaultTurn("CounterClockwise", 140); //Face Triball 
+  intake();
+  defaultDrive(26); //Triball Picked Up
+  defaultTurn("CounterClockwise", 145);
+  defaultDrive(20);
+  scoreTriball();
 }
 
 void runAutonRightRisky(){
+  double currentTime = Brain.Timer.time();
+
   //Score Match Load
-  defaultDrive(45);
+  defaultDrive(42);
   defaultTurn("Clockwise", 90);
-  outake();
+  outake(0.25);
   scoreTriball();
 
-  //Pick Up Triball One and Score It
+  //Middle Triball
   backOut();
-  defaultTurn("CounterClockwise", 135); //Face Triball
+  defaultTurn("CounterClockwise", 140); //Face Triball
   intake();
-  defaultDrive(15); //Triball Picked Up
-  wait(0.3, sec);
-  Intake.stop();
-  defaultTurn("Clockwise", 135);
-  defaultDrive(10); 
-  outake();
-  scoreTriball(); //Triball Scored 
+  defaultDrive(12); //Triball Picked Up
+  stopIntake();
+  defaultTurn("Clockwise", 140);
+  outake(0.8);
 
-  //Pick Up Triball Two and Score It
-  backOut();
+  //Back Triball
   defaultTurn("Clockwise", 180); //Face Triball
   intake();
-  defaultDrive(18); //Triball Picked Up
-  wait(0.3, sec);
-  Intake.stop();
+  defaultDrive(14); //Triball Picked Up
+  stopIntake();
   defaultTurn("CounterClockwise", 180);
   defaultDrive(18);
-  outake();
+  outake(0.25);
   scoreTriball(); //Triball Scored
   Intake.stop();
 
-  //Pick Up Triball Three and Score It
-  
+  //Side Triball
+  backOut();
+  defaultTurn("Clockwise", 160);
+  intake();
+  defaultDrive(26);
+  stopIntake();
+  defaultTurn("Clockwise", 165);
+  defaultDrive(20);
+  scoreTriball();
+
+  std::cout << Brain.Timer.time() - currentTime << std::endl;
 }
 
 /********** Pre Auton **********/
 
-void callibrate(double seconds){
+void calibrate(double seconds){
   Inertial.calibrate();
   wait(seconds, sec);
 }
 
 void preAuton(){
-  callibrate(5);
-  DigitalOutA.set(false);
+  calibrate(5);
+  //DigitalOutA.set(false);
   autonSelector();
 }
 

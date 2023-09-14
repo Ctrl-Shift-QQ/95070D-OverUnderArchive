@@ -1,6 +1,6 @@
 
 //For Testing
-void callibrate(double seconds);
+void calibrate(double seconds);
 
 typedef enum {
     AutonNone = 0,

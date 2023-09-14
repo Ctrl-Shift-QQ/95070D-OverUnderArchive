@@ -3,25 +3,19 @@
 
 /********** Functions for Driver Control **********/
 
-static void setVelocities(double intakeVelocity, double cataVelocity){
-  Intake.setVelocity(intakeVelocity, percent);
-  Catapult.setVelocity(cataVelocity, percent);
-}
 static void runIntake(){
-
   if (Controller1.ButtonA.pressing()){
-    Intake.setVelocity(70, percent);
+    Intake.spin(forward, 75, percent);
     //DigitalOutA.set(true);
   }
   if (Controller1.ButtonB.pressing()){
-    Intake.setVelocity(-70, percent);
+    Intake.spin(reverse, 75, percent);
     //wait(100, msec);
     //DigitalOutA.set(false);
   }
   if (Controller1.ButtonUp.pressing()){
-    Intake.setVelocity(0, percent);
+    Intake.stop();
   }
-  Intake.spin(forward);
 }
 
 static void runCatapult(){
@@ -35,25 +29,24 @@ static void runCatapult(){
     Catapult.stop();
   }
   
-  /*bool firingCata = false;
+  // bool firingCata = false;
 
-  if (!LimitSwitch.pressing()){ 
-    Catapult.spin(forward);
-  }
-  else if (Controller1.ButtonL1.pressing()){
-    firingCata = true;
-  }
-  else{
-    Catapult.stop();
-  }
+  // if (!LimitSwitch.pressing()){ 
+  //   Catapult.spin(forward);
+  // }
+  // else if (Controller1.ButtonL1.pressing()){
+  //   firingCata = true;
+  // }
+  // else{
+  //   Catapult.stop();
+  // }
 
-  if (LimitSwitch.pressing() && firingCata){
-    Catapult.spin(forward);
-  }
-  else{
-    firingCata = false;
-  }
-  */
+  // if (LimitSwitch.pressing() && firingCata){
+  //   Catapult.spin(forward);
+  // }
+  // else{
+  //   firingCata = false;
+  // }
 }
 
 static void tankDrive(){
@@ -67,9 +60,6 @@ static void tankDrive(){
 
 /********** Driver Control Function **********/
 void driverControl(){
-  
-  setVelocities(60, 85);
-  
   while (true){
     runIntake();
     tankDrive();

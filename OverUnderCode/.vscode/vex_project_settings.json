@@ -1,0 +1,18 @@
+{
+	"project": {
+		"name": "OverUnderCode",
+		"slot": 1,
+		"description": "95070D Over Under Code ",
+		"platform": "V5",
+		"creationDate": "Thu, 14 Sep 2023 22:42:32 GMT",
+		"language": "cpp",
+		"sdkVersion": "V5_20220726_10_00_00",
+		"cpp": {
+			"includePath": []
+		}
+	},
+	"extension": {
+		"version": "0.5.0",
+		"json": 1
+	}
+}
