@@ -56,14 +56,21 @@ static void tankDrive(){
 }
 
 static void runWings(){
-  
+  if (Controller1.ButtonR1.pressing()){
+    Wings.set(true);
+  }
+  if (Controller1.ButtonR2.pressing()){
+    Wings.set(false);
+  }
 }
+
 /********** Driver Control Function **********/
 void driverControl(){
   while (true){
-    runIntake();
     tankDrive();
+    runIntake();
     runCatapult();
+    runWings();
 
     wait(20, msec);
   }
