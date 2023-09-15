@@ -188,14 +188,11 @@ static void scoreTriball(){
 }
 
 static void intake(){
-  //DigitalOutA.set(true);
   Intake.spin(forward, 75, percent);
 }
 
 static void outake(double waitTime){
   Intake.spin(reverse, 75, percent);
-  //wait(100, msec);
-  //DigitalOutA.set(true);
   wait(waitTime, sec);
 }
 
@@ -322,7 +319,7 @@ void calibrate(double seconds){
 
 void preAuton(){
   calibrate(5);
-  //DigitalOutA.set(false);
+  Wings.set(false);
   autonSelector();
 }
 

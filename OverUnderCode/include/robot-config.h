@@ -12,7 +12,7 @@ extern motor RightStack;
 extern controller Controller1;
 extern inertial Inertial;
 extern motor Intake;
-extern digital_out DigitalOutA;
+extern digital_out Wings;
 extern motor Catapult;
 extern limit LimitSwitch;
 

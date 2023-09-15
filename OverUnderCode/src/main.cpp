@@ -52,6 +52,7 @@ int main() {
   //   wait(1, sec);
   //   testAuton(AutonRightRisky);
   // }
+  
   driverControl();
   //preAuton();
 }
