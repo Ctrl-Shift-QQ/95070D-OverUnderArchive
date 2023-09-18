@@ -40,19 +40,19 @@ int main() {
   //Competition.autonomous(autonomous);
 
   Controller1.Screen.clearScreen();
-  // calibrate(3);
+  calibrate(3);
 
-  // if (Controller1.ButtonR2.pressing()){
-  //   Controller1.Screen.print("Running Driver Control");
-  //   wait(1, sec);
-  //   driverControl();
-  // }
-  // else{
-  //   Controller1.Screen.print("Running Auton");
-  //   wait(1, sec);
-  //   testAuton(AutonRightRisky);
-  // }
-  driverControl();
+  if (Controller1.ButtonR2.pressing()){
+    Controller1.Screen.print("Running Driver Control");
+    wait(1, sec);
+    driverControl();
+  }
+  else{
+    Controller1.Screen.print("Running Auton");
+    wait(1, sec);
+    testAuton(AutonRightRisky);
+  }
+  
   //preAuton();
 }
 
