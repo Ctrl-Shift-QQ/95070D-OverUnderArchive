@@ -6,30 +6,43 @@
 
 void driveForward(double kp, double tolerance, double minimumSpeed, double target){
   
-  double error = target;
-  double total = 0;
+  double leftDriveError = target;
+  double rightDriveError = target;
+  double leftDriveTotal = 0;
+  double rightDriveTotal = 0;
 
-  LeftFront.setPosition(0, turns);
+  LeftFront.resetPosition();
+  RightFront.resetPosition();
   
-  while (fabs(error) > tolerance){
-    error = target - LeftFront.position(turns) * 3.25 * M_PI/2;
-    total = error * kp;
-    if (fabs(total) < minimumSpeed){
-      LeftFront.spin(forward, total * minimumSpeed, percent);
-      LeftBack.spin(forward, total * minimumSpeed, percent);
-      LeftStack.spin(forward, total * minimumSpeed, percent);
-      RightFront.spin(forward, total * minimumSpeed, percent);
-      RightBack.spin(forward, total * minimumSpeed, percent);
-      RightStack.spin(forward, total * minimumSpeed, percent);
+  while ((fabs(leftDriveError) + fabs(leftDriveError)) / 2 > tolerance){
+    //Left Side
+    leftDriveError = target - LeftFront.position(turns) * 3.25 * M_PI / 2;
+    leftDriveTotal = leftDriveError * kp;
+    if (fabs(leftDriveTotal) < minimumSpeed){
+      LeftFront.spin(forward, leftDriveTotal * minimumSpeed, percent);
+      LeftBack.spin(forward, leftDriveTotal * minimumSpeed, percent);
+      LeftStack.spin(forward, leftDriveTotal * minimumSpeed, percent);
     }
     else {
-      LeftFront.spin(forward, error * kp, percent);
-      LeftBack.spin(forward, error * kp, percent);
-      LeftStack.spin(forward, error * kp, percent);
-      RightFront.spin(forward, error * kp, percent);
-      RightBack.spin(forward, error * kp, percent);
-      RightStack.spin(forward, error * kp, percent);
+      LeftFront.spin(forward, leftDriveTotal * kp, percent);
+      LeftBack.spin(forward, leftDriveTotal * kp, percent);
+      LeftStack.spin(forward, leftDriveTotal * kp, percent);
     }
+
+    //Right Side
+    rightDriveError = target - RightFront.position(turns) * 3.25 * M_PI / 2;
+    rightDriveTotal = rightDriveError * kp;
+    if (fabs(leftDriveTotal) < minimumSpeed){
+      RightFront.spin(forward, rightDriveTotal * minimumSpeed, percent);
+      RightBack.spin(forward, rightDriveTotal * minimumSpeed, percent);
+      RightStack.spin(forward, rightDriveTotal * minimumSpeed, percent);
+    }
+    else {
+      RightFront.spin(forward, rightDriveTotal * kp, percent);
+      RightBack.spin(forward, rightDriveTotal * kp, percent);
+      RightStack.spin(forward, rightDriveTotal * kp, percent);
+    }
+
     wait(20, msec);
   }
   LeftFront.stop(brake);
@@ -44,30 +57,45 @@ void driveForward(double kp, double tolerance, double minimumSpeed, double targe
 
 void driveReverse(double kp, double tolerance, double minimumSpeed, double target){
   
-  double error = target;
-  double total = 0;
+  double leftDriveError = target;
+  double rightDriveError = target;
+  double leftDriveTotal = 0;
+  double rightDriveTotal = 0;
 
-  LeftFront.setPosition(0, turns);
+  LeftFront.resetPosition();
+  RightFront.resetPosition();
   
-  while (fabs(error) > tolerance){
-    error = target + LeftFront.position(turns) * 3.25 * M_PI/2;
-    total = error * kp;
-    if (fabs(total) < minimumSpeed){
-      LeftFront.spin(reverse, total * minimumSpeed, percent);
-      LeftBack.spin(reverse, total * minimumSpeed, percent);
-      LeftStack.spin(reverse, total * minimumSpeed, percent);
-      RightFront.spin(reverse, total * minimumSpeed, percent);
-      RightBack.spin(reverse, total * minimumSpeed, percent);
-      RightStack.spin(reverse, total * minimumSpeed, percent);
+  while ((fabs(leftDriveError) + fabs(leftDriveError)) / 2 > tolerance){
+    //Left Side
+    leftDriveError = target + LeftFront.position(turns) * 3.25 * M_PI / 2;
+    leftDriveTotal = leftDriveError * kp;
+
+    if (fabs(leftDriveTotal) < minimumSpeed){
+      LeftFront.spin(reverse, leftDriveTotal * minimumSpeed, percent);
+      LeftBack.spin(reverse, leftDriveTotal * minimumSpeed, percent);
+      LeftStack.spin(reverse, leftDriveTotal * minimumSpeed, percent);
     }
     else {
-      LeftFront.spin(reverse, error * kp, percent);
-      LeftBack.spin(reverse, error * kp, percent);
-      LeftStack.spin(reverse, error * kp, percent);
-      RightFront.spin(reverse, error * kp, percent);
-      RightBack.spin(reverse, error * kp, percent);
-      RightStack.spin(reverse, error * kp, percent);
+      LeftFront.spin(reverse, leftDriveTotal * kp, percent);
+      LeftBack.spin(reverse, leftDriveTotal * kp, percent);
+      LeftStack.spin(reverse, leftDriveTotal * kp, percent);
     }
+    
+    //Right Side
+    rightDriveError = target + RightFront.position(turns) * 3.25 * M_PI / 2;
+    rightDriveTotal = rightDriveError * kp;
+
+    if (fabs(leftDriveTotal) < minimumSpeed){
+      RightFront.spin(reverse, rightDriveTotal * minimumSpeed, percent);
+      RightBack.spin(reverse, rightDriveTotal * minimumSpeed, percent);
+      RightStack.spin(reverse, rightDriveTotal * minimumSpeed, percent);
+    }
+    else {
+      RightFront.spin(reverse, rightDriveTotal * kp, percent);
+      RightBack.spin(reverse, rightDriveTotal * kp, percent);
+      RightStack.spin(reverse, rightDriveTotal * kp, percent);
+    }
+
     wait(20, msec);
   }
   LeftFront.stop(brake);
@@ -87,12 +115,11 @@ void turnClockwise(double kp, double kd, double tolerance, double minimumSpeed, 
   double total = 0;
   double derivative = 0;
 
-  Inertial.setRotation(0, degrees);
+  Inertial.resetRotation();
   
   while (fabs(error) > tolerance){
     error = target - Inertial.rotation(degrees);
     derivative = (error - previousError) * 50;
-
     total = error * kp - derivative * kd;
 
     if (fabs(total) < minimumSpeed){
@@ -111,6 +138,7 @@ void turnClockwise(double kp, double kd, double tolerance, double minimumSpeed, 
       RightBack.spin(reverse, error * kp, percent);
       RightStack.spin(reverse, error * kp, percent);
     }
+
     previousError = error;
     wait(20, msec);
   }
@@ -131,13 +159,13 @@ static void turnCounterClockwise(double kp, double kd, double tolerance, double 
   double total = 0;
   double derivative;
 
-  Inertial.setRotation(0, degrees);
+  Inertial.resetRotation();
   
   while (fabs(error) > tolerance){
     error = target + Inertial.rotation(degrees);
     derivative = (error - previousError) * 50;
+    total = error * kp - derivative * kd;
 
-    total = error * kp;
     if (fabs(total) < minimumSpeed){
       LeftFront.spin(reverse, total * minimumSpeed, percent);
       LeftBack.spin(reverse, total * minimumSpeed, percent);
@@ -154,6 +182,8 @@ static void turnCounterClockwise(double kp, double kd, double tolerance, double 
       RightBack.spin(forward, error * kp, percent);
       RightStack.spin(forward, error * kp, percent);
     }
+
+    previousError = error;
     wait(20, msec);
   }
   LeftFront.stop(brake);
@@ -190,14 +220,11 @@ static void scoreTriball(){
 }
 
 static void intake(){
-  //DigitalOutA.set(true);
   Intake.spin(forward, 75, percent);
 }
 
 static void outake(double waitTime){
   Intake.spin(reverse, 75, percent);
-  //wait(100, msec);
-  //DigitalOutA.set(true);
   wait(waitTime, sec);
 }
 
@@ -326,7 +353,6 @@ void calibrate(double seconds){
 
 void preAuton(){
   calibrate(5);
-  //DigitalOutA.set(false);
   autonSelector();
 }
 

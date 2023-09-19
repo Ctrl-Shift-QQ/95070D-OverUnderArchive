@@ -6,12 +6,9 @@
 static void runIntake(){
   if (Controller1.ButtonA.pressing()){
     Intake.spin(forward, 75, percent);
-    //DigitalOutA.set(true);
   }
   if (Controller1.ButtonB.pressing()){
     Intake.spin(reverse, 75, percent);
-    //wait(100, msec);
-    //DigitalOutA.set(false);
   }
   if (Controller1.ButtonUp.pressing()){
     Intake.stop();
