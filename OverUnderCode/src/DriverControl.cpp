@@ -4,11 +4,14 @@
 /********** Functions for Driver Control **********/
 
 static void runIntake(){
+
+  Intake.setVelocity(75, percent);
+
   if (Controller1.ButtonA.pressing()){
-    Intake.spin(forward, 75, percent);
+    Intake.spin(forward);
   }
   if (Controller1.ButtonB.pressing()){
-    Intake.spin(reverse, 75, percent);
+    Intake.spin(reverse);
   }
   if (Controller1.ButtonUp.pressing()){
     Intake.stop();

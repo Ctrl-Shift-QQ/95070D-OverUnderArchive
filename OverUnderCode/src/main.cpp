@@ -1,28 +1,11 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
-/*    Author:       jake                                                      */
+/*    Author:       Jake                                                      */
 /*    Created:      Tue Jun 06 2023                                           */
 /*    Description:  V5 project                                                */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
-
-// ---- START VEXCODE CONFIGURED DEVICES ----
-// Robot Configuration:
-// [Name]               [Type]        [Port(s)]
-// LeftFront            motor         16              
-// LeftBack             motor         19              
-// LeftStack            motor         18              
-// RightFront           motor         1               
-// RightBack            motor         14              
-// RightStack           motor         13              
-// Controller1          controller                    
-// Inertial             inertial      11              
-// Intake               motor         17              
-// DigitalOutA          digital_out   A               
-// Catapult             motor         2               
-// LimitSwitch          limit         B               
-// ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
 #include <iostream>
@@ -31,6 +14,7 @@
 
 using namespace vex;
 
+// A global instance of competition
 competition Competition;
 
 int main() {

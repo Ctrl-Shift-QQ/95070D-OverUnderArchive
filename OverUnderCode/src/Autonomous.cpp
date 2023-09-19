@@ -43,6 +43,7 @@ void driveForward(double kp, double tolerance, double minimumSpeed, double targe
       RightStack.spin(forward, rightDriveTotal * kp, percent);
     }
 
+    std::cout << RightFront.velocity(percent) << std::endl;
     wait(20, msec);
   }
   LeftFront.stop(brake);
@@ -96,6 +97,7 @@ void driveReverse(double kp, double tolerance, double minimumSpeed, double targe
       RightStack.spin(reverse, rightDriveTotal * kp, percent);
     }
 
+    std::cout << RightFront.velocity(percent) << std::endl;
     wait(20, msec);
   }
   LeftFront.stop(brake);
@@ -123,22 +125,23 @@ void turnClockwise(double kp, double kd, double tolerance, double minimumSpeed, 
     total = error * kp - derivative * kd;
 
     if (fabs(total) < minimumSpeed){
-      LeftFront.spin(forward, total * minimumSpeed, percent);
-      LeftBack.spin(forward, total * minimumSpeed, percent);
-      LeftStack.spin(forward, total * minimumSpeed, percent);
-      RightFront.spin(reverse, total * minimumSpeed, percent);
-      RightBack.spin(reverse, total * minimumSpeed, percent);
-      RightStack.spin(reverse, total * minimumSpeed, percent);
+      LeftFront.spin(forward, minimumSpeed, percent);
+      LeftBack.spin(forward, minimumSpeed, percent);
+      LeftStack.spin(forward, minimumSpeed, percent);
+      RightFront.spin(reverse, minimumSpeed, percent);
+      RightBack.spin(reverse, minimumSpeed, percent);
+      RightStack.spin(reverse, minimumSpeed, percent);
     }
     else {
-      LeftFront.spin(forward, error * kp, percent);
-      LeftBack.spin(forward, error * kp, percent);
-      LeftStack.spin(forward, error * kp, percent);
-      RightFront.spin(reverse, error * kp, percent);
-      RightBack.spin(reverse, error * kp, percent);
-      RightStack.spin(reverse, error * kp, percent);
+      LeftFront.spin(forward, total, percent);
+      LeftBack.spin(forward, total, percent);
+      LeftStack.spin(forward, total, percent);
+      RightFront.spin(reverse, total, percent);
+      RightBack.spin(reverse, total, percent);
+      RightStack.spin(reverse, total, percent);
     }
 
+    std::cout << RightFront.velocity(percent) << std::endl;
     previousError = error;
     wait(20, msec);
   }
@@ -167,22 +170,23 @@ static void turnCounterClockwise(double kp, double kd, double tolerance, double 
     total = error * kp - derivative * kd;
 
     if (fabs(total) < minimumSpeed){
-      LeftFront.spin(reverse, total * minimumSpeed, percent);
-      LeftBack.spin(reverse, total * minimumSpeed, percent);
-      LeftStack.spin(reverse, total * minimumSpeed, percent);
-      RightFront.spin(forward, total * minimumSpeed, percent);
-      RightBack.spin(forward, total * minimumSpeed, percent);
-      RightStack.spin(forward, total * minimumSpeed, percent);
+      LeftFront.spin(reverse, minimumSpeed, percent);
+      LeftBack.spin(reverse, minimumSpeed, percent);
+      LeftStack.spin(reverse, minimumSpeed, percent);
+      RightFront.spin(forward, minimumSpeed, percent);
+      RightBack.spin(forward, minimumSpeed, percent);
+      RightStack.spin(forward, minimumSpeed, percent);
     }
     else {
-      LeftFront.spin(reverse, error * kp, percent);
-      LeftBack.spin(reverse, error * kp, percent);
-      LeftStack.spin(reverse, error * kp, percent);
-      RightFront.spin(forward, error * kp, percent);
-      RightBack.spin(forward, error * kp, percent);
-      RightStack.spin(forward, error * kp, percent);
+      LeftFront.spin(reverse, total, percent);
+      LeftBack.spin(reverse, total, percent);
+      LeftStack.spin(reverse, total, percent);
+      RightFront.spin(forward, total, percent);
+      RightBack.spin(forward, total, percent);
+      RightStack.spin(forward, total, percent);
     }
 
+    std::cout << RightFront.velocity(percent) << std::endl;
     previousError = error;
     wait(20, msec);
   }
@@ -196,10 +200,8 @@ static void turnCounterClockwise(double kp, double kd, double tolerance, double 
   wait(100, msec);
 }
 
-// kp, tolerance, minimumSpeed, target
-
 static void defaultDrive(double target){
-  driveForward(0.7, 0.5, 65, target);
+  driveForward(1.5, 0.5, 50, target);
 }
 
 static void defaultTurn(std::string direction, double target){
@@ -207,7 +209,7 @@ static void defaultTurn(std::string direction, double target){
     turnClockwise(1, 0.3, 1, 5, target);
   }
   if (direction == "CounterClockwise"){
-    turnCounterClockwise(1, 0.3, 1, 15, target);  
+    turnCounterClockwise(1, 0.3, 1, 5, target);  
   }
 }
 
@@ -337,8 +339,9 @@ void runAutonRightRisky(){
   intake();
   defaultDrive(20); //Triball Picked Up
   stopIntake();
-  defaultTurn("Clockwise", 200);
-  defaultDrive(12);
+  driveReverse(1.5, 0.5, 50, 20)
+  defaultTurn("Clockwise", 50);
+  defaultDrive
   scoreTriball(); //Side Triball Scored
 
   std::cout << (Brain.Timer.time() - currentTime) / 1000 << " seconds" << std::endl;
