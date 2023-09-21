@@ -3,10 +3,12 @@
 
 /********** Functions for Driver Control **********/
 
-static void runIntake(){
-
+static void setSpeeds(){
   Intake.setVelocity(75, percent);
+  Catapult.setVelocity(75, percent);
+}
 
+static void runIntake(){
   if (Controller1.ButtonA.pressing()){
     Intake.spin(forward);
   }
@@ -19,9 +21,6 @@ static void runIntake(){
 }
 
 static void runCatapult(){
-
-  Catapult.setVelocity(85, percent);
-
   if (Controller1.ButtonL2.pressing()){
     Catapult.spin(forward);
   }
@@ -49,7 +48,7 @@ static void runCatapult(){
   // }
 }
 
-static void tankDrive(){
+static void runDrive(){
   LeftFront.spin(forward, Controller1.Axis3.position(), percent);
   LeftBack.spin(forward, Controller1.Axis3.position(), percent);
   LeftStack.spin(forward, Controller1.Axis3.position(), percent);
@@ -60,9 +59,10 @@ static void tankDrive(){
 
 /********** Driver Control Function **********/
 void driverControl(){
+  setSpeeds();
   while (true){
     runIntake();
-    tankDrive();
+    runDrive();
     runCatapult();
 
     wait(20, msec);

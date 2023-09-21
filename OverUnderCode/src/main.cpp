@@ -17,24 +17,25 @@ using namespace vex;
 // A global instance of competition
 competition Competition;
 
-int main() {
+int main(){
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
+
   //Competition.drivercontrol(driverControl);
   //Competition.autonomous(autonomous);
 
-  Controller1.Screen.clearScreen();
-  calibrate(3);
+  tempCheck(100);
 
   if (Controller1.ButtonR2.pressing()){
+    Controller1.Screen.print("Running Auton");
+    wait(1, sec);
+    calibrate(3);
+    testAuton(AutonRightRisky);
+  }
+  else{
     Controller1.Screen.print("Running Driver Control");
     wait(1, sec);
     driverControl();
-  }
-  else{
-    Controller1.Screen.print("Running Auton");
-    wait(1, sec);
-    testAuton(AutonRightRisky);
   }
   
   //preAuton();

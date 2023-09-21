@@ -2,6 +2,8 @@
 //For Testing
 void calibrate(double seconds);
 
+void tempCheck(double )
+
 typedef enum {
     AutonNone = 0,
     AutonLeftSafe,
