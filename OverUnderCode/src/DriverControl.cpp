@@ -5,7 +5,7 @@
 
 static void setSpeeds(){
   Intake.setVelocity(75, percent);
-  Catapult.setVelocity(75, percent);
+  Catapult.setVelocity(80, percent);
 }
 
 static void runIntake(){

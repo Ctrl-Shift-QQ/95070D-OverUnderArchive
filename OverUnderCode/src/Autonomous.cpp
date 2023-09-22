@@ -1,5 +1,6 @@
 #include "vex.h"
 #include <iostream>
+#include <string>
 #include "Autonomous.h"
 
 /********** Functions for Auton **********/
@@ -42,7 +43,6 @@ static void driveForward(double kp, double tolerance, double minimumSpeed, doubl
       RightBack.spin(forward, rightDriveTotal * kp, percent);
       RightStack.spin(forward, rightDriveTotal * kp, percent);
     }
-
     std::cout << RightFront.velocity(percent) << std::endl;
     wait(20, msec);
   }
@@ -202,20 +202,20 @@ static void turnCounterClockwise(double kp, double kd, double tolerance, double 
 
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
-    driveForward(1.5, 0.5, 50, target);
+    driveForward(1.2, 0.5, 50, target);
   }
   if (direction == "Reverse"){
-    driveReverse(1.5, 0.5, 50, target);
+    driveReverse(1.2, 0.5, 50, target);
   }
   
 }
 
 static void defaultTurn(std::string direction, double target){
   if (direction == "Clockwise"){
-    turnClockwise(0.7, 0.1, 1, 25, target);
+    turnClockwise(0.7, 0, 1, 25, target);
   }
   if (direction == "CounterClockwise"){
-    turnCounterClockwise(0.7, 0.1, 1, 25, target);  
+    turnCounterClockwise(0.7, 0, 1, 25, target);  
   } 
 }
 
@@ -244,7 +244,7 @@ static void stopIntake(){
 static Auton currentAuton = AutonNone;
 
 static void autonSelector(){
-  int runningSelector = true;
+  bool runningSelector = true;
   while (runningSelector){
     if (currentAuton == AutonLeftSafe){
       Controller1.Screen.print("Auton Selected, Safe Left");
@@ -363,21 +363,24 @@ void calibrate(double seconds){
 }
 
 void tempCheck(double warningTemp){
-  if (LeftFront.temperature(fahrenheit) > warningTemp || 
-      LeftBack.temperature(fahrenheit) > warningTemp || LeftStack.temperature(fahrenheit) > warningTemp){
+  double leftDriveTemp = std::max(LeftFront.temperature(fahrenheit), LeftBack.temperature(fahrenheit), LeftStack.temperature(fahrenheit));
+  double rightDriveTemp = std::max(RightFront.temperature(fahrenheit), RightBack.temperature(fahrenheit), RightStack.temperature(fahrenheit));
+  double cataTemp = Catapult.temperature(fahrenheit);
+  double intakeTemp = Intake.temperature(fahrenheit); 
+
+  if (leftDriveTemp > warningTemp){
     Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("LEFT DRIVE HOT!!!");
   }
-  if (RightFront.temperature(fahrenheit) > warningTemp || 
-      RightBack.temperature(fahrenheit) > warningTemp || RightStack.temperature(fahrenheit) > warningTemp){
+  if (rightDriveTemp > warningTemp){
     Controller1.Screen.setCursor(7, 3);
     Controller1.Screen.print("RIGHT DRIVE HOT!!!");
   }
-  if (Catapult.temperature(fahrenheit) > warningTemp){
+  if (cataTemp > warningTemp){
     Controller1.Screen.setCursor(7, 4);
     Controller1.Screen.print("CATAPULT HOT!!!");
   }
-  if (Intake.temperature(fahrenheit) > warningTemp){
+  if (intakeTemp > warningTemp){
     Controller1.Screen.setCursor(7, 5);
     Controller1.Screen.print("INTAKE HOT!!!");
   }
