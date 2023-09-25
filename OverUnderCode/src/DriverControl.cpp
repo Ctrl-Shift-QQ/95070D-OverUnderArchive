@@ -48,6 +48,15 @@ static void runCatapult(){
   // }
 }
 
+static void runWings(){
+  if (Controller1.ButtonR1.pressing()){
+    Wings.set(true);
+  }
+  if (Controller1.ButtonR2.pressing()){
+    Wings.set(false);
+  }
+}
+
 static void runDrive(){
   LeftFront.spin(forward, Controller1.Axis3.position(), percent);
   LeftBack.spin(forward, Controller1.Axis3.position(), percent);
@@ -64,6 +73,7 @@ void driverControl(){
     runIntake();
     runDrive();
     runCatapult();
+    runWings();
 
     wait(20, msec);
   }

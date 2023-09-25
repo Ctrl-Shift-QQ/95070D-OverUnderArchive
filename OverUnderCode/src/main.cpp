@@ -21,23 +21,13 @@ int main(){
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
 
-  Competition.drivercontrol(driverControl);
-  Competition.autonomous(autonomous);
+  // Competition.drivercontrol(driverControl);
+  // Competition.autonomous(autonomous);
 
-  // tempCheck(100);
+  tempCheck(130);
+  calibrate(3);
 
-  // if (Controller1.ButtonR2.pressing()){
-  //   Controller1.Screen.print("Running Auton");
-  //   wait(1, sec);
-  //   calibrate(3);
-  //   testAuton(AutonRightRisky);
-  // }
-  // else{
-  //   Controller1.Screen.print("Running Driver Control");
-  //   wait(1, sec);
-  //   driverControl();
-  // }
+  testAuton(AutonLeftSafe);
 
-  preAuton();
+  //preAuton();
 }
-
