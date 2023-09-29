@@ -1,7 +1,6 @@
 #include "vex.h"
-#include <iostream>
-#include <string>
 #include "Autonomous.h"
+#include <iostream>
 
 /********** Functions for Auton **********/
 
@@ -61,9 +60,9 @@ static void driveForward(double kp, double ki, double kd, double tolerance, doub
       rightIntegral += rightDriveError / 50;
     }
 
-    //std::cout <<  leftDriveError << std::endl;
     previousLeftError = leftDriveError;
     previousRightError = rightDriveError;
+
     wait(20, msec);
   }
 
@@ -133,9 +132,9 @@ static void driveReverse(double kp, double ki, double kd, double tolerance, doub
       rightIntegral += rightDriveError / 50;
     }
 
-    std::cout <<  rightDriveError << std::endl;
     previousLeftError = leftDriveError;
     previousRightError = rightDriveError;
+
     wait(20, msec);
   }
 
@@ -180,13 +179,12 @@ static void turnClockwise(double kp, double ki, double kd, double tolerance, dou
       RightBack.spin(reverse, total, percent);
       RightStack.spin(reverse, total, percent);
     }
-
     if (error < 30){
       integral += error / 50;
     }
 
-    std::cout << error << std::endl;
     previousError = error;
+
     wait(20, msec);
   }
 
@@ -231,13 +229,12 @@ static void turnCounterClockwise(double kp, double ki, double kd, double toleran
       RightBack.spin(forward, total, percent);
       RightStack.spin(forward, total, percent);
     }
-
     if (error < 30){
       integral += error / 50;
     }
 
-    std::cout << error << std::endl;
     previousError = error;
+    
     wait(20, msec);
   }
 
@@ -253,25 +250,25 @@ static void turnCounterClockwise(double kp, double ki, double kd, double toleran
 
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
-    driveForward(2.5, 0.1, 0.2, 0.5, 40, target);
+    driveForward(2.5, 0.1, 0.2, 0.5, 80, target);
   }
   if (direction == "Reverse"){
-    driveReverse(2.5, 0.1, 0.2, 0.5, 40, target);
+    driveReverse(2.5, 0.1, 0.2, 0.5, 80, target);
   }
   
 }
 
 static void defaultTurn(std::string direction, double target){
   if (direction == "Clockwise"){
-    turnClockwise(1, 0.04, 0.07, 2, 30, target);
+    turnClockwise(1, 0.04, 0.07, 2, 40, target);
   }
   if (direction == "CounterClockwise"){
-    turnCounterClockwise(1, 0.04, 0.07, 2, 30, target);  
+    turnCounterClockwise(1, 0.04, 0.07, 2, 40, target);  
   } 
 }
 
 
-static void slowDrive(std::string direction, double target){
+static void slowDrive(std::string direction, double target){ 
   if (direction == "Forward"){
     driveForward(1.5, 0.05, 0.1, 0.5, 25, target);
   }
@@ -305,35 +302,40 @@ static void stopIntake(){
 }
 
 static void scoreTriball(){
-  driveForward(0.7, 0, 0, 0.5, 75, 10);
+  driveForward(2.5, 0.1, 0.2, 0.5, 100, 10);
 }
 
 static void backOut(){
-  driveReverse(0.7, 0.05, 0.1, 0.5, 60, 10);
+  driveReverse(2.5, 0.1, 0.2, 0.5, 70, 10);
 }
 
 /********** Autons **********/
 
 void runAutonLeftSafe(){
   //Score Pre Load
-  slowDrive("Forward", 24);
+  slowDrive("Forward", 20);
   slowTurn("Clockwise", 45);
   outake(0.5);
   scoreTriball(); //Pre Load Scored
   stopIntake();
 
   //Pull Out Match Load
-  slowDrive("Reverse", 16);
+  slowDrive("Reverse", 14);
   slowTurn("CounterClockwise", 45);
-  slowDrive("Reverse", 17);
+  slowDrive("Reverse", 14);
   slowTurn("Clockwise", 90);
-  slowDrive("Reverse", 2);
+  slowDrive("Reverse", 6);
   Arm.set(true);
+  wait(0.3, sec);
   defaultTurn("CounterClockwise", 125); //Match Load Pulled Out
   Arm.set(false);
+  slowDrive("Reverse", 8);
+  defaultTurn("Clockwise", 45);
+  slowDrive("Reverse", 8);
+  defaultTurn("CounterClockwise", 45);
 
   //Touch Bar
-  defaultDrive("Reverse", 43);
+  defaultDrive("Reverse", 32);
 }
 
 void runAutonLeftRisky(){
@@ -342,7 +344,7 @@ void runAutonLeftRisky(){
 
 void runAutonRightSafe(){ 
   //Score Pre Load
-  slowDrive("Forward", 38);
+  slowDrive("Forward", 40);
   slowTurn("Clockwise", 80); //Counter Clockwise Movement from Dropping Intake
   outake(0.5);
   scoreTriball(); //Pre Load Scored
@@ -399,7 +401,7 @@ void runAutonRightRisky(){
   defaultDrive("Forward", 10);
   outake(0.25);
   scoreTriball(); //Side Triball Scored
-
+  
   std::cout << (Brain.Timer.time() - currentTime) / 1000 << " seconds" << std::endl;
 }
 
@@ -411,48 +413,67 @@ static void autonSelector(){
   bool runningSelector = true;
   while (runningSelector){
     if (currentAuton == AutonNone){
+      Controller1.Screen.setCursor(2, 3);
       Controller1.Screen.print("No Auton Selected");
     }
     if (currentAuton == AutonLeftSafe){
-      Controller1.Screen.print("Auton Selected, Safe Left");
+      Controller1.Screen.setCursor(1, 5);
+      Controller1.Screen.print("Auton Selected:");
+      Controller1.Screen.setCursor(3, 5);
+      Controller1.Screen.print("Safe Left-Side");
     }
     if (currentAuton == AutonLeftRisky){
-      Controller1.Screen.print("Auton Selected, Risky Left");
+      Controller1.Screen.setCursor(1, 5);
+      Controller1.Screen.print("Auton Selected:");
+      Controller1.Screen.setCursor(3, 5);
+      Controller1.Screen.print("Risky Left-Side");
     }
     if (currentAuton == AutonRightSafe){
-      Controller1.Screen.print("Auton Selected, Safe Right");
+      Controller1.Screen.setCursor(1, 5);
+      Controller1.Screen.print("Auton Selected:");
+      Controller1.Screen.setCursor(3, 5);
+      Controller1.Screen.print("Safe Right-Side");
     }
     if (currentAuton == AutonRightRisky){
-      Controller1.Screen.print("Auton Selected, Risky Right");
+      Controller1.Screen.setCursor(1, 5);
+      Controller1.Screen.print("Auton Selected");
+      Controller1.Screen.setCursor(3, 5);
+      Controller1.Screen.print("Risky Right-Side");
     }
     if (Controller1.ButtonLeft.pressing()){
+      Controller1.Screen.clearScreen();
       if (currentAuton == AutonLeftSafe){
         currentAuton = AutonRightRisky;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
       }
-      Controller1.Screen.clearScreen();
     }
     if (Controller1.ButtonRight.pressing()){
+      Controller1.Screen.clearScreen();
       if (currentAuton == AutonRightRisky){
         currentAuton = AutonLeftSafe;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) + 1);
       }
-      Controller1.Screen.clearScreen();
     }
-    if (Controller1.ButtonA.pressing()){
+    if (Controller1.ButtonDown.pressing()){
+      Controller1.Screen.clearScreen();
       runningSelector = false;
     }
+
+    wait(0.2, sec);
   }
   Controller1.rumble(rumblePulse);
 }
 
 void calibrate(double seconds){
   Inertial.calibrate();
+  Controller1.Screen.setCursor(2, 6);
+  Controller1.Screen.print("CALIBRATING!!!");
   wait(seconds, sec);
+  Controller1.Screen.clearScreen();
 }
 
 void tempCheck(double warningTemp){
@@ -466,15 +487,15 @@ void tempCheck(double warningTemp){
     Controller1.Screen.print("LEFT DRIVE HOT!!!");
   }
   if (rightDriveTemp > warningTemp){
-    Controller1.Screen.setCursor(7, 3);
+    Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("RIGHT DRIVE HOT!!!");
   }
   if (cataTemp > warningTemp){
-    Controller1.Screen.setCursor(7, 4);
+    Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("CATAPULT HOT!!!");
   }
   if (intakeTemp > warningTemp){
-    Controller1.Screen.setCursor(7, 5);
+    Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("INTAKE HOT!!!");
   }
 }

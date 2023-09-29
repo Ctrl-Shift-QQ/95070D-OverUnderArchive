@@ -5,7 +5,7 @@
 
 static void setSpeeds(){
   Intake.setVelocity(75, percent);
-  Catapult.setVelocity(80, percent);
+  Catapult.setVelocity(75, percent);
 }
 
 static void runIntake(){
@@ -49,11 +49,29 @@ static void runCatapult(){
 }
 
 static void runWings(){
-  if (Controller1.ButtonR1.pressing()){
-    Wings.set(true);
+  bool wingsButtonPressed;
+  bool wingsExtended;
+
+  if(Controller1.ButtonA.pressing() && wingsButtonPressed == NULL){
+    wingsButtonPressed = false;
+    wingsExtended = false;
   }
-  if (Controller1.ButtonR2.pressing()){
-    Wings.set(false);
+  if (Controller1.ButtonR2.pressing() && !wingsButtonPressed){ //Button Pressed
+    wingsButtonPressed = true;
+    wingsExtended = !wingsExtended;
+    Wings.set(wingsExtended);
+    std::cout << "pressed" << std::endl;
+  }
+  if (!Controller1.ButtonR2.pressing() && wingsButtonPressed){ //Button Released
+    wingsButtonPressed = false;
+    std::cout << "released" << std::endl;
+  }
+  std::cout << wingsButtonPressed << std::endl;
+}
+
+static void panicArm(){
+  if (Controller1.ButtonR1.pressing()){
+    Arm.set(false);
   }
 }
 
@@ -74,6 +92,7 @@ void driverControl(){
     runDrive();
     runCatapult();
     runWings();
+    panicArm();
 
     wait(20, msec);
   }

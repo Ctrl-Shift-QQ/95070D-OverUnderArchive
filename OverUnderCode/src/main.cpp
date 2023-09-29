@@ -8,9 +8,9 @@
 /*----------------------------------------------------------------------------*/
 
 #include "vex.h"
-#include <iostream>
-#include "DriverControl.h"
 #include "Autonomous.h"
+#include "DriverControl.h"
+#include <iostream>
 
 using namespace vex;
 
@@ -24,10 +24,8 @@ int main(){
   // Competition.drivercontrol(driverControl);
   // Competition.autonomous(autonomous);
 
-  tempCheck(130);
-  calibrate(3);
+  // preAuton();
 
-  testAuton(AutonLeftSafe);
-
-  //preAuton();
+  tempCheck(120);
+  driverControl();
 }
