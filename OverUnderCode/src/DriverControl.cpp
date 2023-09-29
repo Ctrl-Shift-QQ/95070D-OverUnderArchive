@@ -48,28 +48,23 @@ static void runCatapult(){
   // }
 }
 
-static void runWings(){
-  bool wingsButtonPressed;
-  bool wingsExtended;
 
-  if(Controller1.ButtonA.pressing() && wingsButtonPressed == NULL){
-    wingsButtonPressed = false;
-    wingsExtended = false;
-  }
+
+
+static void runWings(){
+  static bool wingsExtended;
+  static bool wingsButtonPressed;
+
   if (Controller1.ButtonR2.pressing() && !wingsButtonPressed){ //Button Pressed
     wingsButtonPressed = true;
     wingsExtended = !wingsExtended;
-    Wings.set(wingsExtended);
-    std::cout << "pressed" << std::endl;
-  }
+    Wings.set(wingsExtended);  }
   if (!Controller1.ButtonR2.pressing() && wingsButtonPressed){ //Button Released
     wingsButtonPressed = false;
-    std::cout << "released" << std::endl;
   }
-  std::cout << wingsButtonPressed << std::endl;
 }
 
-static void panicArm(){
+static void runArm(){
   if (Controller1.ButtonR1.pressing()){
     Arm.set(false);
   }
@@ -92,7 +87,7 @@ void driverControl(){
     runDrive();
     runCatapult();
     runWings();
-    panicArm();
+    runArm();
 
     wait(20, msec);
   }
