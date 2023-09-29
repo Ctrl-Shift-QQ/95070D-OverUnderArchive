@@ -48,9 +48,6 @@ static void runCatapult(){
   // }
 }
 
-
-
-
 static void runWings(){
   static bool wingsExtended;
   static bool wingsButtonPressed;

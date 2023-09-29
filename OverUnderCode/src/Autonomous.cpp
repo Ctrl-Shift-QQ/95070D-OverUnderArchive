@@ -311,7 +311,7 @@ static void backOut(){
 
 /********** Autons **********/
 
-void runAutonLeftSafe(){
+void runAutonLeftAWP(){
   //Score Pre Load
   slowDrive("Forward", 20);
   slowTurn("Clockwise", 45);
@@ -338,7 +338,7 @@ void runAutonLeftSafe(){
   defaultDrive("Reverse", 32);
 }
 
-void runAutonLeftRisky(){
+void runAutonLeftSabotage(){
   
 }
 
@@ -359,7 +359,7 @@ void runAutonRightSafe(){
   scoreTriball();
 }
 
-void runAutonRightRisky(){
+void runAutonRightFourTB(){
   double currentTime = Brain.Timer.time();
 
   //Score Pre Load
@@ -416,34 +416,34 @@ static void autonSelector(){
       Controller1.Screen.setCursor(2, 3);
       Controller1.Screen.print("No Auton Selected");
     }
-    if (currentAuton == AutonLeftSafe){
+    if (currentAuton == AutonLeftAWP){
       Controller1.Screen.setCursor(1, 5);
       Controller1.Screen.print("Auton Selected:");
       Controller1.Screen.setCursor(3, 5);
-      Controller1.Screen.print("Safe Left-Side");
+      Controller1.Screen.print("Left-Side AWP");
     }
-    if (currentAuton == AutonLeftRisky){
+    if (currentAuton == AutonLeftSabotage){
       Controller1.Screen.setCursor(1, 5);
       Controller1.Screen.print("Auton Selected:");
-      Controller1.Screen.setCursor(3, 5);
-      Controller1.Screen.print("Risky Left-Side");
+      Controller1.Screen.setCursor(3, 3);
+      Controller1.Screen.print("Left-Side Sabotage");
     }
     if (currentAuton == AutonRightSafe){
       Controller1.Screen.setCursor(1, 5);
       Controller1.Screen.print("Auton Selected:");
       Controller1.Screen.setCursor(3, 5);
-      Controller1.Screen.print("Safe Right-Side");
+      Controller1.Screen.print("Right-Side Safe");
     }
-    if (currentAuton == AutonRightRisky){
+    if (currentAuton == AutonRightFourTB){
       Controller1.Screen.setCursor(1, 5);
       Controller1.Screen.print("Auton Selected");
-      Controller1.Screen.setCursor(3, 5);
-      Controller1.Screen.print("Risky Right-Side");
+      Controller1.Screen.setCursor(3, 2);
+      Controller1.Screen.print("Right-Side Four Triball");
     }
     if (Controller1.ButtonLeft.pressing()){
       Controller1.Screen.clearScreen();
-      if (currentAuton == AutonLeftSafe){
-        currentAuton = AutonRightRisky;
+      if (currentAuton == AutonLeftAWP){
+        currentAuton = AutonRightFourTB;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
@@ -451,8 +451,8 @@ static void autonSelector(){
     }
     if (Controller1.ButtonRight.pressing()){
       Controller1.Screen.clearScreen();
-      if (currentAuton == AutonRightRisky){
-        currentAuton = AutonLeftSafe;
+      if (currentAuton == AutonRightFourTB){
+        currentAuton = AutonLeftAWP;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) + 1);
@@ -514,20 +514,20 @@ void autonomous(){
     case AutonNone: {
       break;
     }
-    case AutonLeftSafe: {
-      runAutonLeftSafe();
+    case AutonLeftAWP: {
+      runAutonLeftAWP();
       break;
     }
-    case AutonLeftRisky: {
-      runAutonLeftRisky();
+    case AutonLeftSabotage: {
+      runAutonLeftSabotage();
       break;
     }
     case AutonRightSafe: {
       runAutonRightSafe();
       break;
     }
-    case AutonRightRisky: {
-      runAutonRightRisky();
+    case AutonRightFourTB: {
+      runAutonRightFourTB();
       break;
     }
     default: {
@@ -541,20 +541,20 @@ void testAuton(Auton testedAuton){
     case AutonNone: {
       break;
     }
-    case AutonLeftSafe: {
-      runAutonLeftSafe();
+    case AutonLeftAWP: {
+      runAutonLeftAWP();
       break;
     }
-    case AutonLeftRisky: {
-      runAutonLeftRisky();
+    case AutonLeftSabotage: {
+      runAutonLeftSabotage();
       break;
     }
     case AutonRightSafe: {
       runAutonRightSafe();
       break;
     }
-    case AutonRightRisky: {
-      runAutonRightRisky();
+    case AutonRightFourTB: {
+      runAutonRightFourTB();
       break;
     }
     default: {
