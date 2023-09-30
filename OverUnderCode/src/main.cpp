@@ -18,7 +18,6 @@ using namespace vex;
 competition Competition;
 
 int main(){
-  
   Competition.drivercontrol(driverControl);
   Competition.autonomous(autonomous);
 

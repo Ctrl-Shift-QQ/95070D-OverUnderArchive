@@ -62,7 +62,7 @@ static void driveForward(double kp, double ki, double kd, double tolerance, doub
 
     previousLeftError = leftDriveError;
     previousRightError = rightDriveError; 
-
+    std::cout << leftDriveError << std::endl; 
     wait(20, msec);
   }
 
@@ -134,7 +134,7 @@ static void driveReverse(double kp, double ki, double kd, double tolerance, doub
 
     previousLeftError = leftDriveError;
     previousRightError = rightDriveError;
-
+    std::cout << leftDriveError << std::endl; 
     wait(20, msec);
   }
 
@@ -250,20 +250,20 @@ static void turnCounterClockwise(double kp, double ki, double kd, double toleran
 
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
-    driveForward(2.5, 0.1, 0.2, 0.5, 80, target);
+    driveForward(2.5, 0.1, 0.2, 0.5, 70, target);
   }
   if (direction == "Reverse"){
-    driveReverse(2.5, 0.1, 0.2, 0.5, 80, target);
+    driveReverse(2.5, 0.1, 0.2, 0.5, 70, target);
   }
   
 }
 
 static void defaultTurn(std::string direction, double target){
   if (direction == "Clockwise"){
-    turnClockwise(1, 0.04, 0.07, 2, 20, target);
+    turnClockwise(1, 0.04, 0.07, 2, 15, target);
   }
   if (direction == "CounterClockwise"){
-    turnCounterClockwise(1, 0.04, 0.07, 2, 20, target);  
+    turnCounterClockwise(1, 0.04, 0.07, 2, 15, target);  
   } 
 }
 
@@ -302,7 +302,7 @@ static void stopIntake(){
 }
 
 static void scoreTriball(){
-  driveForward(2.5, 0.1, 0.2, 0.5, 85, 15);
+  driveForward(2.5, 0.1, 0.2, 0.5, 85, 12);
 }
 
 static void backOut(){
@@ -345,7 +345,7 @@ void runAutonLeftSabotage(){
 void runAutonRightSafe(){ 
   //Score Pre Load
   slowDrive("Forward", 40);
-  slowTurn("Clockwise", 80); //Counter Clockwise Movement from Dropping Intake
+  slowTurn("Clockwise", 90); //Counter Clockwise Movement from Dropping Intake
   outake(0.5);
   scoreTriball(); //Pre Load Scored
   backOut();
@@ -364,7 +364,7 @@ void runAutonRightFourTB(){
 
   //Score Pre Load
   defaultDrive("Forward", 38);
-  defaultTurn("Clockwise", 70); //Counter Clockwise Movement from Dropping Intake
+  defaultTurn("Clockwise", 80); //Counter Clockwise Movement from Dropping Intake
   outake(0.25);
   scoreTriball(); //Pre Load Scored
 
@@ -372,7 +372,7 @@ void runAutonRightFourTB(){
   backOut();
   defaultTurn("CounterClockwise", 120); //Face Triball
   intake();
-  defaultDrive("Forward", 13); //Triball Picked Up
+  defaultDrive("Forward", 12); //Triball Picked Up
   stopIntake();
   defaultTurn("Clockwise", 120);
   outake(0.75);
@@ -383,24 +383,25 @@ void runAutonRightFourTB(){
   defaultDrive("Forward", 14); //Triball Picked Up
   stopIntake();
   defaultTurn("CounterClockwise", 180);
-  defaultDrive("Forward", 12);
+  defaultDrive("Forward", 14);
   outake(0.25);
   defaultTurn("Clockwise", 180);
   Wings.set(true);
-  defaultDrive("Reverse", 10); //Middle and Back Triball Scored
+  defaultDrive("Reverse", 15); //Middle and Back Triball Scored
   Wings.set(false);
 
   //Side Triball
-  defaultDrive("Forward", 15);
+  defaultDrive("Forward", 20);
   defaultTurn("CounterClockwise", 50);
   intake();
-  defaultDrive("Forward", 22); //Triball Picked Up
+  defaultDrive("Forward", 24); //Triball Picked Up
   stopIntake();
-  defaultDrive("Reverse", 22);
-  defaultTurn("CounterClockwise", 130);
+  defaultDrive("Reverse", 18);
+  slowTurn("CounterClockwise", 130);
   defaultDrive("Forward", 10);
   outake(0.25);
   scoreTriball(); //Side Triball Scored
+  stopIntake();
   
   std::cout << (Brain.Timer.time() - currentTime) / 1000 << " seconds" << std::endl;
 }
