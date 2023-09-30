@@ -61,7 +61,7 @@ static void driveForward(double kp, double ki, double kd, double tolerance, doub
     }
 
     previousLeftError = leftDriveError;
-    previousRightError = rightDriveError;
+    previousRightError = rightDriveError; 
 
     wait(20, msec);
   }
@@ -184,7 +184,7 @@ static void turnClockwise(double kp, double ki, double kd, double tolerance, dou
     }
 
     previousError = error;
-
+    std::cout << error << std::endl;
     wait(20, msec);
   }
 
@@ -234,7 +234,7 @@ static void turnCounterClockwise(double kp, double ki, double kd, double toleran
     }
 
     previousError = error;
-    
+    std::cout << error << std::endl;
     wait(20, msec);
   }
 
@@ -260,10 +260,10 @@ static void defaultDrive(std::string direction, double target){
 
 static void defaultTurn(std::string direction, double target){
   if (direction == "Clockwise"){
-    turnClockwise(1, 0.04, 0.07, 2, 40, target);
+    turnClockwise(1, 0.04, 0.07, 2, 20, target);
   }
   if (direction == "CounterClockwise"){
-    turnCounterClockwise(1, 0.04, 0.07, 2, 40, target);  
+    turnCounterClockwise(1, 0.04, 0.07, 2, 20, target);  
   } 
 }
 
@@ -302,7 +302,7 @@ static void stopIntake(){
 }
 
 static void scoreTriball(){
-  driveForward(2.5, 0.1, 0.2, 0.5, 100, 10);
+  driveForward(2.5, 0.1, 0.2, 0.5, 85, 15);
 }
 
 static void backOut(){
@@ -364,7 +364,7 @@ void runAutonRightFourTB(){
 
   //Score Pre Load
   defaultDrive("Forward", 38);
-  defaultTurn("Clockwise", 80); //Counter Clockwise Movement from Dropping Intake
+  defaultTurn("Clockwise", 70); //Counter Clockwise Movement from Dropping Intake
   outake(0.25);
   scoreTriball(); //Pre Load Scored
 
@@ -501,8 +501,11 @@ void tempCheck(double warningTemp){
 }
 
 void preAuton(){
+  // Initializing Robot Configuration. DO NOT REMOVE!
+  vexcodeInit();
+
   Controller1.Screen.clearScreen();
-  calibrate(5);
+  calibrate(3);
   tempCheck(130);
   autonSelector();
 }

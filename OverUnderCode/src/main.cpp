@@ -18,14 +18,13 @@ using namespace vex;
 competition Competition;
 
 int main(){
-  // Initializing Robot Configuration. DO NOT REMOVE!
-  vexcodeInit();
+  
+  Competition.drivercontrol(driverControl);
+  Competition.autonomous(autonomous);
 
-  // Competition.drivercontrol(driverControl);
-  // Competition.autonomous(autonomous);
+  preAuton();
 
-  // preAuton();
-
-  tempCheck(120);
-  driverControl();
+  while(true){
+    wait(20, msec);
+  }
 }
