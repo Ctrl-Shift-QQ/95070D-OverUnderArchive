@@ -350,12 +350,13 @@ void runAutonRightSafe(){
   //Side Triball
   slowTurn("Clockwise", 150); //Face Triball
   intake();
-  slowDrive("Forward", 30); //Triball Picked Up
+  slowDrive("Forward", 28); //Triball Picked Up
   stopIntake();
-  slowDrive("Reverse", 30);
+  slowDrive("Reverse", 28);
   slowTurn("CounterClockwise", 150);
   outake(0.5);
   scoreTriball();
+  stopIntake();
 }
 
 void runAutonRightFourTB(){
