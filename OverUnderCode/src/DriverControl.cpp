@@ -4,7 +4,7 @@
 /********** Functions for Driver Control **********/
 
 static void setSpeeds(){
-  Intake.setVelocity(75, percent);
+  Intake.setVelocity(80, percent);
   Catapult.setVelocity(75, percent);
 }
 

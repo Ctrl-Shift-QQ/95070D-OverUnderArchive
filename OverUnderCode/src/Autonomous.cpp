@@ -250,20 +250,19 @@ static void turnCounterClockwise(double kp, double ki, double kd, double toleran
 
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
-    driveForward(2.5, 0.1, 0.2, 0.5, 70, target);
+    driveForward(2.5, 0.1, 0.2, 0.5, 80, target);
   }
   if (direction == "Reverse"){
-    driveReverse(2.5, 0.1, 0.2, 0.5, 70, target);
+    driveReverse(2.5, 0.1, 0.2, 0.5, 80, target);
   }
-  
 }
 
 static void defaultTurn(std::string direction, double target){
   if (direction == "Clockwise"){
-    turnClockwise(1, 0.04, 0.07, 2, 15, target);
+    turnClockwise(1, 0.04, 0.1, 2, 30, target);
   }
   if (direction == "CounterClockwise"){
-    turnCounterClockwise(1, 0.04, 0.07, 2, 15, target);  
+    turnCounterClockwise(1, 0.04, 0.1, 2, 30, target);  
   } 
 }
 
@@ -280,10 +279,10 @@ static void slowDrive(std::string direction, double target){
 
 static void slowTurn(std::string direction, double target){
   if (direction == "Clockwise"){
-    turnClockwise(0.7, 0.02, 0.03, 2, 15, target);
+    turnClockwise(0.7, 0.02, 0.03, 2, 5, target);
   }
   if (direction == "CounterClockwise"){
-    turnCounterClockwise(0.7, 0.02, 0.03, 2, 15, target);  
+    turnCounterClockwise(0.7, 0.02, 0.03, 2, 5, target);  
   } 
 }
 
@@ -302,7 +301,7 @@ static void stopIntake(){
 }
 
 static void scoreTriball(){
-  driveForward(2.5, 0.1, 0.2, 0.5, 85, 12);
+  driveForward(2.5, 0.1, 0.2, 0.5, 85, 10);
 }
 
 static void backOut(){
@@ -316,7 +315,7 @@ void runAutonLeftAWP(){
   slowDrive("Forward", 20);
   slowTurn("Clockwise", 45);
   outake(0.5);
-  scoreTriball(); //Pre Load Scored
+  defaultDrive("Forward", 10); //Pre Load Scored
   stopIntake();
 
   //Pull Out Match Load
@@ -327,35 +326,35 @@ void runAutonLeftAWP(){
   slowDrive("Reverse", 6);
   Arm.set(true);
   wait(0.3, sec);
-  defaultTurn("CounterClockwise", 125); //Match Load Pulled Out
+  defaultTurn("CounterClockwise", 90); //Match Load Pulled Out
   Arm.set(false);
   slowDrive("Reverse", 8);
-  defaultTurn("Clockwise", 45);
-  slowDrive("Reverse", 8);
-  defaultTurn("CounterClockwise", 45);
+  defaultTurn("CounterClockwise", 30);
 
   //Touch Bar
-  defaultDrive("Reverse", 32);
+  defaultDrive("Reverse", 36);
 }
 
 void runAutonLeftSabotage(){
-  
+
 }
 
 void runAutonRightSafe(){ 
   //Score Pre Load
-  slowDrive("Forward", 40);
+  slowDrive("Forward", 48);
   slowTurn("Clockwise", 90); //Counter Clockwise Movement from Dropping Intake
   outake(0.5);
   scoreTriball(); //Pre Load Scored
   backOut();
 
   //Side Triball
-  slowTurn("CounterClockwise", 140); //Face Triball 
+  slowTurn("Clockwise", 150); //Face Triball
   intake();
-  slowDrive("Forward", 26); //Triball Picked Up
-  slowTurn("CounterClockwise", 145);
-  slowDrive("Forward", 20);
+  slowDrive("Forward", 30); //Triball Picked Up
+  stopIntake();
+  slowDrive("Reverse", 30);
+  slowTurn("CounterClockwise", 150);
+  outake(0.5);
   scoreTriball();
 }
 
@@ -363,27 +362,27 @@ void runAutonRightFourTB(){
   double currentTime = Brain.Timer.time();
 
   //Score Pre Load
-  defaultDrive("Forward", 38);
-  defaultTurn("Clockwise", 80); //Counter Clockwise Movement from Dropping Intake
+  defaultDrive("Forward", 40);
+  defaultTurn("Clockwise", 80); //Counter Clockise Movement from Dropping Intake
   outake(0.25);
   scoreTriball(); //Pre Load Scored
 
   //Middle Triball
   backOut();
-  defaultTurn("CounterClockwise", 120); //Face Triball
+  defaultTurn("CounterClockwise", 130); //Face Triball
   intake();
   defaultDrive("Forward", 12); //Triball Picked Up
   stopIntake();
-  defaultTurn("Clockwise", 120);
+  defaultTurn("Clockwise", 130);
   outake(0.75);
 
   //Back Triball
   defaultTurn("Clockwise", 180); //Face Triball
   intake();
-  defaultDrive("Forward", 14); //Triball Picked Up
+  defaultDrive("Forward", 16); //Triball Picked Up
   stopIntake();
   defaultTurn("CounterClockwise", 180);
-  defaultDrive("Forward", 14);
+  defaultDrive("Forward", 16);
   outake(0.25);
   defaultTurn("Clockwise", 180);
   Wings.set(true);
@@ -392,12 +391,12 @@ void runAutonRightFourTB(){
 
   //Side Triball
   defaultDrive("Forward", 20);
-  defaultTurn("CounterClockwise", 50);
+  defaultTurn("CounterClockwise", 30);
   intake();
-  defaultDrive("Forward", 24); //Triball Picked Up
+  defaultDrive("Forward", 26); //Triball Picked Up
   stopIntake();
-  defaultDrive("Reverse", 18);
-  slowTurn("CounterClockwise", 130);
+  defaultDrive("Reverse", 20);
+  slowTurn("CounterClockwise", 140);
   defaultDrive("Forward", 10);
   outake(0.25);
   scoreTriball(); //Side Triball Scored
@@ -443,7 +442,7 @@ static void autonSelector(){
     }
     if (Controller1.ButtonLeft.pressing()){
       Controller1.Screen.clearScreen();
-      if (currentAuton == AutonLeftAWP){
+      if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
         currentAuton = AutonRightFourTB;
       }
       else{
@@ -478,26 +477,31 @@ void calibrate(double seconds){
 }
 
 void tempCheck(double warningTemp){
-  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftBack.temperature(fahrenheit)), LeftStack.temperature(fahrenheit));
-  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightBack.temperature(fahrenheit)), RightStack.temperature(fahrenheit));
-  double cataTemp = Catapult.temperature(fahrenheit);
-  double intakeTemp = Intake.temperature(fahrenheit); 
+  double leftDriveTemp = std::max(std::max(LeftFront.temperature(celsius), LeftBack.temperature(celsius)), LeftStack.temperature(celsius));
+  double rightDriveTemp = std::max(std::max(RightFront.temperature(celsius), RightBack.temperature(celsius)), RightStack.temperature(celsius));
+  double cataTemp = Catapult.temperature(celsius);
+  double intakeTemp = Intake.temperature(celsius); 
 
   if (leftDriveTemp > warningTemp){
     Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("LEFT DRIVE HOT!!!");
+    wait(2, sec);
   }
   if (rightDriveTemp > warningTemp){
     Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("RIGHT DRIVE HOT!!!");
+    wait(2, sec);
+
   }
   if (cataTemp > warningTemp){
     Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("CATAPULT HOT!!!");
+    wait(2, sec);
   }
   if (intakeTemp > warningTemp){
     Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("INTAKE HOT!!!");
+    wait(2, sec);
   }
 }
 
@@ -506,8 +510,8 @@ void preAuton(){
   vexcodeInit();
 
   Controller1.Screen.clearScreen();
-  calibrate(3);
-  tempCheck(130);
+  calibrate(5);
+  tempCheck(55);
   autonSelector();
 }
 
