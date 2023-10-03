@@ -55,7 +55,8 @@ static void runWings(){
   if (Controller1.ButtonR2.pressing() && !wingsButtonPressed){ //Button Pressed
     wingsButtonPressed = true;
     wingsExtended = !wingsExtended;
-    Wings.set(wingsExtended);  }
+    Wings.set(wingsExtended);  
+  }
   if (!Controller1.ButtonR2.pressing() && wingsButtonPressed){ //Button Released
     wingsButtonPressed = false;
   }
@@ -88,8 +89,8 @@ static void runDrive(){
 void driverControl(){
   setSpeeds();
   while (true){
-    runIntake();
     runDrive();
+    runIntake();
     runCatapult();
     runWings();
     runArm();
