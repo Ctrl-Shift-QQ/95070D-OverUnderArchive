@@ -46,7 +46,39 @@ static void runCatapult(){
   // }
 }
 
+<<<<<<< Updated upstream
 static void tankDrive(){
+=======
+static void runWings(){
+  static bool wingsExtended;
+  static bool wingsButtonPressed;
+
+  if (Controller1.ButtonR2.pressing() && !wingsButtonPressed){ //Button Pressed
+    wingsButtonPressed = true;
+    wingsExtended = !wingsExtended;
+    Wings.set(wingsExtended);  
+  }
+  if (!Controller1.ButtonR2.pressing() && wingsButtonPressed){ //Button Released
+    wingsButtonPressed = false;
+  }
+}
+
+static void runArm(){
+  static bool armExtended;
+  static bool armButtonPressed;
+
+  if (Controller1.ButtonR1.pressing() && !armButtonPressed){ //Button Pressed
+    armButtonPressed = true;
+    armExtended = !armExtended;
+    Arm.set(armExtended);
+  }
+  if (!Controller1.ButtonR1.pressing() && armButtonPressed){ //Button Released
+    armButtonPressed = false;
+  }
+}
+
+static void runDrive(){
+>>>>>>> Stashed changes
   LeftFront.spin(forward, Controller1.Axis3.position(), percent);
   LeftBack.spin(forward, Controller1.Axis3.position(), percent);
   LeftStack.spin(forward, Controller1.Axis3.position(), percent);
@@ -67,7 +99,12 @@ static void runWings(){
 /********** Driver Control Function **********/
 void driverControl(){
   while (true){
+<<<<<<< Updated upstream
     tankDrive();
+=======
+    Controller1.Screen.print("Graham is Cracked!!!");
+
+>>>>>>> Stashed changes
     runIntake();
     runCatapult();
     runWings();

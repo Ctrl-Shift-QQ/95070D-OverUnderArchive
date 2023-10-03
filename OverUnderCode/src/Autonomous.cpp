@@ -201,6 +201,117 @@ static void stopIntake(){
   Intake.stop();
 }
 
+<<<<<<< Updated upstream
+=======
+static void scoreTriball(){
+  driveForward(2.5, 0.1, 0.2, 0.5, 85, 10);
+}
+
+static void backOut(){
+  driveReverse(2.5, 0.1, 0.2, 0.5, 70, 10);
+}
+
+/********** Autons **********/
+
+void runAutonLeftAWP(){
+  //Score Pre Load
+  slowDrive("Forward", 20);
+  slowTurn("Clockwise", 45);
+  outake(0.5);
+  defaultDrive("Forward", 10); //Pre Load Scored
+  stopIntake();
+
+  //Pull Out Match Load
+  slowDrive("Reverse", 14);
+  slowTurn("CounterClockwise", 45);
+  slowDrive("Reverse", 14);
+  slowTurn("Clockwise", 90);
+  slowDrive("Reverse", 6);
+  Arm.set(true);
+  wait(0.3, sec);
+  defaultTurn("CounterClockwise", 90); //Match Load Pulled Out
+  Arm.set(false);
+  slowDrive("Reverse", 8);
+  defaultTurn("CounterClockwise", 30);
+
+  //Touch Bar
+  defaultDrive("Reverse", 36);
+}
+
+void runAutonLeftSabotage(){
+
+}
+
+void runAutonRightSafe(){ 
+  //Score Pre Load
+  slowDrive("Forward", 48);
+  slowTurn("Clockwise", 90); //Counter Clockwise Movement from Dropping Intake
+  outake(0.5);
+  scoreTriball(); //Pre Load Scored
+  backOut();
+
+  //Side Triball
+  slowTurn("Clockwise", 150); //Face Triball
+  intake();
+  slowDrive("Forward", 28); //Triball Picked Up
+  stopIntake();
+  slowDrive("Reverse", 28);
+  slowTurn("CounterClockwise", 150);
+  outake(0.5);
+  scoreTriball();
+  stopIntake();
+}
+
+void runAutonRightFourTB(){
+  double currentTime = Brain.Timer.time();
+
+  //Score Pre Load
+  defaultDrive("Forward", 40);
+  defaultTurn("Clockwise", 80); //Counter Clockise Movement from Dropping Intake
+  outake(0.25);
+  scoreTriball(); //Pre Load Scored
+
+  //Middle Triball
+  backOut();
+  defaultTurn("CounterClockwise", 130); //Face Triball
+  intake();
+  defaultDrive("Forward", 12); //Triball Picked Up
+  stopIntake();
+  defaultTurn("Clockwise", 130);
+  outake(0.5);
+
+  //Back Triball
+  defaultTurn("Clockwise", 180); //Face Triball
+  intake();
+  defaultDrive("Forward", 16); //Triball Picked Up
+  stopIntake();
+  defaultTurn("CounterClockwise", 180);
+  defaultDrive("Forward", 16);
+  outake(0.25);
+  defaultTurn("Clockwise", 180);
+  Wings.set(true);
+  defaultDrive("Reverse", 15); //Middle and Back Triball Scored
+  Wings.set(false);
+
+  //Side Triball
+  defaultDrive("Forward", 10);
+  defaultTurn("CounterClockwise", 30);
+  intake();
+  defaultDrive("Forward", 26); //Triball Picked Up
+  stopIntake();
+  defaultDrive("Reverse", 20);
+  defaultDrive("Forward", 8);
+  slowTurn("CounterClockwise", 150);
+  outake(0.25);
+  scoreTriball(); //Side Triball Scored
+  stopIntake();
+  
+  std::cout << (Brain.Timer.time() - currentTime) / 1000 << " seconds" << std::endl;
+}
+
+/********** Pre Auton **********/
+
+>>>>>>> Stashed changes
 static Auton currentAuton = AutonNone;
 
 static void autonSelector(){
@@ -319,7 +430,11 @@ void calibrate(double seconds){
 
 void preAuton(){
   calibrate(5);
+<<<<<<< Updated upstream
   Wings.set(false);
+=======
+  tempCheck(45);
+>>>>>>> Stashed changes
   autonSelector();
 }
 
