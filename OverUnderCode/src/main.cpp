@@ -18,12 +18,13 @@ using namespace vex;
 competition Competition;
 
 int main(){
-  Competition.drivercontrol(driverControl);
-  Competition.autonomous(autonomous);
+  // Competition.drivercontrol(driverControl);
+  // Competition.autonomous(autonomous);
 
-  preAuton();
+  // preAuton();
 
-  while(true){
-    wait(20, msec);
-  }
+  // while(true){
+  //   wait(20, msec);
+  // }
+  Controller1.Screen.print("123456789012345678901234567890");
 }

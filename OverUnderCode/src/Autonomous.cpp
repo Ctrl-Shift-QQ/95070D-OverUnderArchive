@@ -439,7 +439,7 @@ static void autonSelector(){
       Controller1.Screen.setCursor(1, 5);
       Controller1.Screen.print("Auton Selected");
       Controller1.Screen.setCursor(3, 2);
-      Controller1.Screen.print("Right-Side Four Triball");
+      Controller1.Screen.print("ng");
     }
     if (Controller1.ButtonLeft.pressing()){
       Controller1.Screen.clearScreen();

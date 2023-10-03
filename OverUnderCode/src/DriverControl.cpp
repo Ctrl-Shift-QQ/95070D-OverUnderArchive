@@ -62,8 +62,16 @@ static void runWings(){
 }
 
 static void runArm(){
-  if (Controller1.ButtonR1.pressing()){
-    Arm.set(false);
+  static bool armExtended;
+  static bool armButtonPressed;
+
+  if (Controller1.ButtonR1.pressing() && !armButtonPressed){ //Button Pressed
+    armButtonPressed = true;
+    armExtended = !armExtended;
+    Arm.set(armExtended);
+  }
+  if (!Controller1.ButtonR1.pressing() && armButtonPressed){ //Button Released
+    armButtonPressed = false;
   }
 }
 
