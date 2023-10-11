@@ -21,21 +21,21 @@ static void driveForward(double kp, double ki, double kd, double tolerance, doub
   LeftFront.resetPosition();
   RightFront.resetPosition();
   
-  while ((fabs(leftDriveError) + fabs(leftDriveError)) / 2 > tolerance){
+  while ((fabs(leftDriveError) + fabs(leftDriveError)) / (5/3) > tolerance){
     //Left Side
     leftDriveError = target - LeftFront.position(turns) * 3.25 * M_PI / 2;
     leftDerivative = (previousLeftError - leftDriveError) * 50;
-    leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd;
+    leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative     * kd;
 
     if (fabs(leftDriveTotal) < minimumSpeed){
       LeftFront.spin(forward, minimumSpeed, percent);
+      LeftMiddle.spin(forward, minimumSpeed, percent);
       LeftBack.spin(forward, minimumSpeed, percent);
-      LeftStack.spin(forward, minimumSpeed, percent);
     }
     else {
       LeftFront.spin(forward, leftDriveTotal, percent);
+      LeftMiddle.spin(forward, leftDriveTotal, percent);
       LeftBack.spin(forward, leftDriveTotal, percent);
-      LeftStack.spin(forward, leftDriveTotal, percent);
     }
     if(leftDriveError < 10){
       leftIntegral += leftDriveError / 50;
@@ -48,13 +48,13 @@ static void driveForward(double kp, double ki, double kd, double tolerance, doub
 
     if (fabs(leftDriveTotal) < minimumSpeed){
       RightFront.spin(forward, minimumSpeed, percent);
+      RightMiddle.spin(forward, minimumSpeed, percent);
       RightBack.spin(forward, minimumSpeed, percent);
-      RightStack.spin(forward, minimumSpeed, percent);
     }
     else {
       RightFront.spin(forward, rightDriveTotal, percent);
+      RightMiddle.spin(forward, rightDriveTotal, percent);
       RightBack.spin(forward, rightDriveTotal, percent);
-      RightStack.spin(forward, rightDriveTotal, percent);
     }
     if(rightDriveError < 10){
       rightIntegral += rightDriveError / 50;
@@ -67,11 +67,11 @@ static void driveForward(double kp, double ki, double kd, double tolerance, doub
   }
 
   LeftFront.stop(brake);
+  LeftMiddle.stop(brake);
   LeftBack.stop(brake);
-  LeftStack.stop(brake);
   RightFront.stop(brake);
+  RightMiddle.stop(brake);
   RightBack.stop(brake);
-  RightStack.stop(brake);
 
   wait(100, msec);
 }
@@ -101,13 +101,13 @@ static void driveReverse(double kp, double ki, double kd, double tolerance, doub
 
     if (fabs(leftDriveTotal) < minimumSpeed){
       LeftFront.spin(reverse, minimumSpeed, percent);
+      LeftMiddle.spin(reverse, minimumSpeed, percent);
       LeftBack.spin(reverse, minimumSpeed, percent);
-      LeftStack.spin(reverse, minimumSpeed, percent);
     }
     else {
       LeftFront.spin(reverse, leftDriveTotal, percent);
+      LeftMiddle.spin(reverse, leftDriveTotal, percent);
       LeftBack.spin(reverse, leftDriveTotal, percent);
-      LeftStack.spin(reverse, leftDriveTotal, percent);
     }
     if(leftDriveError < 10){
       leftIntegral += leftDriveError / 50;
@@ -120,13 +120,13 @@ static void driveReverse(double kp, double ki, double kd, double tolerance, doub
 
     if (fabs(leftDriveTotal) < minimumSpeed){
       RightFront.spin(reverse, minimumSpeed, percent);
+      RightMiddle.spin(reverse, minimumSpeed, percent);
       RightBack.spin(reverse, minimumSpeed, percent);
-      RightStack.spin(reverse, minimumSpeed, percent);
     }
     else {
       RightFront.spin(reverse, rightDriveTotal, percent);
+      RightMiddle.spin(reverse, rightDriveTotal, percent);
       RightBack.spin(reverse, rightDriveTotal, percent);
-      RightStack.spin(reverse, rightDriveTotal, percent);
     }
     if(rightDriveError < 10){
       rightIntegral += rightDriveError / 50;
@@ -139,11 +139,11 @@ static void driveReverse(double kp, double ki, double kd, double tolerance, doub
   }
 
   LeftFront.stop(brake);
+  LeftMiddle.stop(brake);
   LeftBack.stop(brake);
-  LeftStack.stop(brake);
   RightFront.stop(brake);
+  RightMiddle.stop(brake);
   RightBack.stop(brake);
-  RightStack.stop(brake);
 
   wait(100, msec);
 }
@@ -165,19 +165,19 @@ static void turnClockwise(double kp, double ki, double kd, double tolerance, dou
 
     if (fabs(total) < minimumSpeed){
       LeftFront.spin(forward, minimumSpeed, percent);
+      LeftMiddle.spin(forward, minimumSpeed, percent);
       LeftBack.spin(forward, minimumSpeed, percent);
-      LeftStack.spin(forward, minimumSpeed, percent);
       RightFront.spin(reverse, minimumSpeed, percent);
+      RightMiddle.spin(reverse, minimumSpeed, percent);
       RightBack.spin(reverse, minimumSpeed, percent);
-      RightStack.spin(reverse, minimumSpeed, percent);
     }
     else {
       LeftFront.spin(forward, total, percent);
+      LeftMiddle.spin(forward, total, percent);
       LeftBack.spin(forward, total, percent);
-      LeftStack.spin(forward, total, percent);
       RightFront.spin(reverse, total, percent);
+      RightMiddle.spin(reverse, total, percent);
       RightBack.spin(reverse, total, percent);
-      RightStack.spin(reverse, total, percent);
     }
     if (error < 30){
       integral += error / 50;
@@ -189,11 +189,11 @@ static void turnClockwise(double kp, double ki, double kd, double tolerance, dou
   }
 
   LeftFront.stop(brake);
+  LeftMiddle.stop(brake);
   LeftBack.stop(brake);
-  LeftStack.stop(brake);
   RightFront.stop(brake);
+  RightMiddle.stop(brake);
   RightBack.stop(brake);
-  RightStack.stop(brake);
 
   wait(100, msec);
 }
@@ -215,19 +215,19 @@ static void turnCounterClockwise(double kp, double ki, double kd, double toleran
 
     if (fabs(total) < minimumSpeed){
       LeftFront.spin(reverse, minimumSpeed, percent);
+      LeftMiddle.spin(reverse, minimumSpeed, percent);
       LeftBack.spin(reverse, minimumSpeed, percent);
-      LeftStack.spin(reverse, minimumSpeed, percent);
       RightFront.spin(forward, minimumSpeed, percent);
+      RightMiddle.spin(forward, minimumSpeed, percent);
       RightBack.spin(forward, minimumSpeed, percent);
-      RightStack.spin(forward, minimumSpeed, percent);
     }
     else {
       LeftFront.spin(reverse, total, percent);
+      LeftMiddle.spin(reverse, total, percent);
       LeftBack.spin(reverse, total, percent);
-      LeftStack.spin(reverse, total, percent);
       RightFront.spin(forward, total, percent);
+      RightMiddle.spin(forward, total, percent);
       RightBack.spin(forward, total, percent);
-      RightStack.spin(forward, total, percent);
     }
     if (error < 30){
       integral += error / 50;
@@ -239,11 +239,11 @@ static void turnCounterClockwise(double kp, double ki, double kd, double toleran
   }
 
   LeftFront.stop(brake);
+  LeftMiddle.stop(brake);
   LeftBack.stop(brake);
-  LeftStack.stop(brake);
   RightFront.stop(brake);
+  RightMiddle.stop(brake);
   RightBack.stop(brake);
-  RightStack.stop(brake);
 
   wait(100, msec);
 }
@@ -311,28 +311,6 @@ static void backOut(){
 /********** Autons **********/
 
 void runAutonLeftAWP(){
-  //Score Pre Load
-  slowDrive("Forward", 20);
-  slowTurn("Clockwise", 45);
-  outake(0.5);
-  defaultDrive("Forward", 10); //Pre Load Scored
-  stopIntake();
-
-  //Pull Out Match Load
-  slowDrive("Reverse", 14);
-  slowTurn("CounterClockwise", 45);
-  slowDrive("Reverse", 14);
-  slowTurn("Clockwise", 90);
-  slowDrive("Reverse", 6);
-  Arm.set(true);
-  wait(0.3, sec);
-  defaultTurn("CounterClockwise", 90); //Match Load Pulled Out
-  Arm.set(false);
-  slowDrive("Reverse", 8);
-  defaultTurn("CounterClockwise", 30);
-
-  //Touch Bar
-  defaultDrive("Reverse", 36);
 }
 
 void runAutonLeftSabotage(){
@@ -340,70 +318,9 @@ void runAutonLeftSabotage(){
 }
 
 void runAutonRightSafe(){ 
-  //Score Pre Load
-  slowDrive("Forward", 48);
-  slowTurn("Clockwise", 90); //Counter Clockwise Movement from Dropping Intake
-  outake(0.5);
-  scoreTriball(); //Pre Load Scored
-  backOut();
-
-  //Side Triball
-  slowTurn("Clockwise", 150); //Face Triball
-  intake();
-  slowDrive("Forward", 28); //Triball Picked Up
-  stopIntake();
-  slowDrive("Reverse", 28);
-  slowTurn("CounterClockwise", 150);
-  outake(0.5);
-  scoreTriball();
-  stopIntake();
 }
 
 void runAutonRightFourTB(){
-  double currentTime = Brain.Timer.time();
-
-  //Score Pre Load
-  defaultDrive("Forward", 40);
-  defaultTurn("Clockwise", 80); //Counter Clockise Movement from Dropping Intake
-  outake(0.25);
-  scoreTriball(); //Pre Load Scored
-
-  //Middle Triball
-  backOut();
-  defaultTurn("CounterClockwise", 130); //Face Triball
-  intake();
-  defaultDrive("Forward", 12); //Triball Picked Up
-  stopIntake();
-  defaultTurn("Clockwise", 130);
-  outake(0.75);
-
-  //Back Triball
-  defaultTurn("Clockwise", 180); //Face Triball
-  intake();
-  defaultDrive("Forward", 16); //Triball Picked Up
-  stopIntake();
-  defaultTurn("CounterClockwise", 180);
-  defaultDrive("Forward", 16);
-  outake(0.25);
-  defaultTurn("Clockwise", 180);
-  Wings.set(true);
-  defaultDrive("Reverse", 15); //Middle and Back Triball Scored
-  Wings.set(false);
-
-  //Side Triball
-  defaultDrive("Forward", 20);
-  defaultTurn("CounterClockwise", 30);
-  intake();
-  defaultDrive("Forward", 26); //Triball Picked Up
-  stopIntake();
-  defaultDrive("Reverse", 20);
-  slowTurn("CounterClockwise", 140);
-  defaultDrive("Forward", 10);
-  outake(0.25);
-  scoreTriball(); //Side Triball Scored
-  stopIntake();
-  
-  std::cout << (Brain.Timer.time() - currentTime) / 1000 << " seconds" << std::endl;
 }
 
 /********** Pre Auton **********/
@@ -417,30 +334,28 @@ static void autonSelector(){
       Controller1.Screen.setCursor(2, 3);
       Controller1.Screen.print("No Auton Selected");
     }
-    if (currentAuton == AutonLeftAWP){
+    else{
       Controller1.Screen.setCursor(1, 5);
       Controller1.Screen.print("Auton Selected:");
+    }
+
+    if (currentAuton == AutonLeftAWP){
       Controller1.Screen.setCursor(3, 5);
       Controller1.Screen.print("Left-Side AWP");
     }
     if (currentAuton == AutonLeftSabotage){
-      Controller1.Screen.setCursor(1, 5);
-      Controller1.Screen.print("Auton Selected:");
       Controller1.Screen.setCursor(3, 3);
       Controller1.Screen.print("Left-Side Sabotage");
     }
     if (currentAuton == AutonRightSafe){
-      Controller1.Screen.setCursor(1, 5);
-      Controller1.Screen.print("Auton Selected:");
       Controller1.Screen.setCursor(3, 5);
       Controller1.Screen.print("Right-Side Safe");
     }
     if (currentAuton == AutonRightFourTB){
-      Controller1.Screen.setCursor(1, 5);
-      Controller1.Screen.print("Auton Selected");
       Controller1.Screen.setCursor(3, 2);
-      Controller1.Screen.print("ng");
+      Controller1.Screen.print("Right-Side Four Triball");
     }
+
     if (Controller1.ButtonLeft.pressing()){
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
@@ -459,6 +374,7 @@ static void autonSelector(){
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) + 1);
       }
     }
+
     if (Controller1.ButtonDown.pressing()){
       Controller1.Screen.clearScreen();
       runningSelector = false;
@@ -466,7 +382,7 @@ static void autonSelector(){
 
     wait(0.2, sec);
   }
-  Controller1.rumble(rumblePulse);
+  Controller1.rumble("...");
 }
 
 void calibrate(double seconds){
@@ -478,31 +394,28 @@ void calibrate(double seconds){
 }
 
 void tempCheck(double warningTemp){
-  double leftDriveTemp = std::max(std::max(LeftFront.temperature(celsius), LeftBack.temperature(celsius)), LeftStack.temperature(celsius));
-  double rightDriveTemp = std::max(std::max(RightFront.temperature(celsius), RightBack.temperature(celsius)), RightStack.temperature(celsius));
+  double leftDriveTemp = std::max(std::max(LeftFront.temperature(celsius), LeftMiddle.temperature(celsius)), LeftBack.temperature(celsius));
+  double rightDriveTemp = std::max(std::max(RightFront.temperature(celsius), RightMiddle.temperature(celsius)), RightBack.temperature(celsius));
   double cataTemp = Catapult.temperature(celsius);
   double intakeTemp = Intake.temperature(celsius); 
 
+  Controller1.Screen.setCursor(2, 8);
+
   if (leftDriveTemp > warningTemp){
-    Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("LEFT DRIVE HOT!!!");
-    wait(2, sec);
+    wait(1, sec);
   }
   if (rightDriveTemp > warningTemp){
-    Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("RIGHT DRIVE HOT!!!");
-    wait(2, sec);
-
+    wait(1, sec);
   }
   if (cataTemp > warningTemp){
-    Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("CATAPULT HOT!!!");
-    wait(2, sec);
+    wait(1, sec);
   }
   if (intakeTemp > warningTemp){
-    Controller1.Screen.setCursor(7, 2);
     Controller1.Screen.print("INTAKE HOT!!!");
-    wait(2, sec);
+    wait(1, sec);
   }
 }
 

@@ -5,7 +5,7 @@
 
 static void setSpeeds(){
   Intake.setVelocity(80, percent);
-  Catapult.setVelocity(75, percent);
+  Catapult.setVelocity(90, percent);
 }
 
 static void runIntake(){
@@ -28,7 +28,7 @@ static void runCatapult(){
     Catapult.stop();
   }
   
-  // bool firingCata = false;
+  // static bool firingCata = false;
 
   // if (!LimitSwitch.pressing()){ 
   //   Catapult.spin(forward);
@@ -44,7 +44,7 @@ static void runCatapult(){
   //   Catapult.spin(forward);
   // }
   // else{
-  //   firingCata = false;
+  //   firingCata = false; 
   // }
 }
 
@@ -78,11 +78,11 @@ static void runArm(){
 
 static void runDrive(){
   LeftFront.spin(forward, Controller1.Axis3.position(), percent);
+  LeftMiddle.spin(forward, Controller1.Axis3.position(), percent);
   LeftBack.spin(forward, Controller1.Axis3.position(), percent);
-  LeftStack.spin(forward, Controller1.Axis3.position(), percent);
   RightFront.spin(forward, Controller1.Axis2.position(), percent);
+  RightMiddle.spin(forward, Controller1.Axis2.position(), percent);
   RightBack.spin(forward, Controller1.Axis2.position(), percent);
-  RightStack.spin(forward, Controller1.Axis2.position(), percent);
 }
 
 /********** Driver Control Function **********/

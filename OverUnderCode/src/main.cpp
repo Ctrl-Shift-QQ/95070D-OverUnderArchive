@@ -26,5 +26,7 @@ int main(){
   // while(true){
   //   wait(20, msec);
   // }
-  Controller1.Screen.print("123456789012345678901234567890");
+
+  driverControl();
+  
 }
