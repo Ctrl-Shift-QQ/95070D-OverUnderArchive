@@ -62,20 +62,6 @@ static void runWings(){
   }
 }
 
-static void runArm(){
-  static bool armExtended;
-  static bool armButtonPressed;
-
-  if (Controller1.ButtonR1.pressing() && !armButtonPressed){ //Button Pressed
-    armButtonPressed = true;
-    armExtended = !armExtended;
-    Arm.set(armExtended);
-  }
-  if (!Controller1.ButtonR1.pressing() && armButtonPressed){ //Button Released
-    armButtonPressed = false;
-  }
-}
-
 static void runDrive(){
   LeftFront.spin(forward, Controller1.Axis3.position(), percent);
   LeftMiddle.spin(forward, Controller1.Axis3.position(), percent);
@@ -93,7 +79,6 @@ void driverControl(){
     runIntake();
     runCatapult();
     runWings();
-    runArm();
 
     wait(20, msec);
   }

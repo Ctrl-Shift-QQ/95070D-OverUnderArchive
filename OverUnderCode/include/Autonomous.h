@@ -7,9 +7,9 @@ void tempCheck(double warningTemp);
 typedef enum {
     AutonNone = 0,
     AutonLeftAWP,
-    AutonLeftSabotage,
+    AutonLeftNoAWP,
     AutonRightSafe,
-    AutonRightFourTB,
+    AutonRightSixTB
 } Auton;
 
 void testAuton(Auton testedAuton);

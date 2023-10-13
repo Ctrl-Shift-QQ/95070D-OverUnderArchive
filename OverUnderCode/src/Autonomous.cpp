@@ -4,7 +4,7 @@
 
 /********** Functions for Auton **********/
 
-static void driveForward(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
+static void driveWithPID(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
   
   double leftDriveError = target;
   double leftIntegral = 0;
@@ -18,12 +18,12 @@ static void driveForward(double kp, double ki, double kd, double tolerance, doub
   double rightDerivative = 0;
   double rightDriveTotal = 0;
 
-  LeftFront.resetPosition();
-  RightFront.resetPosition();
+  LeftBack.resetPosition();
+  RightBack.resetPosition();
   
-  while ((fabs(leftDriveError) + fabs(leftDriveError)) / (5/3) > tolerance){
+  while ((fabs(leftDriveError) + fabs(leftDriveError)) / 2 > tolerance){
     //Left Side
-    leftDriveError = target - LeftFront.position(turns) * 3.25 * M_PI / 2;
+    leftDriveError = target - LeftFront.position(turns) * 3.25 * M_PI / (5/3);
     leftDerivative = (previousLeftError - leftDriveError) * 50;
     leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative     * kd;
 
@@ -76,90 +76,24 @@ static void driveForward(double kp, double ki, double kd, double tolerance, doub
   wait(100, msec);
 }
 
-static void driveReverse(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
-  
-  double leftDriveError = target;
-  double leftIntegral = 0;
-  double leftDerivative = 0;
-  double previousLeftError = leftDriveError;
-  double leftDriveTotal = 0;
-  
-  double rightDriveError = target;
-  double rightIntegral = 0;
-  double previousRightError = rightDriveError;
-  double rightDerivative = 0;
-  double rightDriveTotal = 0;
 
-  LeftFront.resetPosition();
-  RightFront.resetPosition();
-  
-  while ((fabs(leftDriveError) + fabs(leftDriveError)) / 2 > tolerance){
-    //Left Side
-    leftDriveError = target + LeftFront.position(turns) * 3.25 * M_PI / 2;
-    leftDerivative = (previousLeftError - leftDriveError) * 50;
-    leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd;
-
-    if (fabs(leftDriveTotal) < minimumSpeed){
-      LeftFront.spin(reverse, minimumSpeed, percent);
-      LeftMiddle.spin(reverse, minimumSpeed, percent);
-      LeftBack.spin(reverse, minimumSpeed, percent);
-    }
-    else {
-      LeftFront.spin(reverse, leftDriveTotal, percent);
-      LeftMiddle.spin(reverse, leftDriveTotal, percent);
-      LeftBack.spin(reverse, leftDriveTotal, percent);
-    }
-    if(leftDriveError < 10){
-      leftIntegral += leftDriveError / 50;
-    }
-
-    //Right Side
-    rightDriveError = target + RightFront.position(turns) * 3.25 * M_PI / 2;
-    rightDerivative = (previousRightError - rightDriveError) * 50;
-    rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd;
-
-    if (fabs(leftDriveTotal) < minimumSpeed){
-      RightFront.spin(reverse, minimumSpeed, percent);
-      RightMiddle.spin(reverse, minimumSpeed, percent);
-      RightBack.spin(reverse, minimumSpeed, percent);
-    }
-    else {
-      RightFront.spin(reverse, rightDriveTotal, percent);
-      RightMiddle.spin(reverse, rightDriveTotal, percent);
-      RightBack.spin(reverse, rightDriveTotal, percent);
-    }
-    if(rightDriveError < 10){
-      rightIntegral += rightDriveError / 50;
-    }
-
-    previousLeftError = leftDriveError;
-    previousRightError = rightDriveError;
-    std::cout << leftDriveError << std::endl; 
-    wait(20, msec);
-  }
-
-  LeftFront.stop(brake);
-  LeftMiddle.stop(brake);
-  LeftBack.stop(brake);
-  RightFront.stop(brake);
-  RightMiddle.stop(brake);
-  RightBack.stop(brake);
-
-  wait(100, msec);
-}
-
-static void turnClockwise(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
+static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
   
   double error = target;
   double integral = 0;
   double derivative = 0;
   double previousError = error;
   double total = 0;
-
-  Inertial.resetRotation();
   
   while (fabs(error) > tolerance){
-    error = target - Inertial.rotation(degrees);
+
+    if(360 - std::max(target, Inertial.heading()) + std::min(target, Inertial.heading()) > 180){
+      error = 360 - std::max(target, Inertial.heading()) + std::min(target, Inertial.heading());
+    }
+    else{
+      error = target - Inertial.heading();
+    }
+
     derivative = (previousError - error) * 50;
     total = error * kp + integral * ki - derivative * kd;
 
@@ -198,15 +132,13 @@ static void turnClockwise(double kp, double ki, double kd, double tolerance, dou
   wait(100, msec);
 }
 
-static void turnCounterClockwise(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
+static void turnCounterClockwiseTo(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
   
   double error = target;
   double derivative;
   double previousError = error;
   double integral = 0;
   double total = 0;
-
-  Inertial.resetRotation();
   
   while (fabs(error) > tolerance){
     error = target + Inertial.rotation(degrees);
@@ -250,40 +182,30 @@ static void turnCounterClockwise(double kp, double ki, double kd, double toleran
 
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
-    driveForward(2.5, 0.1, 0.2, 0.5, 80, target);
+    driveWithPID(2.5, 0.1, 0.2, 0.5, 80, target);
   }
   if (direction == "Reverse"){
-    driveReverse(2.5, 0.1, 0.2, 0.5, 80, target);
+    driveWithPID(2.5, 0.1, 0.2, 0.5, 80, -target);
   }
 }
 
 static void defaultTurn(std::string direction, double target){
-  if (direction == "Clockwise"){
-    turnClockwise(1, 0.04, 0.1, 2, 30, target);
-  }
-  if (direction == "CounterClockwise"){
-    turnCounterClockwise(1, 0.04, 0.1, 2, 30, target);  
-  } 
+  turnWithPIDTo(1, 0.04, 0.1, 2, 30, target);
 }
 
 
 static void slowDrive(std::string direction, double target){ 
   if (direction == "Forward"){
-    driveForward(1.5, 0.05, 0.1, 0.5, 25, target);
+    driveWithPID(1.5, 0.05, 0.1, 0.5, 25, target);
   }
   if (direction == "Reverse"){
-    driveReverse(1.5, 0.05, 0.1, 0.5, 25, target);
+    driveWithPID(1.5, 0.05, 0.1, 0.5, 25, -target);
   }
   
 }
 
-static void slowTurn(std::string direction, double target){
-  if (direction == "Clockwise"){
-    turnClockwise(0.7, 0.02, 0.03, 2, 5, target);
-  }
-  if (direction == "CounterClockwise"){
-    turnCounterClockwise(0.7, 0.02, 0.03, 2, 5, target);  
-  } 
+static void slowTurn(double target){
+  turnWithPIDTo(0.7, 0.02, 0.03, 2, 5, target);
 }
 
 static void intake(){
@@ -301,11 +223,11 @@ static void stopIntake(){
 }
 
 static void scoreTriball(){
-  driveForward(2.5, 0.1, 0.2, 0.5, 85, 10);
+  driveWithPID(2.5, 0.1, 0.2, 0.5, 85, 10);
 }
 
 static void backOut(){
-  driveReverse(2.5, 0.1, 0.2, 0.5, 70, 10);
+  driveWithPID(2.5, 0.1, 0.2, 0.5, 70, -10);
 }
 
 /********** Autons **********/
@@ -313,14 +235,16 @@ static void backOut(){
 void runAutonLeftAWP(){
 }
 
-void runAutonLeftSabotage(){
-
+void runAutonLeftNoAWP(){
 }
 
 void runAutonRightSafe(){ 
 }
 
 void runAutonRightFourTB(){
+}
+
+void runAutonRightSixTB(){
 }
 
 /********** Pre Auton **********/
@@ -340,26 +264,26 @@ static void autonSelector(){
     }
 
     if (currentAuton == AutonLeftAWP){
-      Controller1.Screen.setCursor(3, 5);
-      Controller1.Screen.print("Left-Side AWP");
-    }
-    if (currentAuton == AutonLeftSabotage){
       Controller1.Screen.setCursor(3, 3);
-      Controller1.Screen.print("Left-Side Sabotage");
+      Controller1.Screen.print("Left-Side Safe AWP");
+    }
+    if (currentAuton == AutonLeftNoAWP){
+      Controller1.Screen.setCursor(3, 5);
+      Controller1.Screen.print("Left-Side NO AWP");
     }
     if (currentAuton == AutonRightSafe){
       Controller1.Screen.setCursor(3, 5);
       Controller1.Screen.print("Right-Side Safe");
     }
-    if (currentAuton == AutonRightFourTB){
+    if (currentAuton == AutonRightSixTB){
       Controller1.Screen.setCursor(3, 2);
-      Controller1.Screen.print("Right-Side Four Triball");
+      Controller1.Screen.print("Right-Side Six Triball");
     }
 
     if (Controller1.ButtonLeft.pressing()){
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
-        currentAuton = AutonRightFourTB;
+        currentAuton = AutonRightSixTB;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
@@ -367,7 +291,7 @@ static void autonSelector(){
     }
     if (Controller1.ButtonRight.pressing()){
       Controller1.Screen.clearScreen();
-      if (currentAuton == AutonRightFourTB){
+      if (currentAuton == AutonRightSixTB){
         currentAuton = AutonLeftAWP;
       }
       else{
@@ -440,16 +364,16 @@ void autonomous(){
       runAutonLeftAWP();
       break;
     }
-    case AutonLeftSabotage: {
-      runAutonLeftSabotage();
+    case AutonLeftNoAWP: {
+      runAutonLeftNoAWP();
       break;
     }
     case AutonRightSafe: {
       runAutonRightSafe();
       break;
     }
-    case AutonRightFourTB: {
-      runAutonRightFourTB();
+    case AutonRightSixTB: {
+      runAutonRightSixTB();
       break;
     }
     default: {
@@ -467,16 +391,16 @@ void testAuton(Auton testedAuton){
       runAutonLeftAWP();
       break;
     }
-    case AutonLeftSabotage: {
-      runAutonLeftSabotage();
+    case AutonLeftNoAWP: {
+      runAutonLeftNoAWP();
       break;
     }
     case AutonRightSafe: {
       runAutonRightSafe();
       break;
     }
-    case AutonRightFourTB: {
-      runAutonRightFourTB();
+    case AutonRightSixTB: {
+      runAutonRightSixTB();
       break;
     }
     default: {
