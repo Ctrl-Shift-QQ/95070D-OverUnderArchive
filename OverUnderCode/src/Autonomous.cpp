@@ -62,7 +62,7 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
 
     previousLeftError = leftDriveError;
     previousRightError = rightDriveError; 
-    std::cout << leftDriveError << std::endl; 
+
     wait(20, msec);
   }
 
@@ -76,6 +76,25 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   wait(100, msec);
 }
 
+static double shorterTurningPathError(double target, double error){
+  double smallerDegree = std::min(target, Inertial.heading());
+  double largerDegree = std::max(target, Inertial.heading());
+  static int throughZeroDirection;
+
+  if(smallerDegree == target){
+    throughZeroDirection = 1;
+  }
+  else{
+    throughZeroDirection = -1; 
+  }
+
+  if(360 - largerDegree + smallerDegree < 180){
+    return throughZeroDirection * (360 - largerDegree + smallerDegree);
+  }
+  else{
+    return target - Inertial.heading();
+  }
+}
 
 static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
   
@@ -86,16 +105,8 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
   double total = 0;
   
   while (fabs(error) > tolerance){
-
-    if(360 - std::max(target, Inertial.heading()) + std::min(target, Inertial.heading()) > 180){
-      error = 360 - std::max(target, Inertial.heading()) + std::min(target, Inertial.heading());
-    }
-    else{
-      error = target - Inertial.heading();
-    }
-
-    derivative = (previousError - error) * 50;
-    total = error * kp + integral * ki - derivative * kd;
+    
+    error = shorterTurningPathError(target, error);
 
     if (fabs(total) < minimumSpeed){
       LeftFront.spin(forward, minimumSpeed, percent);
@@ -118,55 +129,7 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
     }
 
     previousError = error;
-    std::cout << error << std::endl;
-    wait(20, msec);
-  }
 
-  LeftFront.stop(brake);
-  LeftMiddle.stop(brake);
-  LeftBack.stop(brake);
-  RightFront.stop(brake);
-  RightMiddle.stop(brake);
-  RightBack.stop(brake);
-
-  wait(100, msec);
-}
-
-static void turnCounterClockwiseTo(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
-  
-  double error = target;
-  double derivative;
-  double previousError = error;
-  double integral = 0;
-  double total = 0;
-  
-  while (fabs(error) > tolerance){
-    error = target + Inertial.rotation(degrees);
-    derivative = (previousError - error) * 50;
-    total = error * kp - derivative * kd;
-
-    if (fabs(total) < minimumSpeed){
-      LeftFront.spin(reverse, minimumSpeed, percent);
-      LeftMiddle.spin(reverse, minimumSpeed, percent);
-      LeftBack.spin(reverse, minimumSpeed, percent);
-      RightFront.spin(forward, minimumSpeed, percent);
-      RightMiddle.spin(forward, minimumSpeed, percent);
-      RightBack.spin(forward, minimumSpeed, percent);
-    }
-    else {
-      LeftFront.spin(reverse, total, percent);
-      LeftMiddle.spin(reverse, total, percent);
-      LeftBack.spin(reverse, total, percent);
-      RightFront.spin(forward, total, percent);
-      RightMiddle.spin(forward, total, percent);
-      RightBack.spin(forward, total, percent);
-    }
-    if (error < 30){
-      integral += error / 50;
-    }
-
-    previousError = error;
-    std::cout << error << std::endl;
     wait(20, msec);
   }
 

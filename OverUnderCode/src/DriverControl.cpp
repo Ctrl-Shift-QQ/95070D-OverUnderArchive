@@ -21,31 +21,42 @@ static void runIntake(){
 }
 
 static void runCatapult(){
-  if (Controller1.ButtonL2.pressing()){
+  
+  static bool matchLoading = false;
+
+  if (Controller1.ButtonL2.pressing()){ //Match Loading
     Catapult.spin(forward);
   }
   else{
     Catapult.stop();
   }
-  
-  // static bool firingCata = false;
 
-  // if (!LimitSwitch.pressing()){ 
-  //   Catapult.spin(forward);
-  // }
-  // else if (Controller1.ButtonL1.pressing()){
-  //   firingCata = true;
-  // }
-  // else{
-  //   Catapult.stop();
-  // }
+  static bool intakeToCata = false; 
+  static bool manualFire = false;
 
-  // if (LimitSwitch.pressing() && firingCata){
-  //   Catapult.spin(forward);
-  // }
-  // else{
-  //   firingCata = false; 
-  // }
+  if (!matchLoading){ //Not Match Loading
+    if (intakeToCata){ //Intaking To Catapult
+      if (!LimitSwitch.pressing()){ 
+        Catapult.spin(forward);
+      }
+      else if (Controller1.ButtonL1.pressing()){
+        manualFire = true;
+      }
+      else{
+        Catapult.stop();
+      }
+
+      if (LimitSwitch.pressing() && manualFire){
+        Catapult.spin(forward);
+      }
+      else{
+        manualFire = false; 
+      }
+    }
+  }
+  else{ //Not Intaking To Catapult
+
+  }
 }
 
 static void runWings(){
