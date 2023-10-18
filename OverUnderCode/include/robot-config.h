@@ -13,8 +13,8 @@ extern motor RightBack;
 extern motor Intake;
 extern motor Catapult;
 extern inertial Inertial;
+extern rotation Rotation;
 extern digital_out Wings;
-extern limit LimitSwitch;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

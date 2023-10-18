@@ -77,6 +77,7 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
 }
 
 static double shorterTurningPathError(double target, double error){
+  
   double smallerDegree = std::min(target, Inertial.heading());
   double largerDegree = std::max(target, Inertial.heading());
   static int throughZeroDirection;

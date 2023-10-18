@@ -24,38 +24,24 @@ static void runCatapult(){
   
   static bool matchLoading = false;
 
-  if (Controller1.ButtonL2.pressing()){ //Match Loading
+  Rotation.resetPosition();
+
+  if (Controller1.ButtonL2.pressing()){
+    matchLoading = true; 
     Catapult.spin(forward);
   }
   else{
+    matchLoading = false;
     Catapult.stop();
   }
 
-  static bool intakeToCata = false; 
-  static bool manualFire = false;
-
-  if (!matchLoading){ //Not Match Loading
-    if (intakeToCata){ //Intaking To Catapult
-      if (!LimitSwitch.pressing()){ 
-        Catapult.spin(forward);
-      }
-      else if (Controller1.ButtonL1.pressing()){
-        manualFire = true;
-      }
-      else{
-        Catapult.stop();
-      }
-
-      if (LimitSwitch.pressing() && manualFire){
-        Catapult.spin(forward);
-      }
-      else{
-        manualFire = false; 
-      }
+  if(matchLoading == false){
+    if(45 < Rotation.position(degrees) < 46){
+      Catapult.spin(forward);
     }
-  }
-  else{ //Not Intaking To Catapult
-
+    else{
+      Catapult.stop();
+    }
   }
 }
 
