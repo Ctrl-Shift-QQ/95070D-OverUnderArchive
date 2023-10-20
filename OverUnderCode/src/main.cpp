@@ -7,26 +7,41 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
+
 #include "vex.h"
-#include "Autonomous.h"
-#include "DriverControl.h"
 #include <iostream>
+#include "DriverControl.h"
+#include "Autonomous.h"
+
 
 using namespace vex;
+
 
 // A global instance of competition
 competition Competition;
 
+
 int main(){
-  // Competition.drivercontrol(driverControl);
-  // Competition.autonomous(autonomous);
-
-  // preAuton();
-
-  // while(true){
-  //   wait(20, msec);
-  // }
-
-  driverControl();
-  
+  //Initializing Robot Configuration. DO NOT REMOVE!
+  vexcodeInit();
+  preAuton();
+  Competition.drivercontrol(driverControl);
+  Competition.autonomous(autonomous);
+  tempCheck(100);
+  if (Controller1.ButtonR2.pressing()){
+    Controller1.Screen.print("Running Auton");
+     wait(1, sec);
+     calibrate(3);
+     //testAuton(AutonSkills);
+     autonomous();   //999
+  }
+  else{
+     Controller1.Screen.print("Running Driver Control");
+     wait(1, sec);
+     driverControl();
+   }
 }
+
+
+
+
