@@ -1,6 +1,6 @@
 
 //For Testing
-void calibrate(double seconds);
+void calibrateInertial(double seconds);
 
 void tempCheck(double warningTemp);
 

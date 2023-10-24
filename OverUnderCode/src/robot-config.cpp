@@ -12,12 +12,21 @@ brain  Brain;
 
 // VEXcode device constructors
 controller Controller1 = controller(primary);
+<<<<<<< Updated upstream
 motor LeftFront = motor(PORT1, ratio6_1, true);
 motor LeftMiddle = motor(PORT2, ratio6_1, true);
 motor LeftBack = motor(PORT3, ratio6_1, true);
 motor RightFront = motor(PORT10, ratio6_1, false);
 motor RightMiddle = motor(PORT9, ratio6_1, false);
 motor RightBack = motor(PORT8, ratio6_1, false);
+=======
+motor LeftFront = motor(PORT20, ratio6_1, true);
+motor LeftMiddle = motor(PORT19, ratio6_1, true);
+motor LeftBack = motor(PORT18, ratio6_1, true);
+motor RightFront = motor(PORT11, ratio6_1, false);
+motor RightMiddle = motor(PORT12, ratio6_1, false);
+motor RightBack = motor(PORT13, ratio6_1, false);
+>>>>>>> Stashed changes
 motor Intake = motor(PORT17, ratio6_1, true);
 motor Catapult = motor(PORT3, ratio36_1, false);
 inertial Inertial = inertial(PORT11);

@@ -22,6 +22,7 @@ competition Competition;
 
 
 int main(){
+<<<<<<< Updated upstream
   //Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
   preAuton();
@@ -40,6 +41,18 @@ int main(){
      wait(1, sec);
      driverControl();
    }
+=======
+  // Competition.drivercontrol(driverControl);
+  // Competition.autonomous(autonomous);
+
+  // preAuton();
+
+  // while(true){
+  //   wait(20, msec);
+  // }
+
+  driverControl();
+>>>>>>> Stashed changes
 }
 
 

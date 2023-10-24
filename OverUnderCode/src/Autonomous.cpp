@@ -78,9 +78,9 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
 
 static double shorterTurningPathError(double target, double error){
   
+  static int throughZeroDirection;
   double smallerDegree = std::min(target, Inertial.heading());
   double largerDegree = std::max(target, Inertial.heading());
-  static int throughZeroDirection;
 
   if(smallerDegree == target){
     throughZeroDirection = 1;
@@ -284,10 +284,13 @@ void runAutonRightSafe(){
 >>>>>>> parent of 09b6bcc (Winters)
 }
 
+<<<<<<< Updated upstream
 void runAutonRightFourTB(){
 }
 
 <<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
 void runAutonRightSixTB(){
 =======
   //Score Pre Load
@@ -399,15 +402,16 @@ static void autonSelector(){
 
     wait(0.2, sec);
   }
-  Controller1.rumble("...");
+  Controller1.rumble(". - . - .");
 }
 
-void calibrate(double seconds){
-  Inertial.calibrate();
+void calibrateInertial(double seconds){
   Controller1.Screen.setCursor(2, 6);
+  Inertial.calibrate();
   Controller1.Screen.print("CALIBRATING!!!");
   wait(seconds, sec);
   Controller1.Screen.clearScreen();
+  Inertial.resetHeading();
 }
 
 void tempCheck(double warningTemp){
@@ -460,9 +464,16 @@ void preAuton(){
   vexcodeInit();
 
   Controller1.Screen.clearScreen();
+<<<<<<< Updated upstream
   calibrate(3);
   tempCheck(130);
   autonSelector();
+=======
+
+  calibrateInertial(3);
+  tempCheck(55);
+  autonSelector();  
+>>>>>>> Stashed changes
 }
 
 /********** Auton Function **********/
