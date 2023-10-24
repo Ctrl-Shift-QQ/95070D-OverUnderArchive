@@ -1,15 +1,12 @@
 #include "vex.h"
 #include <iostream>
 
-
 /********** Functions for Driver Control **********/
 
-
 static void setSpeeds(){
-  Intake.setVelocity(75, percent);
+  Intake.setVelocity(80, percent);
   Catapult.setVelocity(90, percent);
 }
-
 
 static void runIntake(){
   if (Controller1.ButtonA.pressing()){
@@ -23,63 +20,62 @@ static void runIntake(){
   }
 }
 
-
 static void runCatapult(){
+  
+  static bool matchLoading = false;
+
+  Rotation.resetPosition();
+
   if (Controller1.ButtonL2.pressing()){
+    matchLoading = true; 
     Catapult.spin(forward);
   }
   else{
+    matchLoading = false;
     Catapult.stop();
   }
 
-
- 
-  // bool firingCata = false;
-
-
-  // if (!LimitSwitch.pressing()){
-  //   Catapult.spin(forward);
-  // }
-  // else if (Controller1.ButtonL1.pressing()){
-  //   firingCata = true;
-  // }
-  // else{
-  //   Catapult.stop();
-  // }
-
-
-  // if (LimitSwitch.pressing() && firingCata){
-  //   Catapult.spin(forward);
-  // }
-  // else{
-  //   firingCata = false;
-  // }
-}
-static void armUp() {
-  if(Controller1.ButtonR2.pressing()){
-    Arm.set(false);
+  if(matchLoading == false){
+    if(45 < Rotation.position(degrees) < 46){
+      Catapult.spin(forward);
+    }
+    else{
+      Catapult.stop();
+    }
   }
 }
 
+static void runWings(){
+  static bool wingsExtended;
+  static bool wingsButtonPressed;
+
+  if (Controller1.ButtonR2.pressing() && !wingsButtonPressed){ //Button Pressed
+    wingsButtonPressed = true;
+    wingsExtended = !wingsExtended;
+    Wings.set(wingsExtended);  
+  }
+  if (!Controller1.ButtonR2.pressing() && wingsButtonPressed){ //Button Released
+    wingsButtonPressed = false;
+  }
+}
 
 static void runDrive(){
   LeftFront.spin(forward, Controller1.Axis3.position(), percent);
+  LeftMiddle.spin(forward, Controller1.Axis3.position(), percent);
   LeftBack.spin(forward, Controller1.Axis3.position(), percent);
-  LeftStack.spin(forward, Controller1.Axis3.position(), percent);
   RightFront.spin(forward, Controller1.Axis2.position(), percent);
+  RightMiddle.spin(forward, Controller1.Axis2.position(), percent);
   RightBack.spin(forward, Controller1.Axis2.position(), percent);
-  RightStack.spin(forward, Controller1.Axis2.position(), percent);
 }
-
 
 /********** Driver Control Function **********/
 void driverControl(){
   setSpeeds();
   while (true){
-    runIntake();
     runDrive();
+    runIntake();
     runCatapult();
-
+    runWings();
 
     wait(20, msec);
   }

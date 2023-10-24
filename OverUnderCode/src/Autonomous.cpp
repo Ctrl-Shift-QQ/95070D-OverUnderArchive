@@ -146,32 +146,15 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
 
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
-<<<<<<< HEAD
     driveWithPID(2.5, 0.1, 0.2, 0.5, 80, target);
   }
   if (direction == "Reverse"){
     driveWithPID(2.5, 0.1, 0.2, 0.5, 80, -target);
-=======
-    driveForward(2.5, 0.1, 0.2, 0.5, 70, target);
   }
-  if (direction == "Reverse"){
-    driveReverse(2.5, 0.1, 0.2, 0.5, 70, target);
->>>>>>> parent of 09b6bcc (Winters)
-  }
-  
 }
 
 static void defaultTurn(std::string direction, double target){
-<<<<<<< HEAD
   turnWithPIDTo(1, 0.04, 0.1, 2, 30, target);
-=======
-  if (direction == "Clockwise"){
-    turnClockwise(1, 0.04, 0.07, 2, 15, target);
-  }
-  if (direction == "CounterClockwise"){
-    turnCounterClockwise(1, 0.04, 0.07, 2, 15, target);  
-  } 
->>>>>>> parent of 09b6bcc (Winters)
 }
 
 
@@ -185,18 +168,8 @@ static void slowDrive(std::string direction, double target){
   
 }
 
-<<<<<<< HEAD
 static void slowTurn(double target){
   turnWithPIDTo(0.7, 0.02, 0.03, 2, 5, target);
-=======
-static void slowTurn(std::string direction, double target){
-  if (direction == "Clockwise"){
-    turnClockwise(0.7, 0.02, 0.03, 2, 15, target);
-  }
-  if (direction == "CounterClockwise"){
-    turnCounterClockwise(0.7, 0.02, 0.03, 2, 15, target);  
-  } 
->>>>>>> parent of 09b6bcc (Winters)
 }
 
 static void intake(){
@@ -214,11 +187,7 @@ static void stopIntake(){
 }
 
 static void scoreTriball(){
-<<<<<<< HEAD
   driveWithPID(2.5, 0.1, 0.2, 0.5, 85, 10);
-=======
-  driveForward(2.5, 0.1, 0.2, 0.5, 85, 12);
->>>>>>> parent of 09b6bcc (Winters)
 }
 
 static void backOut(){
@@ -228,114 +197,15 @@ static void backOut(){
 /********** Autons **********/
 
 void runAutonLeftAWP(){
-<<<<<<< HEAD
 }
 
 void runAutonLeftNoAWP(){
 }
 
 void runAutonRightSafe(){ 
-=======
-  //Score Pre Load
-  slowDrive("Forward", 20);
-  slowTurn("Clockwise", 45);
-  outake(0.5);
-  scoreTriball(); //Pre Load Scored
-  stopIntake();
-
-  //Pull Out Match Load
-  slowDrive("Reverse", 14);
-  slowTurn("CounterClockwise", 45);
-  slowDrive("Reverse", 14);
-  slowTurn("Clockwise", 90);
-  slowDrive("Reverse", 6);
-  Arm.set(true);
-  wait(0.3, sec);
-  defaultTurn("CounterClockwise", 125); //Match Load Pulled Out
-  Arm.set(false);
-  slowDrive("Reverse", 8);
-  defaultTurn("Clockwise", 45);
-  slowDrive("Reverse", 8);
-  defaultTurn("CounterClockwise", 45);
-
-  //Touch Bar
-  defaultDrive("Reverse", 32);
 }
 
-void runAutonLeftSabotage(){
-  
-}
-
-void runAutonRightSafe(){ 
-  //Score Pre Load
-  slowDrive("Forward", 40);
-  slowTurn("Clockwise", 90); //Counter Clockwise Movement from Dropping Intake
-  outake(0.5);
-  scoreTriball(); //Pre Load Scored
-  backOut();
-
-  //Side Triball
-  slowTurn("CounterClockwise", 140); //Face Triball 
-  intake();
-  slowDrive("Forward", 26); //Triball Picked Up
-  slowTurn("CounterClockwise", 145);
-  slowDrive("Forward", 20);
-  scoreTriball();
->>>>>>> parent of 09b6bcc (Winters)
-}
-
-<<<<<<< Updated upstream
-void runAutonRightFourTB(){
-}
-
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
 void runAutonRightSixTB(){
-=======
-  //Score Pre Load
-  defaultDrive("Forward", 38);
-  defaultTurn("Clockwise", 80); //Counter Clockwise Movement from Dropping Intake
-  outake(0.25);
-  scoreTriball(); //Pre Load Scored
-
-  //Middle Triball
-  backOut();
-  defaultTurn("CounterClockwise", 120); //Face Triball
-  intake();
-  defaultDrive("Forward", 12); //Triball Picked Up
-  stopIntake();
-  defaultTurn("Clockwise", 120);
-  outake(0.75);
-
-  //Back Triball
-  defaultTurn("Clockwise", 180); //Face Triball
-  intake();
-  defaultDrive("Forward", 14); //Triball Picked Up
-  stopIntake();
-  defaultTurn("CounterClockwise", 180);
-  defaultDrive("Forward", 14);
-  outake(0.25);
-  defaultTurn("Clockwise", 180);
-  Wings.set(true);
-  defaultDrive("Reverse", 15); //Middle and Back Triball Scored
-  Wings.set(false);
-
-  //Side Triball
-  defaultDrive("Forward", 20);
-  defaultTurn("CounterClockwise", 50);
-  intake();
-  defaultDrive("Forward", 24); //Triball Picked Up
-  stopIntake();
-  defaultDrive("Reverse", 18);
-  slowTurn("CounterClockwise", 130);
-  defaultDrive("Forward", 10);
-  outake(0.25);
-  scoreTriball(); //Side Triball Scored
-  stopIntake();
-  
-  std::cout << (Brain.Timer.time() - currentTime) / 1000 << " seconds" << std::endl;
->>>>>>> parent of 09b6bcc (Winters)
 }
 
 /********** Pre Auton **********/
@@ -373,13 +243,8 @@ static void autonSelector(){
 
     if (Controller1.ButtonLeft.pressing()){
       Controller1.Screen.clearScreen();
-<<<<<<< HEAD
       if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
         currentAuton = AutonRightSixTB;
-=======
-      if (currentAuton == AutonLeftAWP){
-        currentAuton = AutonRightFourTB;
->>>>>>> parent of 09b6bcc (Winters)
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
@@ -415,47 +280,28 @@ void calibrateInertial(double seconds){
 }
 
 void tempCheck(double warningTemp){
-<<<<<<< HEAD
   double leftDriveTemp = std::max(std::max(LeftFront.temperature(celsius), LeftMiddle.temperature(celsius)), LeftBack.temperature(celsius));
   double rightDriveTemp = std::max(std::max(RightFront.temperature(celsius), RightMiddle.temperature(celsius)), RightBack.temperature(celsius));
   double cataTemp = Catapult.temperature(celsius);
   double intakeTemp = Intake.temperature(celsius); 
-=======
-  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftBack.temperature(fahrenheit)), LeftStack.temperature(fahrenheit));
-  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightBack.temperature(fahrenheit)), RightStack.temperature(fahrenheit));
-  double cataTemp = Catapult.temperature(fahrenheit);
-  double intakeTemp = Intake.temperature(fahrenheit); 
->>>>>>> parent of 09b6bcc (Winters)
 
   Controller1.Screen.setCursor(2, 8);
 
   if (leftDriveTemp > warningTemp){
     Controller1.Screen.print("LEFT DRIVE HOT!!!");
-<<<<<<< HEAD
     wait(1, sec);
-=======
->>>>>>> parent of 09b6bcc (Winters)
   }
   if (rightDriveTemp > warningTemp){
     Controller1.Screen.print("RIGHT DRIVE HOT!!!");
-<<<<<<< HEAD
     wait(1, sec);
-=======
->>>>>>> parent of 09b6bcc (Winters)
   }
   if (cataTemp > warningTemp){
     Controller1.Screen.print("CATAPULT HOT!!!");
-<<<<<<< HEAD
     wait(1, sec);
-=======
->>>>>>> parent of 09b6bcc (Winters)
   }
   if (intakeTemp > warningTemp){
     Controller1.Screen.print("INTAKE HOT!!!");
-<<<<<<< HEAD
     wait(1, sec);
-=======
->>>>>>> parent of 09b6bcc (Winters)
   }
 }
 
@@ -464,16 +310,10 @@ void preAuton(){
   vexcodeInit();
 
   Controller1.Screen.clearScreen();
-<<<<<<< Updated upstream
-  calibrate(3);
-  tempCheck(130);
-  autonSelector();
-=======
 
   calibrateInertial(3);
   tempCheck(55);
   autonSelector();  
->>>>>>> Stashed changes
 }
 
 /********** Auton Function **********/
