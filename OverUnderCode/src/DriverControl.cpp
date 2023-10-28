@@ -24,8 +24,6 @@ static void runCatapult(){
   
   static bool matchLoading = false;
 
-  Rotation.resetPosition();
-
   if (Controller1.ButtonL2.pressing()){
     matchLoading = true; 
     Catapult.spin(forward);
@@ -36,8 +34,13 @@ static void runCatapult(){
   }
 
   if(matchLoading == false){
-    if(45 < Rotation.position(degrees) < 46){
-      Catapult.spin(forward);
+    if(fabs(45 - Catapult.position(degrees)) < 0.5){
+      if(Catapult.position(degrees) > 45){
+        Catapult.spin(reverse);
+      }
+      else{
+        Catapult.spin(forward);
+      }
     }
     else{
       Catapult.stop();
