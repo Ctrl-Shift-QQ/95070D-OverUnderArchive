@@ -8,7 +8,7 @@ typedef enum {
     AutonNone = 0,
     AutonLeftAWP,
     AutonLeftNoAWP,
-    AutonRightSafe,
+    AutonRightAWP,
     AutonRightSixTB
 } Auton;
 
