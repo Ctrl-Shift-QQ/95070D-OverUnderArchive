@@ -229,12 +229,6 @@ void runAutonLeftAWP(){
 }
 
 void runAutonLeftNoAWP(){
-  calibrateInertial(3);
-  Inertial.resetHeading();
-  defaultTurn(45);
-  defaultTurn(270);
-  defaultDrive("Forward", 20);
-  defaultDrive("Reverse", 20);
 }
 
 void runAutonRightAWP(){ 
