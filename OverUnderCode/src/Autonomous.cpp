@@ -221,71 +221,7 @@ void runAutonLeftAWP(){
   scoreTriball();
   Intake.stop();
   slowDrive("Reverse", 14);
-  slowTurn("CounterClockwise", 45);
-  slowDrive("Reverse", 14);
-  slowTurn("Clockwise", 90);
-  slowDrive("Reverse", 6);
-  Arm.set(true);
-  wait(0.3, sec);
-  defaultTurn("CounterClockwise", 90); //Match Load Pulled Out
-  Arm.set(false);
-  slowDrive("Reverse", 8);
-  defaultTurn("CounterClockwise", 30);
-
-  //Touch Bar
-  defaultDrive("Reverse", 36);
-}
-
-void runAutonLeftSabotage(){
-
-}
-
-void runAutonRightSafe(){ 
-  //Score Pre Load
-  slowDrive("Forward", 48);
-  slowTurn("Clockwise", 90); //Counter Clockwise Movement from Dropping Intake
-  outake(0.5);
-  scoreTriball(); //Pre Load Scored
-  backOut();
-
-  //Side Triball
-  slowTurn("Clockwise", 150); //Face Triball
-  intake();
-  slowDrive("Forward", 30); //Triball Picked Up
-  stopIntake();
-  slowDrive("Reverse", 30);
-  slowTurn("CounterClockwise", 150);
-  outake(0.5);
-  scoreTriball();
-}
-
-void runAutonRightFourTB(){
-  double currentTime = Brain.Timer.time();
-
-  //Score Pre Load
-  defaultDrive("Forward", 40);
-  defaultTurn("Clockwise", 80); //Counter Clockise Movement from Dropping Intake
-  outake(0.25);
-  scoreTriball(); //Pre Load Scored
-
-  //Middle Triball
-  backOut();
-  defaultTurn("CounterClockwise", 130); //Face Triball
-  intake();
-  defaultDrive("Forward", 12); //Triball Picked Up
-  stopIntake();
-  defaultTurn("Clockwise", 130);
-  outake(0.75);
-
-  //Back Triball
-  defaultTurn("Clockwise", 180); //Face Triball
-  intake();
-  defaultDrive("Forward", 16); //Triball Picked Up
-  stopIntake();
-  defaultTurn("CounterClockwise", 180);
-  defaultDrive("Forward", 16);
-  outake(0.25);
-  defaultTurn("Clockwise", 180);
+  slowTurn(0);
   Wings.set(true);
   slowDrive("Reverse", 48);
   slowTurn(45);
@@ -293,12 +229,6 @@ void runAutonRightFourTB(){
 }
 
 void runAutonLeftNoAWP(){
-  calibrateInertial(3);
-  Inertial.resetHeading();
-  defaultTurn(45);
-  defaultTurn(270);
-  defaultDrive("Forward", 20);
-  defaultDrive("Reverse", 20);
 }
 
 void runAutonRightAWP(){ 
