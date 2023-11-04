@@ -48,18 +48,26 @@ static void runCatapult(){
   }
 }
 
-static void runWings(){
-  static bool wingsExtended;
-  static bool wingsButtonPressed;
+static void pistonToggle(vex::controller::button Button, digital_out Piston){
+  static bool pistonExtended;
+  static bool ButtonPressed;
 
-  if (Controller1.ButtonR2.pressing() && !wingsButtonPressed){ //Button Pressed
-    wingsButtonPressed = true;
-    wingsExtended = !wingsExtended;
-    Wings.set(wingsExtended);  
+  if (Button.pressing() && !ButtonPressed){ //Button Pressed
+    ButtonPressed = true;
+    pistonExtended = !pistonExtended;
+    Piston.set(pistonExtended);  
   }
-  if (!Controller1.ButtonR2.pressing() && wingsButtonPressed){ //Button Released
-    wingsButtonPressed = false;
+  if (Button.pressing() && ButtonPressed){ //Button Released
+    ButtonPressed = false;
   }
+}
+
+static void runBlocker(){
+  pistonToggle(Controller1.ButtonX, Blocker);
+}
+
+static void runWings(){
+  pistonToggle(Controller1.ButtonL2, Wings);
 }
 
 static void runDrive(){
@@ -78,6 +86,7 @@ void driverControl(){
     runDrive();
     runIntake();
     runCatapult();
+    runBlocker();
     runWings();
 
     wait(20, msec);

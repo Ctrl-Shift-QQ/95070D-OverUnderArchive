@@ -14,6 +14,7 @@ extern motor Intake;
 extern motor Catapult;
 extern inertial Inertial;
 extern digital_out Wings;
+extern digital_out Blocker;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
