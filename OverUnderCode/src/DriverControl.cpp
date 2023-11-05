@@ -21,43 +21,24 @@ static void runIntake(){
 }
 
 static void runCatapult(){
-  
-  static bool matchLoading = false;
-
   if (Controller1.ButtonL2.pressing()){
-    matchLoading = true; 
     Catapult.spin(forward);
   }
   else{
-    matchLoading = false;
     Catapult.stop();
-  }
-
-  if(matchLoading == false){
-    if(fabs(45 - Catapult.position(degrees)) < 0.5){
-      if(Catapult.position(degrees) > 45){
-        Catapult.spin(reverse);
-      }
-      else{
-        Catapult.spin(forward);
-      }
-    }
-    else{
-      Catapult.stop();
-    }
   }
 }
 
-static void pistonToggle(vex::controller::button Button, digital_out Piston){
+static void pistonToggle(const controller::button &Button, digital_out Piston){
   static bool pistonExtended;
   static bool ButtonPressed;
 
   if (Button.pressing() && !ButtonPressed){ //Button Pressed
     ButtonPressed = true;
     pistonExtended = !pistonExtended;
-    Piston.set(pistonExtended);  
+    Piston.set(pistonExtended);
   }
-  if (Button.pressing() && ButtonPressed){ //Button Released
+  if (!Button.pressing() && ButtonPressed){ //Button Released
     ButtonPressed = false;
   }
 }
@@ -67,7 +48,7 @@ static void runBlocker(){
 }
 
 static void runWings(){
-  pistonToggle(Controller1.ButtonL2, Wings);
+  pistonToggle(Controller1.ButtonR2, Wings);
 }
 
 static void runDrive(){
