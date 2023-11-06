@@ -22,15 +22,13 @@ competition Competition;
 
 
 int main(){
-  // Competition.drivercontrol(driverControl);
-  // Competition.autonomous(autonomous);
+  Competition.drivercontrol(driverControl);
+  Competition.autonomous(autonomous);
 
-  // preAuton();
+  preAuton();
 
-  // while(true){
-  //   wait(20, msec);
-  // }
-
-  driverControl();
+  while(true){
+    wait(20, msec);
+  }
 }
 

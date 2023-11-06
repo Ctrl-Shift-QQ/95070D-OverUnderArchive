@@ -1,8 +1,5 @@
 
 //For Testing
-void calibrateInertial(double seconds);
-
-void tempCheck(double warningTemp);
 
 typedef enum {
     AutonNone = 0,
@@ -15,6 +12,11 @@ typedef enum {
 void testAuton(Auton testedAuton);
 
 //For Competition
+
+void calibrateInertial(double seconds);
+
+void tempCheck(double warningTemp);
+
 void preAuton();
 
 void autonomous();

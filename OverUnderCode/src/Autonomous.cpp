@@ -35,7 +35,7 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   
   while ((fabs(leftDriveError) + fabs(leftDriveError)) / 2 > tolerance){
     //Left Side
-    leftDriveError = target - LeftFront.position(turns) * 3.25 * M_PI / (5/3);
+    leftDriveError = target - LeftBack.position(turns) * 3.25 * M_PI / (5/3);
     leftDerivative = (previousLeftError - leftDriveError) * 50;
     leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd;
 
@@ -55,7 +55,7 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     }
     
     //Right Side
-    rightDriveError = target - RightFront.position(turns) * 3.25 * M_PI / 2;
+    rightDriveError = target - RightBack.position(turns) * 3.25 * M_PI / (5/3);
     rightDerivative = (previousRightError - rightDriveError) * 50;
     rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd;
 
@@ -163,24 +163,24 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
 
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
-    driveWithPID(2.5, 0.1, 0.2, 0.5, 80, target);
+    driveWithPID(2.5, 0.1, 0.2, 0.5, 50, target);
   }
   if (direction == "Reverse"){
-    driveWithPID(2.5, 0.1, 0.2, 0.5, 80, -target);
+    driveWithPID(2.5, 0.1, 0.2, 0.5, 50, -target);
   }
 }
 
 static void defaultTurn(double target){
-  turnWithPIDTo(1, 0.04, 0.1, 2, 30, target);
+  turnWithPIDTo(1, 0.04, 0.1, 2, 15, target);
 }
 
 
 static void slowDrive(std::string direction, double target){ 
   if (direction == "Forward"){
-    driveWithPID(1.5, 0.05, 0.1, 0.5, 25, target);
+    driveWithPID(1.5, 0.05, 0.1, 0.5, 15, target);
   }
   if (direction == "Reverse"){
-    driveWithPID(1.5, 0.05, 0.1, 0.5, 25, -target);
+    driveWithPID(1.5, 0.05, 0.1, 0.5, 15, -target);
   }
   
 }
@@ -190,17 +190,12 @@ static void slowTurn(double target){
 }
 
 static void intake(){
-  Intake.spin(forward, 75, percent);
+  Intake.spin(forward, 90, percent);
 }
 
 static void outake(double waitTime){
-  Intake.spin(reverse, 75, percent);
+  Intake.spin(reverse, 90, percent);
   wait(waitTime, sec);
-}
-
-static void stopIntake(){
-  wait(50, msec);
-  Intake.stop();
 }
 
 static void scoreTriball(){
@@ -214,6 +209,7 @@ static void backOut(){
 /********** Autons **********/
 
 void runAutonLeftAWP(){
+  IntakePiston.set(true);
   slowDrive("Forward", 36);
   slowTurn(45);
   slowDrive("Forward", 10);
@@ -222,16 +218,24 @@ void runAutonLeftAWP(){
   Intake.stop();
   slowDrive("Reverse", 14);
   slowTurn(0);
+  slowDrive("Reverse", 40);
   Wings.set(true);
-  slowDrive("Reverse", 48);
   slowTurn(45);
-  slowDrive("Forward", 50);
+  Blocker.set(true);
+  slowDrive("Reverse", 50);
 }
 
 void runAutonLeftNoAWP(){
 }
 
 void runAutonRightAWP(){ 
+  IntakePiston.set(true);
+  intake();
+  defaultDrive("Forward", 16);
+  defaultDrive("Reverse", 48);
+  defaultTurn(315);
+  defaultDrive("Reverse", 20);
+  Wings.set(true);
 }
 
 void runAutonRightSixTB(){
@@ -296,7 +300,7 @@ static void autonSelector(){
 
     wait(0.2, sec);
   }
-  Controller1.rumble("-.-.-");
+  Controller1.rumble("-.-.");
 }
 
 void calibrateInertial(double seconds){

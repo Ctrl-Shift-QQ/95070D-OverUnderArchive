@@ -29,27 +29,32 @@ static void runCatapult(){
   }
 }
 
-static void pistonToggle(const controller::button &Button, digital_out Piston){
-  static bool pistonExtended;
-  static bool ButtonPressed;
-
-  if (Button.pressing() && !ButtonPressed){ //Button Pressed
-    ButtonPressed = true;
-    pistonExtended = !pistonExtended;
-    Piston.set(pistonExtended);
-  }
-  if (!Button.pressing() && ButtonPressed){ //Button Released
-    ButtonPressed = false;
-  }
-}
-
 static void runBlocker(){
-  pistonToggle(Controller1.ButtonX, Blocker);
+  static bool pistonExtended;
+  static bool buttonPressed;
+
+  if (Controller1.ButtonX.pressing() && !buttonPressed){ //Button Pressed
+    buttonPressed = true;
+    pistonExtended = !pistonExtended;
+    Blocker.set(pistonExtended);
+  }
+  if (!Controller1.ButtonX.pressing() && buttonPressed){ //Button Released
+    buttonPressed = false;
+  }
 }
 
 static void runWings(){
-  pistonToggle(Controller1.ButtonR2, Wings);
-}
+  static bool pistonExtended;
+  static bool buttonPressed;
+
+  if (Controller1.ButtonR2.pressing() && !buttonPressed){ //Button Pressed
+    buttonPressed = true;
+    pistonExtended = !pistonExtended;
+    Wings.set(pistonExtended);
+  }
+  if (!Controller1.ButtonR2.pressing() && buttonPressed){ //Button Released
+    buttonPressed = false;
+  }}
 
 static void runDrive(){
   LeftFront.spin(forward, Controller1.Axis3.position(), percent);

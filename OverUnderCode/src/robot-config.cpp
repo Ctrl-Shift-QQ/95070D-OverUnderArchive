@@ -21,6 +21,7 @@ motor RightBack = motor(PORT1, ratio6_1, false);
 motor Intake = motor(PORT14, ratio6_1, false);
 motor Catapult = motor(PORT10, ratio36_1, false);
 inertial Inertial = inertial(PORT19);
+digital_out IntakePiston = digital_out(Brain.ThreeWirePort.E);
 digital_out Wings = digital_out(Brain.ThreeWirePort.H);
 digital_out Blocker = digital_out(Brain.ThreeWirePort.F);
 

@@ -13,6 +13,7 @@ extern motor RightBack;
 extern motor Intake;
 extern motor Catapult;
 extern inertial Inertial;
+extern digital_out IntakePiston; 
 extern digital_out Wings;
 extern digital_out Blocker;
 
