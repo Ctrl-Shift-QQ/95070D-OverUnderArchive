@@ -177,10 +177,10 @@ static void defaultTurn(double target){
 
 static void slowDrive(std::string direction, double target){ 
   if (direction == "Forward"){
-    driveWithPID(1.5, 0.05, 0.1, 0.5, 15, target);
+    driveWithPID(0.9, 0.05, 0.1, 0.5, 10, target);
   }
   if (direction == "Reverse"){
-    driveWithPID(1.5, 0.05, 0.1, 0.5, 15, -target);
+    driveWithPID(0.9, 0.05, 0.1, 0.5, 10, -target);
   }
   
 }
@@ -232,10 +232,10 @@ void runAutonRightAWP(){
   IntakePiston.set(true);
   intake();
   defaultDrive("Forward", 16);
-  defaultDrive("Reverse", 48);
-  defaultTurn(315);
-  defaultDrive("Reverse", 20);
-  Wings.set(true);
+  slowDrive("Reverse", 54);
+  slowTurn(315);
+  // defaultDrive("Reverse", 20);
+  // Wings.set(true);
 }
 
 void runAutonRightSixTB(){
