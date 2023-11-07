@@ -5,7 +5,7 @@
 
 static void setSpeeds(){
   Intake.setVelocity(80, percent);
-  Catapult.setVelocity(40, percent);
+  Catapult.setVelocity(50, percent);
 }
 
 static void runIntake(){
@@ -17,6 +17,12 @@ static void runIntake(){
   }
   if (Controller1.ButtonUp.pressing()){
     Intake.stop();
+  }
+}
+
+static void runDropIntake(){
+  if (Controller1.ButtonY.pressing()){
+    IntakePiston.set(true);
   }
 }
 
@@ -68,6 +74,7 @@ static void runDrive(){
 /********** Driver Control Function **********/
 void driverControl(){
   setSpeeds();
+  IntakePiston.set(true);
   while (true){
     runDrive();
     runIntake();

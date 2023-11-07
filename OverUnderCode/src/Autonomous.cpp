@@ -59,7 +59,7 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     rightDerivative = (previousRightError - rightDriveError) * 50;
     rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd;
 
-    if (fabs(leftDriveTotal) < minimumSpeed){
+    if (fabs(rightDriveTotal) < minimumSpeed){
       RightFront.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
       RightMiddle.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
       RightBack.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
@@ -163,10 +163,10 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
 
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
-    driveWithPID(2.5, 0.1, 0.2, 0.5, 50, target);
+    driveWithPID(2.5, 0.1, 0.2, 0.3, 50, target);
   }
   if (direction == "Reverse"){
-    driveWithPID(2.5, 0.1, 0.2, 0.5, 50, -target);
+    driveWithPID(2.5, 0.1, 0.2, 0.3, 50, -target);
   }
 }
 
@@ -177,10 +177,10 @@ static void defaultTurn(double target){
 
 static void slowDrive(std::string direction, double target){ 
   if (direction == "Forward"){
-    driveWithPID(0.9, 0.05, 0.1, 0.5, 10, target);
+    driveWithPID(0.9, 0.05, 0.1, 0.3, 16, target);
   }
   if (direction == "Reverse"){
-    driveWithPID(0.9, 0.05, 0.1, 0.5, 10, -target);
+    driveWithPID(0.9, 0.05, 0.1, 0.3, 16, -target);
   }
   
 }
@@ -198,12 +198,12 @@ static void outake(double waitTime){
   wait(waitTime, sec);
 }
 
-static void scoreTriball(){
-  driveWithPID(2.5, 0.1, 0.2, 0.5, 70, 10);
+static void frontRam(){
+  driveWithPID(2.5, 0.1, 0.2, 0.3, 70, 10);
 }
 
-static void backOut(){
-  driveWithPID(2.5, 0.1, 0.2, 0.5, 70, -10);
+static void backRam(){
+  driveWithPID(2.5, 0.1, 0.2, 0.3, 70, -10);
 }
 
 /********** Autons **********/
@@ -214,7 +214,7 @@ void runAutonLeftAWP(){
   slowTurn(45);
   slowDrive("Forward", 10);
   outake(0.3);
-  scoreTriball();
+  frontRam();
   Intake.stop();
   slowDrive("Reverse", 14);
   slowTurn(0);
@@ -231,11 +231,20 @@ void runAutonLeftNoAWP(){
 void runAutonRightAWP(){ 
   IntakePiston.set(true);
   intake();
-  defaultDrive("Forward", 16);
-  slowDrive("Reverse", 54);
+  defaultDrive("Forward", 12);
+  slowDrive("Reverse", 44);
   slowTurn(315);
-  // defaultDrive("Reverse", 20);
-  // Wings.set(true);
+  slowDrive("Reverse", 18);
+  Wings.set(true);
+  slowTurn(290); //Match Load Retreived
+  slowDrive("Reverse", 10);
+  slowTurn(270);
+  backRam(); //Two Triballs Scored
+  defaultDrive("Forward", 15);
+  defaultTurn(90);
+  outake(0.3);
+  frontRam();
+  Intake.stop();
 }
 
 void runAutonRightSixTB(){
@@ -313,10 +322,10 @@ void calibrateInertial(double seconds){
 }
 
 void tempCheck(double warningTemp){
-  double leftDriveTemp = std::max(std::max(LeftFront.temperature(celsius), LeftMiddle.temperature(celsius)), LeftBack.temperature(celsius));
-  double rightDriveTemp = std::max(std::max(RightFront.temperature(celsius), RightMiddle.temperature(celsius)), RightBack.temperature(celsius));
-  double cataTemp = Catapult.temperature(celsius);
-  double intakeTemp = Intake.temperature(celsius); 
+  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
+  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
+  double cataTemp = Catapult.temperature(fahrenheit);
+  double intakeTemp = Intake.temperature(fahrenheit); 
 
   Controller1.Screen.setCursor(2, 8);
 
@@ -345,7 +354,7 @@ void preAuton(){
   Controller1.Screen.clearScreen();
 
   calibrateInertial(3);
-  tempCheck(55);
+  tempCheck(120);
   autonSelector();  
 }
 
