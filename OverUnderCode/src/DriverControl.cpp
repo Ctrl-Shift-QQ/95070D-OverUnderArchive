@@ -74,10 +74,10 @@ static void runDrive(){
 /********** Driver Control Function **********/
 void driverControl(){
   setSpeeds();
-  IntakePiston.set(true);
   while (true){
     runDrive();
     runIntake();
+    runDropIntake();
     runCatapult();
     runBlocker();
     runWings();

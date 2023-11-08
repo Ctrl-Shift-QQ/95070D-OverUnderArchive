@@ -33,7 +33,7 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   LeftBack.resetPosition();
   RightBack.resetPosition();
   
-  while ((fabs(leftDriveError) + fabs(leftDriveError)) / 2 > tolerance){
+  while ((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance){
     //Left Side
     leftDriveError = target - LeftBack.position(turns) * 3.25 * M_PI / (5/3);
     leftDerivative = (previousLeftError - leftDriveError) * 50;
@@ -77,6 +77,9 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     previousLeftError = leftDriveError;
     previousRightError = rightDriveError; 
  
+    std::cout << leftDriveError << std::endl;
+    std::cout << rightDriveError << std::endl;
+
     wait(20, msec);
   }
 
@@ -163,10 +166,10 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
 
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
-    driveWithPID(2.5, 0.1, 0.2, 0.3, 50, target);
+    driveWithPID(2.5, 0.1, 0.2, 0.5, 50, target);
   }
   if (direction == "Reverse"){
-    driveWithPID(2.5, 0.1, 0.2, 0.3, 50, -target);
+    driveWithPID(2.5, 0.1, 0.2, 0.5, 50, -target);
   }
 }
 
@@ -177,10 +180,10 @@ static void defaultTurn(double target){
 
 static void slowDrive(std::string direction, double target){ 
   if (direction == "Forward"){
-    driveWithPID(0.9, 0.05, 0.1, 0.3, 16, target);
+    driveWithPID(0.5, 0.03, 0.07, 0.5, 30, target);
   }
   if (direction == "Reverse"){
-    driveWithPID(0.9, 0.05, 0.1, 0.3, 16, -target);
+    driveWithPID(0.5, 0.03, 0.07, 0.5, 30, -target);
   }
   
 }
@@ -196,14 +199,15 @@ static void intake(){
 static void outake(double waitTime){
   Intake.spin(reverse, 90, percent);
   wait(waitTime, sec);
+  Intake.stop();
 }
 
 static void frontRam(){
-  driveWithPID(2.5, 0.1, 0.2, 0.3, 70, 10);
+  driveWithPID(2.5, 0.1, 0.2, 2, 70, 10);
 }
 
 static void backRam(){
-  driveWithPID(2.5, 0.1, 0.2, 0.3, 70, -10);
+  driveWithPID(2.5, 0.1, 0.2, 2, 70, -10);
 }
 
 /********** Autons **********/
@@ -213,9 +217,8 @@ void runAutonLeftAWP(){
   slowDrive("Forward", 36);
   slowTurn(45);
   slowDrive("Forward", 10);
-  outake(0.3);
+  outake(0.5);
   frontRam();
-  Intake.stop();
   slowDrive("Reverse", 14);
   slowTurn(0);
   slowDrive("Reverse", 40);
@@ -231,20 +234,28 @@ void runAutonLeftNoAWP(){
 void runAutonRightAWP(){ 
   IntakePiston.set(true);
   intake();
-  defaultDrive("Forward", 12);
-  slowDrive("Reverse", 44);
+  defaultDrive("Forward", 8);
+  slowDrive("Reverse", 56);
   slowTurn(315);
-  slowDrive("Reverse", 18);
+  slowDrive("Reverse", 20);
   Wings.set(true);
-  slowTurn(290); //Match Load Retreived
-  slowDrive("Reverse", 10);
+  slowTurn(295); //Match Load Retreived
+  
+  slowDrive("Reverse", 16);
+  Wings.set(false);
+  slowDrive("Reverse", 6);
   slowTurn(270);
-  backRam(); //Two Triballs Scored
+  backRam(); //Pre Load and Match Load Scored 
+
   defaultDrive("Forward", 15);
   defaultTurn(90);
   outake(0.3);
-  frontRam();
-  Intake.stop();
+  frontRam(); //Below Bar Triball Scored
+
+  defaultDrive("Reverse", 20);
+  defaultTurn(45);
+  intake();
+  defaultDrive("Forward", 80);
 }
 
 void runAutonRightSixTB(){
@@ -325,25 +336,18 @@ void tempCheck(double warningTemp){
   double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
   double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
   double cataTemp = Catapult.temperature(fahrenheit);
-  double intakeTemp = Intake.temperature(fahrenheit); 
+  double intakeTemp = Intake.temperature(fahrenheit);
 
-  Controller1.Screen.setCursor(2, 8);
+  double temperatures[4] = {leftDriveTemp, rightDriveTemp, cataTemp, intakeTemp};
+  std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "CATAPULT", "INTAKE"};
 
-  if (leftDriveTemp > warningTemp){
-    Controller1.Screen.print("LEFT DRIVE HOT!!!");
-    wait(1, sec);
-  }
-  if (rightDriveTemp > warningTemp){
-    Controller1.Screen.print("RIGHT DRIVE HOT!!!");
-    wait(1, sec);
-  }
-  if (cataTemp > warningTemp){
-    Controller1.Screen.print("CATAPULT HOT!!!");
-    wait(1, sec);
-  }
-  if (intakeTemp > warningTemp){
-    Controller1.Screen.print("INTAKE HOT!!!");
-    wait(1, sec);
+  for (int i = 0; i < 4; i++){
+    if (temperatures[i] > warningTemp){
+      Controller1.Screen.setCursor(2, 4);
+      Controller1.Screen.print(mechs[i] + " HOT!!!");
+      wait(1, sec);
+      Controller1.Screen.clearScreen();
+    }
   }
 }
 
@@ -354,7 +358,7 @@ void preAuton(){
   Controller1.Screen.clearScreen();
 
   calibrateInertial(3);
-  tempCheck(120);
+  tempCheck(12);
   autonSelector();  
 }
 
