@@ -76,7 +76,6 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
 
     previousLeftError = leftDriveError;
     previousRightError = rightDriveError; 
- 
     std::cout << leftDriveError << std::endl;
     std::cout << rightDriveError << std::endl;
 
@@ -180,16 +179,16 @@ static void defaultTurn(double target){
 
 static void slowDrive(std::string direction, double target){ 
   if (direction == "Forward"){
-    driveWithPID(0.5, 0.03, 0.07, 0.5, 30, target);
+    driveWithPID(0.5, 0.03, 0.07, 0.5, 35, target);
   }
   if (direction == "Reverse"){
-    driveWithPID(0.5, 0.03, 0.07, 0.5, 30, -target);
+    driveWithPID(0.5, 0.03, 0.07, 0.5, 35, -target);
   }
   
 }
 
 static void slowTurn(double target){
-  turnWithPIDTo(0.7, 0.02, 0.07, 2, 5, target);
+  turnWithPIDTo(0.7, 0.02, 0.07, 2, 10, target);
 }
 
 static void intake(){
@@ -203,11 +202,11 @@ static void outake(double waitTime){
 }
 
 static void frontRam(){
-  driveWithPID(2.5, 0.1, 0.2, 2, 70, 10);
+  driveWithPID(2.5, 0.1, 0.2, 3, 60, 10);
 }
 
 static void backRam(){
-  driveWithPID(2.5, 0.1, 0.2, 2, 70, -10);
+  driveWithPID(2.5, 0.1, 0.2, 3, 60, -10);
 }
 
 /********** Autons **********/
@@ -232,30 +231,39 @@ void runAutonLeftNoAWP(){
 }
 
 void runAutonRightAWP(){ 
+  double startTime = Brain.Timer.time();
+
   IntakePiston.set(true);
   intake();
   defaultDrive("Forward", 8);
   slowDrive("Reverse", 56);
   slowTurn(315);
-  slowDrive("Reverse", 20);
+  slowDrive("Reverse", 26);
   Wings.set(true);
   slowTurn(295); //Match Load Retreived
   
-  slowDrive("Reverse", 16);
+  slowDrive("Reverse", 8);
   Wings.set(false);
-  slowDrive("Reverse", 6);
+  slowDrive("Reverse", 18);
   slowTurn(270);
   backRam(); //Pre Load and Match Load Scored 
 
-  defaultDrive("Forward", 15);
+  defaultDrive("Forward", 8);
   defaultTurn(90);
   outake(0.3);
   frontRam(); //Below Bar Triball Scored
 
-  defaultDrive("Reverse", 20);
-  defaultTurn(45);
+  defaultDrive("Reverse", 15);
+  defaultTurn(20);
   intake();
   defaultDrive("Forward", 80);
+  defaultTurn(315);
+  defaultDrive("Reverse", 10);
+  defaultTurn(180);
+  defaultDrive("Forward", 15);
+  frontRam(); //Side Triball Scored
+
+  std::cout << "Time: " << Brain.Timer.time() / 1000 - startTime << std::endl;
 }
 
 void runAutonRightSixTB(){
@@ -333,22 +341,23 @@ void calibrateInertial(double seconds){
 }
 
 void tempCheck(double warningTemp){
-  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
-  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
-  double cataTemp = Catapult.temperature(fahrenheit);
-  double intakeTemp = Intake.temperature(fahrenheit);
+  // double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
+  // double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
+  // double cataTemp = Catapult.temperature(fahrenheit);
+  // double intakeTemp = Intake.temperature(fahrenheit);
 
-  double temperatures[4] = {leftDriveTemp, rightDriveTemp, cataTemp, intakeTemp};
-  std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "CATAPULT", "INTAKE"};
+  // double temperatures[4] = {leftDriveTemp, rightDriveTemp, cataTemp, intakeTemp};
+  // std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "CATAPULT", "INTAKE"};
 
-  for (int i = 0; i < 4; i++){
-    if (temperatures[i] > warningTemp){
-      Controller1.Screen.setCursor(2, 4);
-      Controller1.Screen.print(mechs[i] + " HOT!!!");
-      wait(1, sec);
-      Controller1.Screen.clearScreen();
-    }
-  }
+  // for (int i = 0; i < 4; i++){
+  //   if (temperatures[i] > warningTemp){
+  //     Controller1.Screen.setCursor(2, 4);
+  //     Controller1.Screen.print(mechs[i]);
+  //     Controller1.Screen.print(" HOT!!!");
+  //     wait(1, sec);
+  //     Controller1.Screen.clearScreen();
+  //   }
+  // }
 }
 
 void preAuton(){
