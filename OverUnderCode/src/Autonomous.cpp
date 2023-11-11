@@ -26,8 +26,8 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   
   double rightDriveError = target;
   double rightIntegral = 0;
-  double previousRightError = rightDriveError;
   double rightDerivative = 0;
+  double previousRightError = rightDriveError;
   double rightDriveTotal = 0;
 
   LeftBack.resetPosition();
@@ -50,7 +50,7 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
       LeftBack.spin(forward, leftDriveTotal, percent);
     }
 
-    if(leftDriveError < 10){
+    if(fabs(leftDriveError) < 10){
       leftIntegral += leftDriveError / 50;
     }
     
@@ -60,9 +60,9 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd;
 
     if (fabs(rightDriveTotal) < minimumSpeed){
-      RightFront.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
-      RightMiddle.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
-      RightBack.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
+      RightFront.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
+      RightMiddle.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
+      RightBack.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
     }
     else {
       RightFront.spin(forward, rightDriveTotal, percent);
@@ -70,14 +70,12 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
       RightBack.spin(forward, rightDriveTotal, percent);
     }
 
-    if(rightDriveError < 10){
+    if(fabs(rightDriveError) < 10){
       rightIntegral += rightDriveError / 50;
     }
 
     previousLeftError = leftDriveError;
-    previousRightError = rightDriveError; 
-    std::cout << leftDriveError << std::endl;
-    std::cout << rightDriveError << std::endl;
+    previousRightError = rightDriveError;    
 
     wait(20, msec);
   }
@@ -127,7 +125,7 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
     derivative = (previousError - error) * 50;
     total = error * kp + integral * ki - derivative * kd;
 
-    if (fabs(total) < minimumSpeed){
+    if (fabs(error) < minimumSpeed){
       LeftFront.spin(forward, getSign(error) * minimumSpeed, percent);
       LeftMiddle.spin(forward, getSign(error) * minimumSpeed, percent);
       LeftBack.spin(forward, getSign(error) * minimumSpeed, percent);
@@ -144,7 +142,7 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
       RightBack.spin(reverse, total, percent);
     }
 
-    if (error < 30){
+    if (fabs(error) < 30){
       integral += error / 50;
     }
 
@@ -165,30 +163,30 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
 
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
-    driveWithPID(2.5, 0.1, 0.2, 0.5, 50, target);
+    driveWithPID(3, 0.3, 0.05, 0.5, 40, target);
   }
   if (direction == "Reverse"){
-    driveWithPID(2.5, 0.1, 0.2, 0.5, 50, -target);
+    driveWithPID(3, 0.3, 0.05, 0.5, 40, -target);
   }
 }
 
 static void defaultTurn(double target){
-  turnWithPIDTo(1, 0.04, 0.1, 2, 15, target);
+  turnWithPIDTo(1, 0.2, 0.1, 2, 15, target);
 }
 
 
 static void slowDrive(std::string direction, double target){ 
   if (direction == "Forward"){
-    driveWithPID(0.5, 0.03, 0.07, 0.5, 35, target);
+    driveWithPID(0.5, 0.5, 0.3, 0.5, 35, target);
   }
   if (direction == "Reverse"){
-    driveWithPID(0.5, 0.03, 0.07, 0.5, 35, -target);
+    driveWithPID(0.5, 0.5, 0.3, 0.5, 35, -target);
   }
   
 }
 
 static void slowTurn(double target){
-  turnWithPIDTo(0.7, 0.02, 0.07, 2, 10, target);
+  turnWithPIDTo(0.7, 0.1, 0.07, 2, 10, target);
 }
 
 static void intake(){
@@ -230,22 +228,22 @@ void runAutonLeftAWP(){
 void runAutonLeftNoAWP(){
 }
 
-void runAutonRightAWP(){ 
-  double startTime = Brain.Timer.time();
+void runAutonRightAWP(){
+}
 
+void runAutonRightSixTB(){
   IntakePiston.set(true);
   intake();
   defaultDrive("Forward", 8);
   slowDrive("Reverse", 56);
   slowTurn(315);
-  slowDrive("Reverse", 26);
+  slowDrive("Reverse", 20);
   Wings.set(true);
-  slowTurn(295); //Match Load Retreived
+  defaultTurn(290); //Match Load Retreived
   
-  slowDrive("Reverse", 8);
+  slowDrive("Reverse", 24);
   Wings.set(false);
-  slowDrive("Reverse", 18);
-  slowTurn(270);
+  slowTurn(270);  
   backRam(); //Pre Load and Match Load Scored 
 
   defaultDrive("Forward", 8);
@@ -254,19 +252,17 @@ void runAutonRightAWP(){
   frontRam(); //Below Bar Triball Scored
 
   defaultDrive("Reverse", 15);
-  defaultTurn(20);
+  defaultTurn(25);
   intake();
   defaultDrive("Forward", 80);
   defaultTurn(315);
-  defaultDrive("Reverse", 10);
+  defaultDrive("Reverse", 28);
   defaultTurn(180);
-  defaultDrive("Forward", 15);
+  defaultDrive("Forward", 25);
+  outake(0.3);
   frontRam(); //Side Triball Scored
 
-  std::cout << "Time: " << Brain.Timer.time() / 1000 - startTime << std::endl;
-}
-
-void runAutonRightSixTB(){
+  defaultDrive("Reverse", 12);
 }
 
 /********** Pre Auton **********/
@@ -341,23 +337,26 @@ void calibrateInertial(double seconds){
 }
 
 void tempCheck(double warningTemp){
-  // double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
-  // double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
-  // double cataTemp = Catapult.temperature(fahrenheit);
-  // double intakeTemp = Intake.temperature(fahrenheit);
+  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
+  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
+  double cataTemp = Catapult.temperature(fahrenheit);
+  double intakeTemp = Intake.temperature(fahrenheit);
 
-  // double temperatures[4] = {leftDriveTemp, rightDriveTemp, cataTemp, intakeTemp};
-  // std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "CATAPULT", "INTAKE"};
+  double temperatures[4] = {leftDriveTemp, rightDriveTemp, cataTemp, intakeTemp};
+  std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "CATAPULT", "INTAKE"};
 
-  // for (int i = 0; i < 4; i++){
-  //   if (temperatures[i] > warningTemp){
-  //     Controller1.Screen.setCursor(2, 4);
-  //     Controller1.Screen.print(mechs[i]);
-  //     Controller1.Screen.print(" HOT!!!");
-  //     wait(1, sec);
-  //     Controller1.Screen.clearScreen();
-  //   }
-  // }
+  for (int i = 0; i < 4; i++){
+    if (temperatures[i] > warningTemp){
+      Controller1.Screen.setCursor(1, 6);
+      Controller1.Screen.print(mechs[i].c_str());
+      Controller1.Screen.print(" HOT!!!");
+      Controller1.Screen.setCursor(3, 10);
+      Controller1.Screen.print(temperatures[i]);
+      
+      wait(1.5, sec);
+      Controller1.Screen.clearScreen();
+    }
+  }
 }
 
 void preAuton(){
@@ -367,7 +366,7 @@ void preAuton(){
   Controller1.Screen.clearScreen();
 
   calibrateInertial(3);
-  tempCheck(12);
+  tempCheck(120);
   autonSelector();  
 }
 
