@@ -172,7 +172,7 @@ static void defaultDrive(std::string direction, double target){
 }
 
 static void defaultTurn(double target){
-  turnWithPIDTo(0.8, 0.2, 0.05, 2, 20, target);
+  turnWithPIDTo(1, 0.2, 0.05, 2, 10, target);
 }
 
 
@@ -249,7 +249,7 @@ void runAutonLeftNoAWP(){
   defaultDrive("Reverse", 60); //Pre Load Scored
 }
 
-void runAutonRightAWP(){
+void runAutonRightSafe(){
 }
 
 void runAutonRightSixTB(){
@@ -295,6 +295,11 @@ static Auton currentAuton = AutonNone;
 
 static void autonSelector(){
   bool runningSelector = true;
+
+  int columns[4] = {2, 3, 5, 3};
+  std::string autonNames[4] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Right-Side Safe", "Right-Side Six Triball"};
+  Auton autons[4] = {AutonLeftAWP, AutonLeftNoAWP, AutonRightSafe, AutonRightSixTB};
+
   while (runningSelector){
     if (currentAuton == AutonNone){
       Controller1.Screen.setCursor(2, 3);
@@ -305,21 +310,11 @@ static void autonSelector(){
       Controller1.Screen.print("Auton Selected:");
     }
 
-    if (currentAuton == AutonLeftAWP){
-      Controller1.Screen.setCursor(3, 2);
-      Controller1.Screen.print("Left-Side Safe AWP");
-    }
-    if (currentAuton == AutonLeftNoAWP){
-      Controller1.Screen.setCursor(3, 3);
-      Controller1.Screen.print("Left-Side NO AWP");
-    }
-    if (currentAuton == AutonRightAWP){
-      Controller1.Screen.setCursor(3, 5);
-      Controller1.Screen.print("Right-Side Safe");
-    }
-    if (currentAuton == AutonRightSixTB){
-      Controller1.Screen.setCursor(3, 3);
-      Controller1.Screen.print("Right-Side Six Triball");
+    for (int i = 0; i < 4; i++){
+      if (currentAuton == autons[i]){
+        Controller1.Screen.setCursor(2, columns[i]);
+        Controller1.Screen.print(autonNames[i].c_str());
+      }
     }
 
     if (Controller1.ButtonLeft.pressing()){
@@ -351,11 +346,13 @@ static void autonSelector(){
   Controller1.rumble("-.-.");
 }
 
-void calibrateInertial(double seconds){
+void calibrateInertial(){
   Controller1.Screen.setCursor(2, 6);
   Inertial.calibrate();
   Controller1.Screen.print("CALIBRATING!!!");
-  wait(seconds, sec);
+  while(Inertial.isCalibrating()){
+    wait(50, msec);
+  }
   Controller1.Screen.clearScreen();
   Inertial.resetHeading();
 }
@@ -366,12 +363,13 @@ void tempCheck(double warningTemp){
   double cataTemp = Catapult.temperature(fahrenheit);
   double intakeTemp = Intake.temperature(fahrenheit);
 
+  double columns[4] = {3, 3, 4, 6};
   double temperatures[4] = {leftDriveTemp, rightDriveTemp, cataTemp, intakeTemp};
   std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "CATAPULT", "INTAKE"};
 
   for (int i = 0; i < 4; i++){
     if (temperatures[i] > warningTemp){
-      Controller1.Screen.setCursor(1, 6);
+      Controller1.Screen.setCursor(1, columns[i]);
       Controller1.Screen.print(mechs[i].c_str());
       Controller1.Screen.print(" HOT!!!");
       Controller1.Screen.setCursor(3, 10);
@@ -390,7 +388,7 @@ void preAuton(){
   Controller1.Screen.clearScreen();
 
   tempCheck(120);
-  calibrateInertial(3);
+  calibrateInertial();
   autonSelector();  
 }
 
@@ -409,8 +407,8 @@ void autonomous(){
       runAutonLeftNoAWP();
       break;
     }
-    case AutonRightAWP: {
-      runAutonRightAWP();
+    case AutonRightSafe: {
+      runAutonRightSafe();
       break;
     }
     case AutonRightSixTB: {
@@ -436,8 +434,8 @@ void testAuton(Auton testedAuton){
       runAutonLeftNoAWP();
       break;
     }
-    case AutonRightAWP: {
-      runAutonRightAWP();
+    case AutonRightSafe: {
+      runAutonRightSafe();
       break;
     }
     case AutonRightSixTB: {
