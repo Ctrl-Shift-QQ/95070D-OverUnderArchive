@@ -208,28 +208,6 @@ static void backRam(double target){
   driveWithPID(2.5, 0.1, 0.2, 3, 70, -target);
 }
 
-static void wingsOut (){
-  wait(50, msec);
-  Wings.set(true);
-}
-
-static void wingsIn (){
-  wait(50, msec);
-  Wings.set(false);
-}
-
-void launchTriball(double secondsFireCata){
-  double currentTime = Brain.Timer.time(seconds);
-  while((Brain.Timer.time(seconds) - currentTime) < secondsFireCata){
-    Catapult.spin(forward);
-    LeftFront.spin(forward);
-    RightFront.spin(forward);
-  }
-  Catapult.stop();
-  LeftFront.stop();
-  RightFront.stop();
-}
-
 /********** Autons **********/
 
 void runAutonLeftAWP(){
@@ -311,363 +289,6 @@ void runAutonRightSixTB(){
   std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;
 }
 
-void runAutonSkillsSafe(){
-  //Turning is based on the intakes posistion
-  slowDrive("Reverse" , 28);
-  //launchTriball(3); // Launch all of the tribals to the other side of the field
-  defaultTurn(325);
-  defaultDrive("Reverse",27); //Score the 2 allance tribals into the goal
-  defaultDrive("Forward",30);
-  defaultTurn(240);
-  defaultDrive("Forward",3);
-  launchTriball(5);
-}
-
-void runAutonSkillsRiskyLeft(){
-  //V2
-  /*
-  defaultTurn(45);
-  defaultTurn(90);
-  defaultTurn(135);
-  defaultTurn(180);
-  defaultTurn(225);
-  defaultTurn(270);
-  defaultTurn(315);
-  defaultTurn(0);
-  */
-  //Set up the motors
-  Catapult.setVelocity(60,percent);  
-   //Score the 2 allance tribals into the goal
-  defaultDrive("Reverse",30);
-  defaultTurn(320);
-  defaultDrive("Reverse",27);
-  defaultDrive("Forward",24);
-  //Launch all of the tribals to the other side of the field
-  defaultTurn(245);
-  slowDrive("Forward",2);
-  launchTriball(2);
-  Catapult.stop();
-  //Drive to the other side of the field
-  defaultTurn(200);
-  defaultDrive("Reverse",38);
-  defaultTurn(210);
-  defaultDrive("Reverse",120);
-  // Move to 1st shoving position
-  defaultTurn(315);
-  wingsOut();
-  defaultDrive("Reverse",48);
-  defaultTurn(40);
-  wingsIn();
-  defaultDrive("Reverse",40);
-  wingsOut();
-  defaultTurn(315);
-  defaultDrive("Reverse",30);
-  defaultTurn(225);
-  //The first push
-  defaultDrive("Reverse",40);
-  wingsIn();
-  defaultDrive("Forward",40);
-  //Go to second position
-  defaultTurn(315);
-  wingsOut();
-  defaultDrive("Reverse",30);
-  defaultTurn(225);
-  //Second Push
-  defaultDrive("Reverse",40);
-  wingsIn();
-  defaultDrive("Forward",40);
-  //Go to tried position
-  defaultTurn(315);
-  defaultDrive("Reverse",50);
-  defaultTurn(200);
-  //Thrid push
-  wingsOut();
-  defaultDrive("Reverse",50);
-  wingsIn();
-  defaultDrive("Forward",20);
-  //Test Go to close side push
-  defaultTurn(150);
-  defaultDrive("Reverse",132);
-  //Get ready to push left side
-  defaultTurn(225);
-  defaultDrive("Reverse",6);
-  defaultTurn(270);
-  defaultDrive("Reverse",50);
-  defaultTurn(315);
-  //fourth push 
-  defaultDrive("Reverse",30);
-  defaultDrive("forward",30);
-
-  //Get ready to push right side
-  defaultTurn(45);
-  defaultDrive("Reverse",44);
-  defaultTurn(320);
-  defaultDrive("Reverse",156);
-  defaultTurn(220);
-  defaultDrive("Reverse",6);
-  defaultTurn(175);
-  defaultDrive("Reverse",50);
-  defaultTurn(135);
-  //fifth push 
-  defaultDrive("Reverse",30);
-  defaultDrive("forward",30);
-  //escape
-  defaultTurn(45);
-  defaultDrive("Reverse",30);
-  /*
-  fourth push right
-  defaultTurn(315);
-  defaultDrive("Revrese",36)
-  defaultDrive("Reverse",6);
-  defaultTurn(170);
-  defaultDrive("Reverse",50);
-  defaultTurn(135);
-  defaultDrive("Reverse",30);
-  defaultDrive("forward",30);
-  //Get ready to push left
-  defaultTurn(45);
-  defaultDrive("Reverse",30);
-  //Get ready to push left side
-  defaultTurn(225);
-  defaultDrive("Reverse",6);
-  defaultTurn(270);
-  defaultDrive("Reverse",50);
-  defaultTurn(315);
-  //fifth push 
-  defaultDrive("Reverse",30);
-  defaultDrive("forward",30);
-  //escape
-  defaultTurn(45);
-  defaultDrive("Reverse",30);
-  */
-  
-/*
-  Catapult.setVelocity(50,percent);  
-   //Score the 2 allance tribals into the goal
-  defaultDrive("Reverse" , 30);
-  defaultTurn(320);
-  defaultDrive("Reverse",27);
-  defaultDrive("Forward",24);
-  //Launch all of the tribals to the other side of the field
-  defaultTurn(245);
-  slowDrive("Forward",2);
-  //slowRightChange(27);
-  Catapult.stop();
-  //Drive to the other side of the field
-  defaultTurn(200);
-  defaultDrive("Reverse",38);
-  defaultTurn(210);
-  defaultDrive("Reverse",120);
-  // Move to 1st shoving position
-  defaultTurn(315);
-  wingsOut();
-  defaultDrive("Reverse",48);
-  defaultTurn(40);
-  wingsIn();
-  defaultDrive("Reverse",40);
-  defaultTurn(315);
-  defaultDrive("Reverse",30);
-  defaultTurn(225);
-  //The first push
-  wingsOut();
-  defaultDrive("Reverse",36);
-  wingsIn();
-  defaultDrive("Forward",36);
-  //Go to second position
-  defaultTurn(315);
-  wingsOut();
-  defaultDrive("Reverse",30);
-  defaultTurn(225);
-  //Second Push
-  defaultDrive("Reverse",36);
-  wingsIn();
-  defaultDrive("Forward",36);
-  //Go to tried position
-  defaultTurn(315);
-  defaultDrive("Reverse",36);
-  defaultTurn(195);
-  //Thrid push
-  wingsOut();
-  defaultDrive("Reverse",45);
-  wingsIn();
-  defaultDrive("Forward",20);
-*/ 
-}
-
-void runAutonSkillsRiskyRight(){
-  //V2
-  /*
-  defaultTurn(45);
-  defaultTurn(90);
-  defaultTurn(135);
-  defaultTurn(180);
-  defaultTurn(225);
-  defaultTurn(270);
-  defaultTurn(315);
-  defaultTurn(0);
-  */
-  //Set up the motors
-  Catapult.setVelocity(60,percent);  
-   //Score the 2 allance tribals into the goal
-  defaultDrive("Reverse",30);
-  defaultTurn(320);
-  defaultDrive("Reverse",27);
-  defaultDrive("Forward",24);
-  //Launch all of the tribals to the other side of the field
-  defaultTurn(245);
-  slowDrive("Forward",2);
-  launchTriball(2);
-  Catapult.stop();
-  //Drive to the other side of the field
-  defaultTurn(200);
-  defaultDrive("Reverse",38);
-  defaultTurn(210);
-  defaultDrive("Reverse",120);
-  // Move to 1st shoving position
-  defaultTurn(315);
-  wingsOut();
-  defaultDrive("Reverse",48);
-  defaultTurn(40);
-  wingsIn();
-  defaultDrive("Reverse",40);
-  wingsOut();
-  defaultTurn(315);
-  defaultDrive("Reverse",30);
-  defaultTurn(225);
-  //The first push
-  defaultDrive("Reverse",40);
-  wingsIn();
-  defaultDrive("Forward",40);
-  //Go to second position
-  defaultTurn(315);
-  wingsOut();
-  defaultDrive("Reverse",30);
-  defaultTurn(225);
-  //Second Push
-  defaultDrive("Reverse",40);
-  wingsIn();
-  defaultDrive("Forward",40);
-  //Go to tried position
-  defaultTurn(315);
-  defaultDrive("Reverse",50);
-  defaultTurn(200);
-  //Thrid push
-  wingsOut();
-  defaultDrive("Reverse",50);
-  wingsIn();
-  defaultDrive("Forward",20);
-  /*
-  //Test Go to close side push
-  defaultTurn(150);
-  defaultDrive("Reverse",132);
-  //Get ready to push left side
-  defaultTurn(225);
-  defaultDrive("Reverse",6);
-  defaultTurn(270);
-  defaultDrive("Reverse",50);
-  defaultTurn(315);
-  //fourth push 
-  defaultDrive("Reverse",30);
-  defaultDrive("forward",30);
-
-  //Get ready to push right side
-  defaultTurn(45);
-  defaultDrive("Reverse",44);
-  defaultTurn(320);
-  defaultDrive("Reverse",156);
-  defaultTurn(220);
-  defaultDrive("Reverse",6);
-  defaultTurn(175);
-  defaultDrive("Reverse",50);
-  defaultTurn(135);
-  //fifth push 
-  defaultDrive("Reverse",30);
-  defaultDrive("forward",30);
-  //escape
-  defaultTurn(45);
-  defaultDrive("Reverse",30);
-  */
-  
-  //fourth push right
-  defaultTurn(315);
-  defaultDrive("Revrese",36);
-  defaultDrive("Reverse",6);
-  defaultTurn(170);
-  defaultDrive("Reverse",50);
-  defaultTurn(135);
-  defaultDrive("Reverse",30);
-  defaultDrive("forward",30);
-  //Get ready to push left
-  defaultTurn(45);
-  defaultDrive("Reverse",30);
-  //Get ready to push left side
-  defaultTurn(225);
-  defaultDrive("Reverse",6);
-  defaultTurn(270);
-  defaultDrive("Reverse",50);
-  defaultTurn(315);
-  //fifth push 
-  defaultDrive("Reverse",30);
-  defaultDrive("forward",30);
-  //escape
-  defaultTurn(45);
-  defaultDrive("Reverse",30);
-  
-
-/*
-  Catapult.setVelocity(50,percent);  
-   //Score the 2 allance tribals into the goal
-  defaultDrive("Reverse" , 30);
-  defaultTurn(320);
-  defaultDrive("Reverse",27);
-  defaultDrive("Forward",24);
-  //Launch all of the tribals to the other side of the field
-  defaultTurn(245);
-  slowDrive("Forward",2);
-  //slowRightChange(27);
-  Catapult.stop();
-  //Drive to the other side of the field
-  defaultTurn(200);
-  defaultDrive("Reverse",38);
-  defaultTurn(210);
-  defaultDrive("Reverse",120);
-  // Move to 1st shoving position
-  defaultTurn(315);
-  wingsOut();
-  defaultDrive("Reverse",48);
-  defaultTurn(40);
-  wingsIn();
-  defaultDrive("Reverse",40);
-  defaultTurn(315);
-  defaultDrive("Reverse",30);
-  defaultTurn(225);
-  //The first push
-  wingsOut();
-  defaultDrive("Reverse",36);
-  wingsIn();
-  defaultDrive("Forward",36);
-  //Go to second position
-  defaultTurn(315);
-  wingsOut();
-  defaultDrive("Reverse",30);
-  defaultTurn(225);
-  //Second Push
-  defaultDrive("Reverse",36);
-  wingsIn();
-  defaultDrive("Forward",36);
-  //Go to tried position
-  defaultTurn(315);
-  defaultDrive("Reverse",36);
-  defaultTurn(195);
-  //Thrid push
-  wingsOut();
-  defaultDrive("Reverse",45);
-  wingsIn();
-  defaultDrive("Forward",20);
-*/ 
-}
-
-
 /********** Pre Auton **********/
 
 static Auton currentAuton = AutonNone;
@@ -700,23 +321,11 @@ static void autonSelector(){
       Controller1.Screen.setCursor(3, 3);
       Controller1.Screen.print("Right-Side Six Triball");
     }
-    if (currentAuton == AutonSafeSkills){
-      Controller1.Screen.setCursor(3, 6);
-      Controller1.Screen.print("Safe Skills");
-    }
-    if (currentAuton == AutonRiskeySkillsLeft){
-      Controller1.Screen.setCursor(3, 4);
-      Controller1.Screen.print("Riskey Skills Left");
-    }
-    if (currentAuton == AutonRiskeySkillsRight){
-      Controller1.Screen.setCursor(3, 4);
-      Controller1.Screen.print("Riskey Skills Right");
-    }
 
     if (Controller1.ButtonLeft.pressing()){
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
-        currentAuton = AutonRiskeySkillsRight;
+        currentAuton = AutonRightSixTB;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
@@ -724,7 +333,7 @@ static void autonSelector(){
     }
     if (Controller1.ButtonRight.pressing()){
       Controller1.Screen.clearScreen();
-      if (currentAuton == AutonRiskeySkillsRight){
+      if (currentAuton == AutonRightSixTB){
         currentAuton = AutonLeftAWP;
       }
       else{
@@ -808,18 +417,6 @@ void autonomous(){
       runAutonRightSixTB();
       break;
     }
-    case AutonSafeSkills: {
-      runAutonSkillsSafe();
-      break;
-    }
-    case AutonRiskeySkillsLeft: {
-      runAutonSkillsRiskyLeft();
-      break;
-    }
-    case AutonRiskeySkillsRight: {
-      runAutonSkillsRiskyRight();
-      break;
-    }
     default: {
       break;
     }
@@ -845,18 +442,6 @@ void testAuton(Auton testedAuton){
     }
     case AutonRightSixTB: {
       runAutonRightSixTB();
-      break;
-    }
-    case AutonSafeSkills: {
-      runAutonSkillsSafe();
-      break;
-    }
-    case AutonRiskeySkillsLeft: {
-      runAutonSkillsRiskyLeft();
-      break;
-    }
-    case AutonRiskeySkillsRight: {
-      runAutonSkillsRiskyRight();
       break;
     }
     default: {
