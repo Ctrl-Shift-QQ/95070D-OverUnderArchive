@@ -148,8 +148,8 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
 
     previousError = error;
 
+    std::cout << Inertial.heading() << "   " << total << "   " << error << "   " << derivative << std::endl;
     wait(20, msec);
-
   }
 
   LeftFront.stop(brake);
@@ -162,6 +162,15 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
   wait(100, msec);
 }
 
+static void slowDrive(std::string direction, double target){ 
+  if (direction == "Forward"){
+    driveWithPID(0.5, 0.5, 0.3, 0.5, 35, target);
+  }
+  if (direction == "Reverse"){
+    driveWithPID(0.5, 0.5, 0.3, 0.5, 35, -target);
+  }
+}
+
 static void defaultDrive(std::string direction, double target){
   if (direction == "Forward"){
     driveWithPID(3, 0.3, 0.05, 0.5, 40, target);
@@ -171,23 +180,8 @@ static void defaultDrive(std::string direction, double target){
   }
 }
 
-static void defaultTurn(double target){
-  turnWithPIDTo(1, 0.2, 0.05, 2, 10, target);
-}
-
-
-static void slowDrive(std::string direction, double target){ 
-  if (direction == "Forward"){
-    driveWithPID(0.5, 0.5, 0.3, 0.5, 35, target);
-  }
-  if (direction == "Reverse"){
-    driveWithPID(0.5, 0.5, 0.3, 0.5, 35, -target);
-  }
-  
-}
-
-static void slowTurn(double target){
-  turnWithPIDTo(0.7, 0.07, 0.02, 2, 10, target);
+static void turnTo(double target){
+  turnWithPIDTo(0.7, 0.1, 0.05, 2, 10, target);
 }
 
 static void intake(){
@@ -214,39 +208,60 @@ void runAutonLeftAWP(){
   IntakePiston.set(true);
   intake();
   slowDrive("Forward", 28);
-  slowTurn(45);
+  turnTo(45);
   slowDrive("Forward", 8);
   outake(0.5);
   slowDrive("Reverse", 6);
-  slowTurn(225);
-  backRam(22); //Pre Load Scored
+  turnTo(225);
+  backRam(24); //Pre Load Scored
 
-  slowDrive("Forward", 18);
-  slowTurn(0);
-  slowDrive("Reverse", 12);
+  slowDrive("Forward", 20);
+  turnTo(0);
+  slowDrive("Reverse", 16);
   Wings.set(true);
-  slowDrive("Reverse", 18);
-  defaultTurn(330); //Match Load Retrieved
+  slowDrive("Reverse", 14);
+  turnTo(315); //Match Load Retrieved
 
   Blocker.set(true);
-  slowDrive("Reverse", 60); //Elevation Bar Touched
+  slowDrive("Reverse", 46); //Elevation Bar Touched
 }
 
 void runAutonLeftNoAWP(){
   IntakePiston.set(true);
   intake();
-  defaultDrive("Forward", 70);
-  defaultTurn(270);
+  slowDrive("Forward", 28);
+  turnTo(45);
+  slowDrive("Forward", 8);
   outake(0.5);
-  defaultDrive("Reverse", 16);
-  intake();
-  defaultTurn(0);
-  defaultDrive("Forward", 6);
-  defaultTurn(90); 
-  defaultDrive("Forward", 40); 
-  outake(0.3); //Middle Triball Popped Over
+  slowDrive("Reverse", 6);
+  turnTo(225);
+  backRam(22); //Pre Load Scored
 
-  defaultDrive("Reverse", 60); //Pre Load Scored
+  slowDrive("Forward", 18);
+  turnTo(0);
+  slowDrive("Reverse", 12);
+  Wings.set(true);
+  slowDrive("Reverse", 18);
+  turnTo(330); //Match Load Retrieved
+
+  slowDrive("Reverse", 60); //Elevation Bar Touched
+  Wings.set(false);
+  slowDrive("Forward", 60); //Elevation Bar Touched
+
+  // IntakePiston.set(true);
+  // intake();
+  // defaultDrive("Forward", 70);
+  // turnTo(270);
+  // outake(0.5);
+  // defaultDrive("Reverse", 16);
+  // intake();
+  // turnTo(0);
+  // defaultDrive("Forward", 6);
+  // turnTo(90); 
+  // defaultDrive("Forward", 40); 
+  // outake(0.3); //Middle Triball Popped Over
+
+  // defaultDrive("Reverse", 60); //Pre Load Scored
 }
 
 void runAutonRightSafe(){
@@ -259,27 +274,27 @@ void runAutonRightSixTB(){
   intake();
   defaultDrive("Forward", 8);
   slowDrive("Reverse", 54);
-  slowTurn(315);
+  turnTo(315);
   slowDrive("Reverse", 20);
   Wings.set(true);
-  defaultTurn(290); //Match Load Retreived
+  turnTo(290); //Match Load Retreived
   
   defaultDrive("Reverse", 34); //Pre Load and Match Load Scored 
 
   Wings.set(false);
-  defaultTurn(270);
+  turnTo(270);
   defaultDrive("Forward", 8);
-  defaultTurn(90);
+  turnTo(90);
   outake(0.3);
   frontRam(10); //Below Bar Triball Scored
 
   defaultDrive("Reverse", 15);
-  defaultTurn(25);
+  turnTo(25);
   intake();
   defaultDrive("Forward", 75);
-  defaultTurn(315);
+  turnTo(315);
   defaultDrive("Reverse", 28);
-  defaultTurn(180);
+  turnTo(180);
   defaultDrive("Forward", 20);
   outake(0.3);
   frontRam(10); //Side Triball Scored
@@ -300,6 +315,9 @@ static void autonSelector(){
   std::string autonNames[4] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Right-Side Safe", "Right-Side Six Triball"};
   Auton autons[4] = {AutonLeftAWP, AutonLeftNoAWP, AutonRightSafe, AutonRightSixTB};
 
+  bool buttonLeftPressed;
+  bool buttonRightPressed;
+
   while (runningSelector){
     if (currentAuton == AutonNone){
       Controller1.Screen.setCursor(2, 3);
@@ -312,12 +330,12 @@ static void autonSelector(){
 
     for (int i = 0; i < 4; i++){
       if (currentAuton == autons[i]){
-        Controller1.Screen.setCursor(2, columns[i]);
+        Controller1.Screen.setCursor(3, columns[i]);
         Controller1.Screen.print(autonNames[i].c_str());
       }
     }
 
-    if (Controller1.ButtonLeft.pressing()){
+    if (Controller1.ButtonLeft.pressing() && !buttonLeftPressed){
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
         currentAuton = AutonRightSixTB;
@@ -325,8 +343,14 @@ static void autonSelector(){
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
       }
+
+      buttonLeftPressed = true;
     }
-    if (Controller1.ButtonRight.pressing()){
+    if (!Controller1.ButtonLeft.pressing() && buttonLeftPressed){
+      buttonLeftPressed = false;
+    }
+
+    if (Controller1.ButtonRight.pressing() && !buttonRightPressed){
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonRightSixTB){
         currentAuton = AutonLeftAWP;
@@ -334,6 +358,11 @@ static void autonSelector(){
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) + 1);
       }
+
+      buttonRightPressed = true;
+    }
+    if (!Controller1.ButtonRight.pressing() && buttonRightPressed){
+      buttonRightPressed = false; 
     }
 
     if (Controller1.ButtonDown.pressing()){
@@ -341,7 +370,7 @@ static void autonSelector(){
       runningSelector = false;
     }
 
-    wait(0.2, sec);
+    wait(50, msec);
   }
   Controller1.rumble("-.-.");
 }
