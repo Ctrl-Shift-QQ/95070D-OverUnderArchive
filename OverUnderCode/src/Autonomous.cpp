@@ -148,7 +148,7 @@ static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, dou
 
     previousError = error;
 
-    std::cout << Inertial.heading() << "   " << total << "   " << error << "   " << derivative << std::endl;
+    std::cout << Inertial.heading() << "   " << error << "   " << total << "   " << derivative << std::endl;
     wait(20, msec);
   }
 
@@ -181,7 +181,7 @@ static void defaultDrive(std::string direction, double target){
 }
 
 static void turnTo(double target){
-  turnWithPIDTo(0.7, 0.1, 0.05, 2, 10, target);
+  turnWithPIDTo(0.9, 0.1, 0.08, 2, 5, target);
 }
 
 static void intake(){
@@ -217,13 +217,14 @@ void runAutonLeftAWP(){
 
   slowDrive("Forward", 20);
   turnTo(0);
-  slowDrive("Reverse", 16);
+  slowDrive("Reverse", 12);
   Wings.set(true);
-  slowDrive("Reverse", 14);
+  wait(200, msec);
+  slowDrive("Reverse", 24);
   turnTo(315); //Match Load Retrieved
 
   Blocker.set(true);
-  slowDrive("Reverse", 46); //Elevation Bar Touched
+  slowDrive("Reverse", 56); //Elevation Bar Touched
 }
 
 void runAutonLeftNoAWP(){
@@ -235,18 +236,20 @@ void runAutonLeftNoAWP(){
   outake(0.5);
   slowDrive("Reverse", 6);
   turnTo(225);
-  backRam(22); //Pre Load Scored
+  backRam(24); //Pre Load Scored
 
-  slowDrive("Forward", 18);
+  slowDrive("Forward", 20);
   turnTo(0);
   slowDrive("Reverse", 12);
   Wings.set(true);
-  slowDrive("Reverse", 18);
-  turnTo(330); //Match Load Retrieved
+  wait(200, msec);
+  slowDrive("Reverse", 24);
+  turnTo(315); //Match Load Retrieved
 
-  slowDrive("Reverse", 60); //Elevation Bar Touched
+  defaultDrive("Reverse", 56); //Elevation Bar Touched
+
   Wings.set(false);
-  slowDrive("Forward", 60); //Elevation Bar Touched
+  defaultDrive("Forward", 60);
 
   // IntakePiston.set(true);
   // intake();
@@ -265,9 +268,6 @@ void runAutonLeftNoAWP(){
 }
 
 void runAutonRightSafe(){
-}
-
-void runAutonRightSixTB(){
   double startTime = Brain.Timer.time();
   
   IntakePiston.set(true);
@@ -286,12 +286,12 @@ void runAutonRightSixTB(){
   defaultDrive("Forward", 8);
   turnTo(90);
   outake(0.3);
-  frontRam(10); //Below Bar Triball Scored
+  frontRam(12); //Below Bar Triball Scored
 
   defaultDrive("Reverse", 15);
-  turnTo(25);
+  turnTo(15);
   intake();
-  defaultDrive("Forward", 75);
+  defaultDrive("Forward", 85);
   turnTo(315);
   defaultDrive("Reverse", 28);
   turnTo(180);
@@ -299,7 +299,47 @@ void runAutonRightSixTB(){
   outake(0.3);
   frontRam(10); //Side Triball Scored
 
-  defaultDrive("Reverse", 12);
+  defaultDrive("Reverse", 12); //Back Out
+}
+
+void runAutonRightSixTB(){
+  double startTime = Brain.Timer.time();
+  
+  IntakePiston.set(true);
+  intake();
+  wait(250, msec);
+  slowDrive("Reverse", 58);
+  turnTo(315);
+  slowDrive("Reverse", 18);
+  Wings.set(true);
+  turnTo(290); //Match Load Retreived
+  
+  defaultDrive("Reverse", 30); //Pre Load and Match Load Scored 
+
+  Wings.set(false);
+  turnTo(270);
+  defaultDrive("Forward", 8);
+  turnTo(90);
+  outake(0.3);
+  frontRam(12); //Below Bar Triball Scored
+
+  defaultDrive("Reverse", 8);
+  turnTo(135);
+  defaultDrive("Reverse", 20);
+  turnTo(50);
+  
+  intake();
+  frontRam(100);
+  turnTo(0);
+  Wings.set(true);
+  backRam(45);
+  Wings.set(false);
+  defaultDrive("Forward", 8);
+  turnTo(180);
+  outake(0.3);
+  frontRam(10); //Side Triball Scored
+
+  defaultDrive("Reverse", 12); //Back Out
 
   std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;
 }
