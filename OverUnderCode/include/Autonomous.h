@@ -5,6 +5,7 @@ typedef enum {
     AutonNone = 0,
     AutonLeftAWP,
     AutonLeftNoAWP,
+    AutonLeftSabotage,
     AutonRightSafe,
     AutonRightSixTB
 } Auton;
@@ -13,7 +14,7 @@ void testAuton(Auton testedAuton);
 
 //For Competition
 
-void calibrateInertial(double seconds);
+void calibrateInertial();
 
 void tempCheck(double warningTemp);
 
