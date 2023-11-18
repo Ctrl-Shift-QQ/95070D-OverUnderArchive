@@ -346,13 +346,13 @@ void runAutonRightFiveTB(){
   frontRam(100);
   turnTo(0);
   Wings.set(true);
-  backRam(45); //Middle Triball Scored
+  backRam(47.5); //Middle Triball Scored
 
   Wings.set(false);
   defaultDrive("Forward", 8);
   turnTo(180);
   outake(0.3);
-  frontRam(10); //Back Triball Scored
+  frontRam(14); //Back Triball Scored
 
   defaultDrive("Reverse", 12); //Back Out
 
@@ -366,7 +366,7 @@ static Auton currentAuton = AutonNone;
 static void autonSelector(){
   bool runningSelector = true;
 
-  int columns[5] = {2, 3, 3, 5, 3};
+  int columns[5] = {2, 3, 3, 5, 2};
   std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", "Right-Side Safe", "Right-Side Five Triball"};
   Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightSafe, AutonRightFiveTB};
 
