@@ -180,7 +180,7 @@ static void defaultDrive(std::string direction, double target){
 }
 
 static void turnTo(double target){
-  turnWithPIDTo(0.7, 0.1, 0.05, 2, 12, target);
+  turnWithPIDTo(0.7, 0.1, 0.04, 3, 12, target);
 }
 
 static void intake(){
@@ -214,15 +214,16 @@ void runAutonLeftAWP(){
   turnTo(225);
   backRam(22); //Pre Load Scored
 
-  slowDrive("Forward", 20);
+  slowDrive("Forward", 18);
   turnTo(0);
   slowDrive("Reverse", 10);
   Wings.set(true);
-  slowDrive("Reverse", 18);
+  slowDrive("Reverse", 28);
   turnTo(315); //Match Load Retrieved
 
   Blocker.set(true);
-  slowDrive("Reverse", 62); //Elevation Bar Touched
+  slowDrive("Reverse", 56); //Elevation Bar Touched
+  Wings.set(false);
 }
 
 void runAutonLeftNoAWP(){
@@ -236,16 +237,19 @@ void runAutonLeftNoAWP(){
   turnTo(225);
   backRam(22); //Pre Load Scored
 
-  slowDrive("Forward", 20);
+  slowDrive("Forward", 18);
   turnTo(0);
   slowDrive("Reverse", 10);
   Wings.set(true);
-  slowDrive("Reverse", 18);
+  slowDrive("Reverse", 28);
   turnTo(315); //Match Load Retrieved
 
-  slowDrive("Reverse", 62); //Triballs Pushed
+  slowDrive("Reverse", 56); //Below Bar Triball Pushed
 
-  slowDrive("Forward", 62); //Match Loading Position
+  Wings.set(false);
+  slowDrive("Forward", 60);
+  turnTo(270);
+  defaultDrive("Forward", 4); //Match Loading Position
 }
 
 void runAutonLeftSabotage(){
@@ -259,7 +263,7 @@ void runAutonLeftSabotage(){
   intake();
   turnTo(0);
   defaultDrive("Forward", 6);
-  turnTo(90); 
+  turnTo(90);
   frontRam(29); 
   outake(1); //Middle Triball Popped Over
 
@@ -271,7 +275,9 @@ void runAutonLeftSabotage(){
   turnTo(270);
   defaultDrive("Reverse", 44); //Below Bar Triball Pushed
 
-  defaultDrive("Forward", 52); //Match Loading Position
+  defaultDrive("Forward", 52); 
+  turnTo(225); 
+  defaultDrive("Forward", 4); //Match Loading Position
 }
 
 void runAutonRightSafe(){
@@ -284,9 +290,9 @@ void runAutonRightSafe(){
   turnTo(315);
   slowDrive("Reverse", 20);
   Wings.set(true);
-  turnTo(290); //Match Load Retreived
+  turnTo(285); //Match Load Retreived
   
-  defaultDrive("Reverse", 36); //Pre Load and Match Load Scored 
+  backRam(40); //Pre Load and Match Load Scored 
 
   Wings.set(false);
   turnTo(270);
@@ -295,23 +301,25 @@ void runAutonRightSafe(){
   outake(0.3);
   frontRam(12); //Below Bar Triball Scored
 
-  defaultDrive("Reverse", 15);
-  turnTo(20);
+  defaultDrive("Reverse", 18);
+  turnTo(15);
   intake();
-  defaultDrive("Forward", 76);
+  defaultDrive("Forward", 80);
   turnTo(315);
   defaultDrive("Reverse", 24);
   turnTo(180);
-  defaultDrive("Forward", 18);
+  defaultDrive("Forward", 16);
   outake(0.3);
-  frontRam(12); //Side Triball Scored
+  frontRam(14); //Side Triball Scored
 
   defaultDrive("Reverse", 14); //Back Out
 
   std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
 }
 
-void runAutonRightSixTB(){  
+void runAutonRightFiveTB(){
+  double startTime = Brain.Timer.time();
+
   IntakePiston.set(true);
   intake();
   wait(250, msec);
@@ -319,9 +327,9 @@ void runAutonRightSixTB(){
   turnTo(315);
   slowDrive("Reverse", 18);
   Wings.set(true);
-  turnTo(290); //Match Load Retreived
+  turnTo(285); //Match Load Retreived
   
-  defaultDrive("Reverse", 30); //Pre Load and Match Load Scored 
+  backRam(32); //Pre Load and Match Load Scored 
 
   Wings.set(false);
   turnTo(270);
@@ -333,20 +341,22 @@ void runAutonRightSixTB(){
   defaultDrive("Reverse", 8);
   turnTo(135);
   defaultDrive("Reverse", 20);
-  turnTo(50);
-  
+  turnTo(45);
   intake();
   frontRam(100);
   turnTo(0);
   Wings.set(true);
-  backRam(45);
+  backRam(45); //Middle Triball Scored
+
   Wings.set(false);
   defaultDrive("Forward", 8);
   turnTo(180);
   outake(0.3);
-  frontRam(10); //Side Triball Scored
+  frontRam(10); //Back Triball Scored
 
   defaultDrive("Reverse", 12); //Back Out
+
+  std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
 }
 
 /********** Pre Auton **********/
@@ -357,8 +367,8 @@ static void autonSelector(){
   bool runningSelector = true;
 
   int columns[5] = {2, 3, 3, 5, 3};
-  std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", "Right-Side Safe", "Right-Side Six Triball"};
-  Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightSafe, AutonRightSixTB};
+  std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", "Right-Side Safe", "Right-Side Five Triball"};
+  Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightSafe, AutonRightFiveTB};
 
   bool buttonLeftPressed;
   bool buttonRightPressed;
@@ -383,7 +393,7 @@ static void autonSelector(){
     if (Controller1.ButtonLeft.pressing() && !buttonLeftPressed){
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
-        currentAuton = AutonRightSixTB;
+        currentAuton = AutonRightFiveTB;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
@@ -397,7 +407,7 @@ static void autonSelector(){
 
     if (Controller1.ButtonRight.pressing() && !buttonRightPressed){
       Controller1.Screen.clearScreen();
-      if (currentAuton == AutonRightSixTB){
+      if (currentAuton == AutonRightFiveTB){
         currentAuton = AutonLeftAWP;
       }
       else{
@@ -425,7 +435,7 @@ void calibrateInertial(){
   Inertial.calibrate();
   Controller1.Screen.print("CALIBRATING!!!");
   while(Inertial.isCalibrating()){
-    wait(50, msec);
+    wait(100, msec);
   }
   Controller1.Screen.clearScreen();
   Inertial.resetHeading();
@@ -489,8 +499,8 @@ void autonomous(){
       runAutonRightSafe();
       break;
     }
-    case AutonRightSixTB: {
-      runAutonRightSixTB();
+    case AutonRightFiveTB: {
+      runAutonRightFiveTB();
       break;
     }
     default: {
@@ -526,8 +536,8 @@ void testAuton(Auton testedAuton){
       std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
       break;
     }
-    case AutonRightSixTB: {
-      runAutonRightSixTB();
+    case AutonRightFiveTB: {
+      runAutonRightFiveTB();
       std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
       break;
     }

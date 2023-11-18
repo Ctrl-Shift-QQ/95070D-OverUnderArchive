@@ -7,7 +7,7 @@ typedef enum {
     AutonLeftNoAWP,
     AutonLeftSabotage,
     AutonRightSafe,
-    AutonRightSixTB
+    AutonRightFiveTB
 } Auton;
 
 void testAuton(Auton testedAuton);
