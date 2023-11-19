@@ -60,7 +60,8 @@ static void runWings(){
   }
   if (!Controller1.ButtonR2.pressing() && buttonPressed){ //Button Released
     buttonPressed = false;
-  }}
+  }
+}
 
 static void runDrive(){
   LeftFront.spin(forward, Controller1.Axis3.position(), percent);

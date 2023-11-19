@@ -271,9 +271,9 @@ void runAutonLeftSabotage(){
 
   defaultDrive("Forward", 4);
   turnTo(0);
-  defaultDrive("Reverse", 85);
-  turnTo(270);
-  defaultDrive("Reverse", 44); //Below Bar Triball Pushed
+  defaultDrive("Reverse", 82);
+  turnTo(270); 
+  defaultDrive("Reverse", 46); //Below Bar Triball Pushed
 
   defaultDrive("Forward", 52); 
   turnTo(225); 
