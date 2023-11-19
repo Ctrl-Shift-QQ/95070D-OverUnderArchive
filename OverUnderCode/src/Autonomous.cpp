@@ -214,15 +214,17 @@ void runAutonLeftAWP(){
   turnTo(225);
   backRam(22); //Pre Load Scored
 
-  slowDrive("Forward", 18);
+  slowDrive("Forward", 20);
   turnTo(0);
-  slowDrive("Reverse", 10);
+  slowDrive("Reverse", 18);
   Wings.set(true);
-  slowDrive("Reverse", 28);
-  turnTo(315); //Match Load Retrieved
+  turnTo(330); //Match Load Retrieved
 
+  slowDrive("Reverse", 36);
+  turnTo(315); 
   Blocker.set(true);
-  slowDrive("Reverse", 56); //Elevation Bar Touched
+
+  slowDrive("Reverse", 34); //Elevation Bar Touched
   Wings.set(false);
 }
 
@@ -328,7 +330,7 @@ void runAutonRightFiveTB(){
   slowDrive("Reverse", 18);
   Wings.set(true);
   turnTo(285); //Match Load Retreived
-  
+
   backRam(32); //Pre Load and Match Load Scored 
 
   Wings.set(false);
