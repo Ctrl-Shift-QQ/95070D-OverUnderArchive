@@ -206,7 +206,13 @@ static void backRam(double target){
 void runAutonLeftAWP(){
   IntakePiston.set(true);
   intake();
-  slowDrive("Forward", 28);
+  slowDrive("Forward", 6);
+  Wings.set(true);
+  turnTo(330); //Match Load Retrieved
+
+  Wings.set(false);
+  turnTo(0);
+  slowDrive("Forward", 22);
   turnTo(45);
   slowDrive("Forward", 8);
   outake(0.5);
@@ -214,18 +220,11 @@ void runAutonLeftAWP(){
   turnTo(225);
   backRam(22); //Pre Load Scored
 
-  slowDrive("Forward", 20);
   turnTo(0);
-  slowDrive("Reverse", 18);
-  Wings.set(true);
-  turnTo(330); //Match Load Retrieved
-
-  slowDrive("Reverse", 36);
-  turnTo(315); 
+  defaultDrive("Reverse", 54);
+  turnTo(315);
   Blocker.set(true);
-
-  slowDrive("Reverse", 34); //Elevation Bar Touched
-  Wings.set(false);
+  defaultDrive("Reverse", 44); //Elevation Bar Touched
 }
 
 void runAutonLeftNoAWP(){
