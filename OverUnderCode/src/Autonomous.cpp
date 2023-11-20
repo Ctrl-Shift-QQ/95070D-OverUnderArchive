@@ -342,7 +342,7 @@ void runAutonRightFiveTB(){
   defaultDrive("Reverse", 8);
   turnTo(135);
   defaultDrive("Reverse", 20);
-  turnTo(45);
+  turnTo(50);
   intake();
   frontRam(100);
   turnTo(0);
