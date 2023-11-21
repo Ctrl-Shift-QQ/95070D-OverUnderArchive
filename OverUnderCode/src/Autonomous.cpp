@@ -221,10 +221,10 @@ void runAutonLeftAWP(){
   backRam(22); //Pre Load Scored
 
   turnTo(0);
-  defaultDrive("Reverse", 54);
+  slowDrive("Reverse", 60);
   turnTo(315);
   Blocker.set(true);
-  defaultDrive("Reverse", 44); //Elevation Bar Touched
+  slowDrive("Reverse", 38); //Elevation Bar Touched
 }
 
 void runAutonLeftNoAWP(){
@@ -245,7 +245,7 @@ void runAutonLeftNoAWP(){
   slowDrive("Reverse", 28);
   turnTo(315); //Match Load Retrieved
 
-  slowDrive("Reverse", 56); //Below Bar Triball Pushed
+  slowDrive("Reverse", 58); //Below Bar Triball Pushed
 
   Wings.set(false);
   slowDrive("Forward", 60);
@@ -257,28 +257,28 @@ void runAutonLeftSabotage(){
   IntakePiston.set(true);
   intake();
   defaultDrive("Forward", 62);
-  turnTo(290);
+  turnTo(285);
   outake(0.5);
   turnTo(270);
-  defaultDrive("Reverse", 16);
+  defaultDrive("Reverse", 15);
   intake();
   turnTo(0);
-  defaultDrive("Forward", 6);
+  defaultDrive("Forward", 8);
   turnTo(90);
-  frontRam(29); 
-  outake(1); //Middle Triball Popped Over
+  frontRam(32); 
+  outake(1.5); //Middle Triball Popped Over
 
   backRam(52); //Pre Load Scored
 
   defaultDrive("Forward", 4);
   turnTo(0);
-  defaultDrive("Reverse", 82);
+  defaultDrive("Reverse", 80);
   turnTo(270); 
   defaultDrive("Reverse", 46); //Below Bar Triball Pushed
 
   defaultDrive("Forward", 52); 
   turnTo(225); 
-  defaultDrive("Forward", 4); //Match Loading Position
+  defaultDrive("Forward", 8); //Match Loading Position
 }
 
 void runAutonRightSafe(){
@@ -342,7 +342,7 @@ void runAutonRightFiveTB(){
   defaultDrive("Reverse", 8);
   turnTo(135);
   defaultDrive("Reverse", 20);
-  turnTo(50);
+  turnTo(42.5);
   intake();
   frontRam(100);
   turnTo(0);
