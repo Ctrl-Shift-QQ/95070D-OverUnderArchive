@@ -260,12 +260,12 @@ void runAutonLeftSabotage(){
   turnTo(285);
   outake(0.5);
   turnTo(270);
-  defaultDrive("Reverse", 18);
+  defaultDrive("Reverse", 15);
   intake();
   turnTo(0);
   defaultDrive("Forward", 8);
   turnTo(90);
-  frontRam(30); 
+  frontRam(32); 
   outake(1.5); //Middle Triball Popped Over
 
   backRam(52); //Pre Load Scored
@@ -274,7 +274,7 @@ void runAutonLeftSabotage(){
   turnTo(0);
   defaultDrive("Reverse", 80);
   turnTo(270); 
-  defaultDrive("Reverse", 44); //Below Bar Triball Pushed
+  defaultDrive("Reverse", 46); //Below Bar Triball Pushed
 
   defaultDrive("Forward", 52); 
   turnTo(225); 
