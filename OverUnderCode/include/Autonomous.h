@@ -1,18 +1,23 @@
 
 //For Testing
-void calibrate(double seconds);
 
 typedef enum {
     AutonNone = 0,
-    AutonLeftSafe,
-    AutonLeftRisky,
+    AutonLeftAWP,
+    AutonLeftNoAWP,
+    AutonLeftSabotage,
     AutonRightSafe,
-    AutonRightRisky,
+    AutonRightFiveTB
 } Auton;
 
 void testAuton(Auton testedAuton);
 
 //For Competition
+
+void calibrateInertial();
+
+void tempCheck(double warningTemp);
+
 void preAuton();
 
 void autonomous();

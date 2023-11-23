@@ -1,6 +1,6 @@
 #include "vex.h"
-#include <iostream>
 #include "Autonomous.h"
+#include <iostream>
 
 /********** Functions for Auton **********/
 
@@ -16,426 +16,465 @@ static int getSign(double input){
   }
 }
 
-void driveForward(double factor, double tolerance, double minimumSpeed, double target){
+static void driveWithPID(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
   
-  double error = target;
-  double total = 0;
-  LeftFront.setPosition(0, turns);
+  double leftDriveError = target;
+  double leftIntegral = 0;
+  double leftDerivative = 0;
+  double previousLeftError = leftDriveError;
+  double leftDriveTotal = 0;
   
-  while (fabs(error) > tolerance){
-    error = target - LeftFront.position(turns) * 3.25 * M_PI/2;
-    total = error * factor;
-    if (fabs(total) < minimumSpeed){
-      LeftFront.spin(forward, getSign(total) * minimumSpeed, percent);
-      LeftBack.spin(forward, getSign(total) * minimumSpeed, percent);
-      LeftStack.spin(forward, getSign(total) * minimumSpeed, percent);
-      RightFront.spin(forward, getSign(total) * minimumSpeed, percent);
-      RightBack.spin(forward, getSign(total) * minimumSpeed, percent);
-      RightStack.spin(forward, getSign(total) * minimumSpeed, percent);
+  double rightDriveError = target;
+  double rightIntegral = 0;
+  double rightDerivative = 0;
+  double previousRightError = rightDriveError;
+  double rightDriveTotal = 0;
+
+  LeftBack.resetPosition();
+  RightBack.resetPosition();
+  
+  while ((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance){
+    //Left Side
+    leftDriveError = target - LeftBack.position(turns) * 3.25 * M_PI / (5/3);
+    leftDerivative = (previousLeftError - leftDriveError) * 50;
+    leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd;
+
+    if (fabs(leftDriveTotal) < minimumSpeed){
+      LeftFront.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
+      LeftMiddle.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
+      LeftBack.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
     }
     else {
-      LeftFront.spin(forward, error * factor, percent);
-      LeftBack.spin(forward, error * factor, percent);
-      LeftStack.spin(forward, error * factor, percent);
-      RightFront.spin(forward, error * factor, percent);
-      RightBack.spin(forward, error * factor, percent);
-      RightStack.spin(forward, error * factor, percent);
+      LeftFront.spin(forward, leftDriveTotal, percent);
+      LeftMiddle.spin(forward, leftDriveTotal, percent);
+      LeftBack.spin(forward, leftDriveTotal, percent);
     }
-    wait(15, msec);
+
+    if(fabs(leftDriveError) < 10){
+      leftIntegral += leftDriveError / 50;
+    }
+    
+    //Right Side
+    rightDriveError = target - RightBack.position(turns) * 3.25 * M_PI / (5/3);
+    rightDerivative = (previousRightError - rightDriveError) * 50;
+    rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd;
+
+    if (fabs(rightDriveTotal) < minimumSpeed){
+      RightFront.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
+      RightMiddle.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
+      RightBack.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
+    }
+    else {
+      RightFront.spin(forward, rightDriveTotal, percent);
+      RightMiddle.spin(forward, rightDriveTotal, percent);
+      RightBack.spin(forward, rightDriveTotal, percent);
+    }
+
+    if(fabs(rightDriveError) < 10){
+      rightIntegral += rightDriveError / 50;
+    }
+
+    previousLeftError = leftDriveError;
+    previousRightError = rightDriveError;    
+
+    wait(20, msec);
   }
+
   LeftFront.stop(brake);
+  LeftMiddle.stop(brake);
   LeftBack.stop(brake);
-  LeftStack.stop(brake);
   RightFront.stop(brake);
+  RightMiddle.stop(brake);
   RightBack.stop(brake);
-  RightStack.stop(brake);
 
   wait(100, msec);
 }
 
-void driveReverse(double factor, double tolerance, double minimumSpeed, double target){
+static double shorterTurningPathError(double target){
   
-  double error = target;
+  static int throughZeroDirection;
+  double smallerDegree = std::min(target, Inertial.heading());
+  double largerDegree = std::max(target, Inertial.heading());
+
+  if(smallerDegree == target){
+    throughZeroDirection = 1;
+  }
+  else{
+    throughZeroDirection = -1; 
+  }
+
+  if(largerDegree - smallerDegree > 180){
+    return throughZeroDirection * (360 - largerDegree + smallerDegree);
+  }
+  else{
+    return target - Inertial.heading();
+  }
+}
+
+static void turnWithPIDTo(double kp, double ki, double kd, double tolerance, double minimumSpeed, double target){
+  
+  double error = shorterTurningPathError(target);
+  double integral = 0;
+  double derivative = 0;
+  double previousError = error;
   double total = 0;
-  LeftFront.setPosition(0, turns);
   
   while (fabs(error) > tolerance){
-    error = target + LeftFront.position(turns) * 3.25 * M_PI/2;
-    total = error * factor;
-    if (fabs(total) < minimumSpeed){
-      LeftFront.spin(reverse, getSign(total) * minimumSpeed, percent);
-      LeftBack.spin(reverse, getSign(total) * minimumSpeed, percent);
-      LeftStack.spin(reverse, getSign(total) * minimumSpeed, percent);
-      RightFront.spin(reverse, getSign(total) * minimumSpeed, percent);
-      RightBack.spin(reverse, getSign(total) * minimumSpeed, percent);
-      RightStack.spin(reverse, getSign(total) * minimumSpeed, percent);
+    
+    error = shorterTurningPathError(target);
+    derivative = (previousError - error) * 50;
+    total = error * kp + integral * ki - derivative * kd;
+
+    if (fabs(error) < minimumSpeed){
+      LeftFront.spin(forward, getSign(error) * minimumSpeed, percent);
+      LeftMiddle.spin(forward, getSign(error) * minimumSpeed, percent);
+      LeftBack.spin(forward, getSign(error) * minimumSpeed, percent);
+      RightFront.spin(reverse, getSign(error) * minimumSpeed, percent);
+      RightMiddle.spin(reverse, getSign(error) * minimumSpeed, percent);
+      RightBack.spin(reverse, getSign(error) * minimumSpeed, percent);
     }
     else {
-      LeftFront.spin(reverse, error * factor, percent);
-      LeftBack.spin(reverse, error * factor, percent);
-      LeftStack.spin(reverse, error * factor, percent);
-      RightFront.spin(reverse, error * factor, percent);
-      RightBack.spin(reverse, error * factor, percent);
-      RightStack.spin(reverse, error * factor, percent);
+      LeftFront.spin(forward, total, percent);
+      LeftMiddle.spin(forward, total, percent);
+      LeftBack.spin(forward, total, percent);
+      RightFront.spin(reverse, total, percent);
+      RightMiddle.spin(reverse, total, percent);
+      RightBack.spin(reverse, total, percent);
     }
-    wait(15, msec);
+
+    if (fabs(error) < 20){
+      integral += error / 50;
+    }
+
+    previousError = error;
+
+    wait(20, msec);
   }
+
   LeftFront.stop(brake);
+  LeftMiddle.stop(brake);
   LeftBack.stop(brake);
-  LeftStack.stop(brake);
   RightFront.stop(brake);
+  RightMiddle.stop(brake);
   RightBack.stop(brake);
-  RightStack.stop(brake);
 
   wait(100, msec);
 }
 
-void turnClockwise(double factor, double tolerance, double minimumSpeed, double target){
-  
-  double error = target;
-  double total = 0;
-  Inertial.setRotation(0, degrees);
-  
-  while (fabs(error) > tolerance){
-    error = target - Inertial.rotation(degrees);
-    total = error * factor;
-    if (fabs(total) < minimumSpeed){
-      LeftFront.spin(forward, getSign(total) * minimumSpeed, percent);
-      LeftBack.spin(forward, getSign(total) * minimumSpeed, percent);
-      LeftStack.spin(forward, getSign(total) * minimumSpeed, percent);
-      RightFront.spin(reverse, getSign(total) * minimumSpeed, percent);
-      RightBack.spin(reverse, getSign(total) * minimumSpeed, percent);
-      RightStack.spin(reverse, getSign(total) * minimumSpeed, percent);
-    }
-    else {
-      LeftFront.spin(forward, error * factor, percent);
-      LeftBack.spin(forward, error * factor, percent);
-      LeftStack.spin(forward, error * factor, percent);
-      RightFront.spin(reverse, error * factor, percent);
-      RightBack.spin(reverse, error * factor, percent);
-      RightStack.spin(reverse, error * factor, percent);
-    }
-    wait(15, msec);
+static void slowDrive(std::string direction, double target){ 
+  if (direction == "Forward"){
+    driveWithPID(0.5, 0.5, 0.3, 0.5, 35, target);
   }
-  LeftFront.stop(brake);
-  LeftBack.stop(brake);
-  LeftStack.stop(brake);
-  RightFront.stop(brake);
-  RightBack.stop(brake);
-  RightStack.stop(brake);
-
-  wait(100, msec);
-}
-
-static void turnCounterClockwise(double factor, double tolerance, double minimumSpeed, double target){
-  
-  double error = target;
-  double total = 0;
-  Inertial.setRotation(0, degrees);
-  
-  while (fabs(error) > tolerance){
-    error = target + Inertial.rotation(degrees);
-    total = error * factor;
-    if (fabs(total) < minimumSpeed){
-      LeftFront.spin(reverse, getSign(total) * minimumSpeed, percent);
-      LeftBack.spin(reverse, getSign(total) * minimumSpeed, percent);
-      LeftStack.spin(reverse, getSign(total) * minimumSpeed, percent);
-      RightFront.spin(forward, getSign(total) * minimumSpeed, percent);
-      RightBack.spin(forward, getSign(total) * minimumSpeed, percent);
-      RightStack.spin(forward, getSign(total) * minimumSpeed, percent);
-    }
-    else {
-      LeftFront.spin(reverse, error * factor, percent);
-      LeftBack.spin(reverse, error * factor, percent);
-      LeftStack.spin(reverse, error * factor, percent);
-      RightFront.spin(forward, error * factor, percent);
-      RightBack.spin(forward, error * factor, percent);
-      RightStack.spin(forward, error * factor, percent);
-    }
-    wait(15, msec);
-  }
-  LeftFront.stop(brake);
-  LeftBack.stop(brake);
-  LeftStack.stop(brake);
-  RightFront.stop(brake);
-  RightBack.stop(brake);
-  RightStack.stop(brake);
-
-  wait(100, msec);
-}
-
-// factor, tolerance, minimumSpeed, target
-
-static void defaultDrive(double target){
-  driveForward(0.7, 0.5, 75, target);
-}
-
-static void defaultTurn(std::string direction, double target){
-  if (direction == "Clockwise"){
-    turnClockwise(0.7, 1, 10, target);
-  }
-  if (direction == "CounterClockwise"){
-    turnCounterClockwise(0.7, 1, 10, target);  
+  if (direction == "Reverse"){
+    driveWithPID(0.5, 0.5, 0.3, 0.5, 35, -target);
   }
 }
 
-static void backOut(){
-  driveReverse(0.7, 0.5, 75, 10);
+static void defaultDrive(std::string direction, double target){
+  if (direction == "Forward"){
+    driveWithPID(3, 0.3, 0.05, 0.5, 40, target);
+  }
+  if (direction == "Reverse"){
+    driveWithPID(3, 0.3, 0.05, 0.5, 40, -target);
+  }
 }
 
-static void scoreTriball(){
-  driveForward(0.7, 0.5, 90, 10);
+static void turnTo(double target){
+  turnWithPIDTo(0.7, 0.1, 0.04, 3, 12, target);
 }
 
 static void intake(){
-  Intake.spin(forward, 75, percent);
+  Intake.spin(forward, 90, percent);
 }
 
 static void outake(double waitTime){
-  Intake.spin(reverse, 75, percent);
+  Intake.spin(reverse, 90, percent);
   wait(waitTime, sec);
-}
-
-static void stopIntake(){
-  wait(50, msec);
   Intake.stop();
 }
 
-<<<<<<< Updated upstream
-=======
-static void scoreTriball(){
-  driveForward(2.5, 0.1, 0.2, 0.5, 85, 10);
+static void frontRam(double target){
+  driveWithPID(2.5, 0.1, 0.2, 3, 70, target);
 }
 
-static void backOut(){
-  driveReverse(2.5, 0.1, 0.2, 0.5, 70, 10);
+static void backRam(double target){
+  driveWithPID(2.5, 0.1, 0.2, 3, 70, -target);
 }
 
 /********** Autons **********/
 
 void runAutonLeftAWP(){
-  //Score Pre Load
-  slowDrive("Forward", 20);
-  slowTurn("Clockwise", 45);
+  IntakePiston.set(true);
+  intake();
+  slowDrive("Forward", 6);
+  Wings.set(true);
+  turnTo(330); //Match Load Retrieved
+
+  Wings.set(false);
+  turnTo(0);
+  slowDrive("Forward", 22);
+  turnTo(45);
+  slowDrive("Forward", 8);
   outake(0.5);
-  defaultDrive("Forward", 10); //Pre Load Scored
-  stopIntake();
-
-  //Pull Out Match Load
-  slowDrive("Reverse", 14);
-  slowTurn("CounterClockwise", 45);
-  slowDrive("Reverse", 14);
-  slowTurn("Clockwise", 90);
   slowDrive("Reverse", 6);
-  Arm.set(true);
-  wait(0.3, sec);
-  defaultTurn("CounterClockwise", 90); //Match Load Pulled Out
-  Arm.set(false);
-  slowDrive("Reverse", 8);
-  defaultTurn("CounterClockwise", 30);
+  turnTo(225);
+  backRam(22); //Pre Load Scored
 
-  //Touch Bar
-  defaultDrive("Reverse", 36);
+  turnTo(0);
+  slowDrive("Reverse", 60);
+  turnTo(315);
+  Blocker.set(true);
+  slowDrive("Reverse", 38); //Elevation Bar Touched
+}
+
+void runAutonLeftNoAWP(){
+  IntakePiston.set(true);
+  intake();
+  slowDrive("Forward", 28);
+  turnTo(45);
+  slowDrive("Forward", 8);
+  outake(0.5);
+  slowDrive("Reverse", 6);
+  turnTo(225);
+  backRam(22); //Pre Load Scored
+
+  slowDrive("Forward", 18);
+  turnTo(0);
+  slowDrive("Reverse", 10);
+  Wings.set(true);
+  slowDrive("Reverse", 28);
+  turnTo(315); //Match Load Retrieved
+
+  slowDrive("Reverse", 58); //Below Bar Triball Pushed
+
+  Wings.set(false);
+  slowDrive("Forward", 60);
+  turnTo(270);
+  defaultDrive("Forward", 4); //Match Loading Position
 }
 
 void runAutonLeftSabotage(){
-
-}
-
-void runAutonRightSafe(){ 
-  //Score Pre Load
-  slowDrive("Forward", 48);
-  slowTurn("Clockwise", 90); //Counter Clockwise Movement from Dropping Intake
+  IntakePiston.set(true);
+  intake();
+  defaultDrive("Forward", 62);
+  turnTo(285);
   outake(0.5);
-  scoreTriball(); //Pre Load Scored
-  backOut();
-
-  //Side Triball
-  slowTurn("Clockwise", 150); //Face Triball
+  turnTo(270);
+  defaultDrive("Reverse", 18);
   intake();
-  slowDrive("Forward", 28); //Triball Picked Up
-  stopIntake();
-  slowDrive("Reverse", 28);
-  slowTurn("CounterClockwise", 150);
-  outake(0.5);
-  scoreTriball();
-  stopIntake();
-}
-
-void runAutonRightFourTB(){
-  double currentTime = Brain.Timer.time();
-
-  //Score Pre Load
-  defaultDrive("Forward", 40);
-  defaultTurn("Clockwise", 80); //Counter Clockise Movement from Dropping Intake
-  outake(0.25);
-  scoreTriball(); //Pre Load Scored
-
-  //Middle Triball
-  backOut();
-  defaultTurn("CounterClockwise", 130); //Face Triball
-  intake();
-  defaultDrive("Forward", 12); //Triball Picked Up
-  stopIntake();
-  defaultTurn("Clockwise", 130);
-  outake(0.5);
-
-  //Back Triball
-  defaultTurn("Clockwise", 180); //Face Triball
-  intake();
-  defaultDrive("Forward", 16); //Triball Picked Up
-  stopIntake();
-  defaultTurn("CounterClockwise", 180);
-  defaultDrive("Forward", 16);
-  outake(0.25);
-  defaultTurn("Clockwise", 180);
-  Wings.set(true);
-  defaultDrive("Reverse", 15); //Middle and Back Triball Scored
-  Wings.set(false);
-
-  //Side Triball
-  defaultDrive("Forward", 10);
-  defaultTurn("CounterClockwise", 30);
-  intake();
-  defaultDrive("Forward", 26); //Triball Picked Up
-  stopIntake();
-  defaultDrive("Reverse", 20);
+  turnTo(0);
   defaultDrive("Forward", 8);
-  slowTurn("CounterClockwise", 150);
-  outake(0.25);
-  scoreTriball(); //Side Triball Scored
-  stopIntake();
+  turnTo(90);
+  frontRam(30); 
+  outake(1.5); //Middle Triball Popped Over
+
+  backRam(52); //Pre Load Scored
+
+  defaultDrive("Forward", 4);
+  turnTo(0);
+  defaultDrive("Reverse", 80);
+  turnTo(270); 
+  defaultDrive("Reverse", 44); //Below Bar Triball Pushed
+
+  defaultDrive("Forward", 52); 
+  turnTo(225); 
+  defaultDrive("Forward", 8); //Match Loading Position
+}
+
+void runAutonRightSafe(){
+  double startTime = Brain.Timer.time();
+
+  IntakePiston.set(true);
+  intake();
+  defaultDrive("Forward", 8);
+  slowDrive("Reverse", 54);
+  turnTo(315);
+  slowDrive("Reverse", 20);
+  Wings.set(true);
+  turnTo(285); //Match Load Retreived
   
-  std::cout << (Brain.Timer.time() - currentTime) / 1000 << " seconds" << std::endl;
+  backRam(40); //Pre Load and Match Load Scored 
+
+  Wings.set(false);
+  turnTo(270);
+  defaultDrive("Forward", 8);
+  turnTo(90);
+  outake(0.3);
+  frontRam(12); //Below Bar Triball Scored
+
+  defaultDrive("Reverse", 18);
+  turnTo(15);
+  intake();
+  defaultDrive("Forward", 80);
+  turnTo(315);
+  defaultDrive("Reverse", 24);
+  turnTo(180);
+  defaultDrive("Forward", 16);
+  outake(0.3);
+  frontRam(14); //Side Triball Scored
+
+  defaultDrive("Reverse", 14); //Back Out
+
+  std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
+}
+
+void runAutonRightFiveTB(){
+  double startTime = Brain.Timer.time();
+
+  IntakePiston.set(true);
+  intake();
+  wait(250, msec);
+  slowDrive("Reverse", 58);
+  turnTo(315);
+  slowDrive("Reverse", 18);
+  Wings.set(true);
+  turnTo(285); //Match Load Retreived
+
+  backRam(32); //Pre Load and Match Load Scored 
+
+  Wings.set(false);
+  turnTo(270);
+  defaultDrive("Forward", 8);
+  turnTo(90);
+  outake(0.3);
+  frontRam(12); //Below Bar Triball Scored
+
+  defaultDrive("Reverse", 8);
+  turnTo(135);
+  defaultDrive("Reverse", 20);
+  turnTo(42.5);
+  intake();
+  frontRam(100);
+  turnTo(0);
+  Wings.set(true);
+  backRam(47.5); //Middle Triball Scored
+
+  Wings.set(false);
+  defaultDrive("Forward", 8);
+  turnTo(180);
+  outake(0.3);
+  frontRam(14); //Back Triball Scored
+
+  defaultDrive("Reverse", 12); //Back Out
+
+  std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
 }
 
 /********** Pre Auton **********/
 
->>>>>>> Stashed changes
 static Auton currentAuton = AutonNone;
 
 static void autonSelector(){
-  int runningSelector = true;
+  bool runningSelector = true;
+
+  int columns[5] = {2, 3, 3, 5, 2};
+  std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", "Right-Side Safe", "Right-Side Five Triball"};
+  Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightSafe, AutonRightFiveTB};
+
+  bool buttonLeftPressed;
+  bool buttonRightPressed;
+
   while (runningSelector){
-    if (currentAuton == AutonLeftSafe){
-      Controller1.Screen.print("Auton Selected, Safe Left");
+    if (currentAuton == AutonNone){
+      Controller1.Screen.setCursor(2, 3);
+      Controller1.Screen.print("No Auton Selected");
     }
-    if (currentAuton == AutonLeftRisky){
-      Controller1.Screen.print("Auton Selected, Risky Left");
+    else{
+      Controller1.Screen.setCursor(1, 5);
+      Controller1.Screen.print("Auton Selected:");
     }
-    if (currentAuton == AutonRightSafe){
-      Controller1.Screen.print("Auton Selected, Safe Right");
+
+    for (int i = 0; i < 5; i++){
+      if (currentAuton == autons[i]){
+        Controller1.Screen.setCursor(3, columns[i]);
+        Controller1.Screen.print(autonNames[i].c_str());
+      }
     }
-    if (currentAuton == AutonRightRisky){
-      Controller1.Screen.print("Auton Selected, Risky Right");
-    }
-    if (Controller1.ButtonLeft.pressing()){
-      if (currentAuton == AutonLeftSafe){
-        currentAuton = AutonRightRisky;
+
+    if (Controller1.ButtonLeft.pressing() && !buttonLeftPressed){
+      Controller1.Screen.clearScreen();
+      if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
+        currentAuton = AutonRightFiveTB;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
       }
-      Controller1.Screen.clearScreen();
+
+      buttonLeftPressed = true;
     }
-    if (Controller1.ButtonRight.pressing()){
-      if (currentAuton == AutonRightRisky){
-        currentAuton = AutonLeftSafe;
+    if (!Controller1.ButtonLeft.pressing() && buttonLeftPressed){
+      buttonLeftPressed = false;
+    }
+
+    if (Controller1.ButtonRight.pressing() && !buttonRightPressed){
+      Controller1.Screen.clearScreen();
+      if (currentAuton == AutonRightFiveTB){
+        currentAuton = AutonLeftAWP;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) + 1);
       }
-      Controller1.Screen.clearScreen();
+
+      buttonRightPressed = true;
     }
-    if (Controller1.ButtonA.pressing()){
+    if (!Controller1.ButtonRight.pressing() && buttonRightPressed){
+      buttonRightPressed = false; 
+    }
+
+    if (Controller1.ButtonDown.pressing()){
+      Controller1.Screen.clearScreen();
       runningSelector = false;
     }
+
+    wait(50, msec);
   }
-  Controller1.rumble(rumblePulse);
+  Controller1.rumble("-.-.");
 }
 
-/********** Autons **********/
-
-void runAutonLeftSafe(){
-
-}
-
-void runAutonLeftRisky(){
-  
-}
-
-void runAutonRightSafe(){ 
-  //Score Match Load
-  defaultDrive(52);
-  defaultTurn("Clockwise", 90);
-  outake(0.5);
-  scoreTriball();
-  backOut();
-  defaultTurn("CounterClockwise", 140); //Face Triball 
-  intake();
-  defaultDrive(26); //Triball Picked Up
-  defaultTurn("CounterClockwise", 145);
-  defaultDrive(20);
-  scoreTriball();
-}
-
-void runAutonRightRisky(){
-  double currentTime = Brain.Timer.time();
-
-  //Score Match Load
-  defaultDrive(42);
-  defaultTurn("Clockwise", 90);
-  outake(0.25);
-  scoreTriball();
-
-  //Middle Triball
-  backOut();
-  defaultTurn("CounterClockwise", 140); //Face Triball
-  intake();
-  defaultDrive(12); //Triball Picked Up
-  stopIntake();
-  defaultTurn("Clockwise", 140);
-  outake(0.8);
-
-  //Back Triball
-  defaultTurn("Clockwise", 180); //Face Triball
-  intake();
-  defaultDrive(14); //Triball Picked Up
-  stopIntake();
-  defaultTurn("CounterClockwise", 180);
-  defaultDrive(18);
-  outake(0.25);
-  scoreTriball(); //Triball Scored
-  Intake.stop();
-
-  //Side Triball
-  backOut();
-  defaultTurn("Clockwise", 160);
-  intake();
-  defaultDrive(26);
-  stopIntake();
-  defaultTurn("Clockwise", 165);
-  defaultDrive(20);
-  scoreTriball();
-
-  std::cout << Brain.Timer.time() - currentTime << std::endl;
-}
-
-/********** Pre Auton **********/
-
-void calibrate(double seconds){
+void calibrateInertial(){
+  Controller1.Screen.setCursor(2, 6);
   Inertial.calibrate();
-  wait(seconds, sec);
+  Controller1.Screen.print("CALIBRATING!!!");
+  while(Inertial.isCalibrating()){
+    wait(100, msec);
+  }
+  Controller1.Screen.clearScreen();
+  Inertial.resetHeading();
+}
+
+void tempCheck(double warningTemp){
+  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
+  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
+  double cataTemp = Catapult.temperature(fahrenheit);
+  double intakeTemp = Intake.temperature(fahrenheit);
+
+  double columns[4] = {3, 3, 4, 6};
+  double temperatures[4] = {leftDriveTemp, rightDriveTemp, cataTemp, intakeTemp};
+  std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "CATAPULT", "INTAKE"};
+
+  for (int i = 0; i < 4; i++){
+    if (temperatures[i] > warningTemp){
+      Controller1.Screen.setCursor(1, columns[i]);
+      Controller1.Screen.print(mechs[i].c_str());
+      Controller1.Screen.print(" HOT!!!");
+      Controller1.Screen.setCursor(3, 10);
+      Controller1.Screen.print(temperatures[i]);
+      
+      wait(1.5, sec);
+      Controller1.Screen.clearScreen();
+    }
+  }
 }
 
 void preAuton(){
-  calibrate(5);
-<<<<<<< Updated upstream
-  Wings.set(false);
-=======
-  tempCheck(45);
->>>>>>> Stashed changes
-  autonSelector();
+  // Initializing Robot Configuration. DO NOT REMOVE!
+  vexcodeInit();
+
+  Controller1.Screen.clearScreen();
+
+  tempCheck(120);
+  calibrateInertial();
+  autonSelector();  
 }
 
 /********** Auton Function **********/
@@ -445,20 +484,24 @@ void autonomous(){
     case AutonNone: {
       break;
     }
-    case AutonLeftSafe: {
-      runAutonLeftSafe();
+    case AutonLeftAWP: {
+      runAutonLeftAWP();
       break;
     }
-    case AutonLeftRisky: {
-      runAutonLeftRisky();
+    case AutonLeftNoAWP: {
+      runAutonLeftNoAWP();
+      break;
+    }
+    case AutonLeftSabotage: {
+      runAutonLeftSabotage();
       break;
     }
     case AutonRightSafe: {
       runAutonRightSafe();
       break;
     }
-    case AutonRightRisky: {
-      runAutonRightRisky();
+    case AutonRightFiveTB: {
+      runAutonRightFiveTB();
       break;
     }
     default: {
@@ -468,24 +511,35 @@ void autonomous(){
 }
 
 void testAuton(Auton testedAuton){
+  double startTime = Brain.Timer.time();
+
   switch (testedAuton){
     case AutonNone: {
       break;
     }
-    case AutonLeftSafe: {
-      runAutonLeftSafe();
+    case AutonLeftAWP: {
+      runAutonLeftAWP();
+      std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
       break;
     }
-    case AutonLeftRisky: {
-      runAutonLeftRisky();
+    case AutonLeftNoAWP: {
+      runAutonLeftNoAWP();
+      std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
+      break;
+    }
+    case AutonLeftSabotage: {
+      runAutonLeftSabotage();
+      std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
       break;
     }
     case AutonRightSafe: {
       runAutonRightSafe();
+      std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
       break;
     }
-    case AutonRightRisky: {
-      runAutonRightRisky();
+    case AutonRightFiveTB: {
+      runAutonRightFiveTB();
+      std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
       break;
     }
     default: {
