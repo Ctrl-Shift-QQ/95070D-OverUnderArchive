@@ -1,22 +1,28 @@
-
-//For Testing
-
 typedef enum {
     AutonNone = 0,
     AutonLeftAWP,
     AutonLeftNoAWP,
     AutonLeftSabotage,
     AutonRightSafe,
-    AutonRightFiveTB
+    AutonRightSixTB
 } Auton;
 
-void testAuton(Auton testedAuton);
-
-//For Competition
+typedef enum {
+    Forward = 0,
+    Reverse,
+    Clockwise,
+    CounterClockwise
+} Direction;
 
 void calibrateInertial();
 
 void tempCheck(double warningTemp);
+
+//For Testing
+
+void testAuton(Auton testedAuton);
+
+//For Competition
 
 void preAuton();
 
