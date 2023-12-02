@@ -19,13 +19,13 @@ static int getSign(double input){
 static void driveWithPID(double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){
   
   double leftDriveError = target;
-  double leftIntegral;
+  double leftIntegral = 0;
   double leftDerivative;
   double previousLeftError = leftDriveError;
   double leftDriveTotal;
   
   double rightDriveError = target;
-  double rightIntegral;
+  double rightIntegral = 0;
   double rightDerivative;
   double previousRightError = rightDriveError;
   double rightDriveTotal;
@@ -114,7 +114,7 @@ static double turnError(double target){
 static void turnWithPID(double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){
   
   double error = turnError(target);
-  double integral;
+  double integral = 0;
   double derivative;
   double previousError = error;
   double total;
@@ -172,7 +172,7 @@ static double swingError(Direction turn, double target){
       return target - Inertial.heading();
     }
   }
-  if (turn == CounterClockwise){
+  else if (turn == CounterClockwise){
     if (smallerDegree == Inertial.heading()){
       return 360 - target + Inertial.heading();
     }
@@ -180,32 +180,35 @@ static double swingError(Direction turn, double target){
       return Inertial.heading() - target;
     }
   }
+  else{
+    return 0;
+  }
 }
 
-static double swingWithPID(Direction drive, Direction turn, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double percentage, double target){
+static void swingWithPID(Direction drive, Direction turn, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double percentage, double target){
   double error = target;
-  double integral;
+  double integral = 0;
   double derivative;
   double previousError = error;
   double total;
   directionType driveDirection;
-  double leftDrivePercentage;
-  double rightDrivePercentage;
+  double leftDriveFactor;
+  double rightDriveFactor;
 
   if (drive == Forward){
     driveDirection = forward;
   }
-  if (drive == Reverse){
+  else if (drive == Reverse){
     driveDirection = reverse;
   }
 
   if (turn == Clockwise){
-    leftDrivePercentage = 100;
-    rightDrivePercentage = percentage;
+    leftDriveFactor = 1;
+    rightDriveFactor = percentage / 100;
   }
-  if (turn == CounterClockwise){
-    leftDrivePercentage = percentage;
-    rightDrivePercentage = 100;
+  else if (turn == CounterClockwise){
+    leftDriveFactor = percentage / 100;
+    rightDriveFactor = 1;
   }
 
   while (fabs(error) > tolerance){
@@ -214,20 +217,22 @@ static double swingWithPID(Direction drive, Direction turn, double kp, double ki
     total = error * kp + integral * ki - derivative * kd;
 
     if (fabs(error) < minimumSpeed){
-      LeftFront.spin(driveDirection, leftDrivePercentage / 100 * getSign(error) * minimumSpeed, percent);
-      LeftMiddle.spin(driveDirection, leftDrivePercentage / 100 * getSign(error) * minimumSpeed, percent);
-      LeftBack.spin(driveDirection, leftDrivePercentage / 100 * getSign(error) * minimumSpeed, percent);
-      RightFront.spin(driveDirection, rightDrivePercentage / 100 * getSign(error) * minimumSpeed, percent);
-      RightMiddle.spin(driveDirection, rightDrivePercentage / 100 * getSign(error) * minimumSpeed, percent);
-      RightBack.spin(driveDirection, rightDrivePercentage / 100 * getSign(error) * minimumSpeed, percent);
+      LeftFront.spin(driveDirection, leftDriveFactor * getSign(error) * minimumSpeed, percent);
+      LeftMiddle.spin(driveDirection, leftDriveFactor * getSign(error) * minimumSpeed, percent);
+      LeftBack.spin(driveDirection, leftDriveFactor * getSign(error) * minimumSpeed, percent);
+      RightFront.spin(driveDirection, rightDriveFactor * getSign(error) * minimumSpeed, percent);
+      RightMiddle.spin(driveDirection, rightDriveFactor * getSign(error) * minimumSpeed, percent);
+      RightBack.spin(driveDirection, rightDriveFactor * getSign(error) * minimumSpeed, percent);
     }
     else {
-      LeftFront.spin(driveDirection, leftDrivePercentage / 100 * total, percent);
-      LeftMiddle.spin(driveDirection, leftDrivePercentage / 100 * total, percent);
-      LeftBack.spin(driveDirection, leftDrivePercentage / 100 * total, percent);
-      RightFront.spin(driveDirection, rightDrivePercentage / 100 * total, percent);
-      RightMiddle.spin(driveDirection, rightDrivePercentage / 100 * total, percent);
-      RightBack.spin(driveDirection, rightDrivePercentage / 100 * total, percent);
+      LeftFront.spin(driveDirection, leftDriveFactor * total, percent);
+      LeftMiddle.spin(driveDirection, leftDriveFactor * total, percent);
+      LeftBack.spin(driveDirection, leftDriveFactor * total, percent);
+      RightFront.spin(driveDirection, rightDriveFactor * total, percent);
+      RightMiddle.spin(driveDirection, rightDriveFactor * total, percent);
+      RightBack.spin(driveDirection, rightDriveFactor * total, percent);
+
+      std::cout << error << "   " << integral << "   " << derivative << "   " << total << std::endl;
     }
 
     if (fabs(error) < maxI){
@@ -269,6 +274,10 @@ static void defaultDrive(Direction direction, double target){
 
 static void turnTo(double target){
   //turnWithPID();
+}
+
+static void swingTo(double target){
+  //swingWithPID();
 }
 
 static void intake(){
