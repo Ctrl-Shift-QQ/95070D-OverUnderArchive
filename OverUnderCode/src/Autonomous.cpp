@@ -35,19 +35,19 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   
   while ((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance){
     //Left Side
-    leftDriveError = target - LeftBack.position(turns) * 3.25 * M_PI / (4/3);
+    leftDriveError = target - LeftBack.position(turns) * 3.25 * M_PI / (5/4);
     leftDerivative = (previousLeftError - leftDriveError) * 100;
     leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd;
 
     if (fabs(leftDriveTotal) < minimumSpeed){
       LeftFront.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
-      LeftMiddle.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
       LeftBack.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
+      LeftStack.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
     }
     else {
       LeftFront.spin(forward, leftDriveTotal, percent);
-      LeftMiddle.spin(forward, leftDriveTotal, percent);
       LeftBack.spin(forward, leftDriveTotal, percent);
+      LeftStack.spin(forward, leftDriveTotal, percent);
     }
 
     if(fabs(leftDriveError) < maxI){
@@ -55,19 +55,19 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     }
     
     //Right Side
-    rightDriveError = target - RightBack.position(turns) * 3.25 * M_PI / (4/3);
+    rightDriveError = target - RightBack.position(turns) * 3.25 * M_PI / (5/4);
     rightDerivative = (previousRightError - rightDriveError) * 100;
     rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd;
 
     if (fabs(rightDriveTotal) < minimumSpeed){
       RightFront.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
-      RightMiddle.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
       RightBack.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
+      RightStack.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
     }
     else {
       RightFront.spin(forward, rightDriveTotal, percent);
-      RightMiddle.spin(forward, rightDriveTotal, percent);
       RightBack.spin(forward, rightDriveTotal, percent);
+      RightStack.spin(forward, rightDriveTotal, percent);
     }
 
     if(fabs(rightDriveError) < maxI){
@@ -81,11 +81,11 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   }
 
   LeftFront.stop(brake);
-  LeftMiddle.stop(brake);
   LeftBack.stop(brake);
+  LeftStack.stop(brake);
   RightFront.stop(brake);
-  RightMiddle.stop(brake);
   RightBack.stop(brake);
+  RightStack.stop(brake);
 
   wait(100, msec);
 }
@@ -126,19 +126,19 @@ static void turnWithPID(double kp, double ki, double kd, double tolerance, doubl
 
     if (fabs(error) < minimumSpeed){
       LeftFront.spin(forward, getSign(error) * minimumSpeed, percent);
-      LeftMiddle.spin(forward, getSign(error) * minimumSpeed, percent);
       LeftBack.spin(forward, getSign(error) * minimumSpeed, percent);
+      LeftStack.spin(forward, getSign(error) * minimumSpeed, percent);
       RightFront.spin(reverse, getSign(error) * minimumSpeed, percent);
-      RightMiddle.spin(reverse, getSign(error) * minimumSpeed, percent);
       RightBack.spin(reverse, getSign(error) * minimumSpeed, percent);
+      RightStack.spin(reverse, getSign(error) * minimumSpeed, percent);
     }
     else {
       LeftFront.spin(forward, total, percent);
-      LeftMiddle.spin(forward, total, percent);
       LeftBack.spin(forward, total, percent);
+      LeftStack.spin(forward, total, percent);
       RightFront.spin(reverse, total, percent);
-      RightMiddle.spin(reverse, total, percent);
       RightBack.spin(reverse, total, percent);
+      RightStack.spin(reverse, total, percent);
     }
 
     if (fabs(error) < maxI){
@@ -151,11 +151,11 @@ static void turnWithPID(double kp, double ki, double kd, double tolerance, doubl
   }
 
   LeftFront.stop(brake);
-  LeftMiddle.stop(brake);
   LeftBack.stop(brake);
+  LeftStack.stop(brake);
   RightFront.stop(brake);
-  RightMiddle.stop(brake);
   RightBack.stop(brake);
+  RightStack.stop(brake);
 
   wait(100, msec);
 }
@@ -218,21 +218,19 @@ static void swingWithPID(Direction drive, Direction turn, double kp, double ki, 
 
     if (fabs(error) < minimumSpeed){
       LeftFront.spin(driveDirection, leftDriveFactor * getSign(error) * minimumSpeed, percent);
-      LeftMiddle.spin(driveDirection, leftDriveFactor * getSign(error) * minimumSpeed, percent);
       LeftBack.spin(driveDirection, leftDriveFactor * getSign(error) * minimumSpeed, percent);
+      LeftStack.spin(driveDirection, leftDriveFactor * getSign(error) * minimumSpeed, percent);
       RightFront.spin(driveDirection, rightDriveFactor * getSign(error) * minimumSpeed, percent);
-      RightMiddle.spin(driveDirection, rightDriveFactor * getSign(error) * minimumSpeed, percent);
       RightBack.spin(driveDirection, rightDriveFactor * getSign(error) * minimumSpeed, percent);
+      RightStack.spin(driveDirection, rightDriveFactor * getSign(error) * minimumSpeed, percent);
     }
     else {
       LeftFront.spin(driveDirection, leftDriveFactor * total, percent);
-      LeftMiddle.spin(driveDirection, leftDriveFactor * total, percent);
       LeftBack.spin(driveDirection, leftDriveFactor * total, percent);
+      LeftStack.spin(driveDirection, leftDriveFactor * total, percent);
       RightFront.spin(driveDirection, rightDriveFactor * total, percent);
-      RightMiddle.spin(driveDirection, rightDriveFactor * total, percent);
       RightBack.spin(driveDirection, rightDriveFactor * total, percent);
-
-      std::cout << error << "   " << integral << "   " << derivative << "   " << total << std::endl;
+      RightStack.spin(driveDirection, rightDriveFactor * total, percent);
     }
 
     if (fabs(error) < maxI){
@@ -245,12 +243,12 @@ static void swingWithPID(Direction drive, Direction turn, double kp, double ki, 
   }
 
   LeftFront.stop(brake);
-  LeftMiddle.stop(brake);
   LeftBack.stop(brake);
+  LeftStack.stop(brake);
   RightFront.stop(brake);
-  RightMiddle.stop(brake);
   RightBack.stop(brake);
-
+  RightStack.stop(brake);
+  
   wait(100, msec);
 }
 
@@ -398,14 +396,14 @@ void calibrateInertial(){
 }
 
 void tempCheck(double warningTemp){
-  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
-  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
-  double cataTemp = Catapult.temperature(fahrenheit);
+  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftBack.temperature(fahrenheit)), LeftStack.temperature(fahrenheit));
+  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightBack.temperature(fahrenheit)), RightStack.temperature(fahrenheit));
+  double cataTemp = Kicker.temperature(fahrenheit);
   double intakeTemp = Intake.temperature(fahrenheit);
 
   double columns[4] = {3, 3, 4, 6};
   double temperatures[4] = {leftDriveTemp, rightDriveTemp, cataTemp, intakeTemp};
-  std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "CATAPULT", "INTAKE"};
+  std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "KICKER", "INTAKE"};
 
   for (int i = 0; i < 4; i++){
     if (temperatures[i] > warningTemp){

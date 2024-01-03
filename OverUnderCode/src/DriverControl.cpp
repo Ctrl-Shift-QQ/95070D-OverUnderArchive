@@ -5,7 +5,7 @@
 
 static void setSpeeds(){
   Intake.setVelocity(80, percent);
-  Catapult.setVelocity(55, percent);
+  Kicker.setVelocity(55, percent);
 }
 
 static void runIntake(){
@@ -20,18 +20,12 @@ static void runIntake(){
   }
 }
 
-static void runDropIntake(){
-  if (Controller1.ButtonY.pressing()){
-    IntakePiston.set(true);
-  }
-}
-
-static void runCatapult(){
+static void runKicker(){
   if (Controller1.ButtonL2.pressing()){
-    Catapult.spin(forward);
+    Kicker.spin(forward);
   }
   else{
-    Catapult.stop();
+    Kicker.stop();
   }
 }
 
@@ -65,11 +59,11 @@ static void runWings(){
 
 static void runDrive(){
   LeftFront.spin(forward, Controller1.Axis3.position(), percent);
-  LeftMiddle.spin(forward, Controller1.Axis3.position(), percent);
   LeftBack.spin(forward, Controller1.Axis3.position(), percent);
+  LeftStack.spin(forward, Controller1.Axis3.position(), percent);
   RightFront.spin(forward, Controller1.Axis2.position(), percent);
-  RightMiddle.spin(forward, Controller1.Axis2.position(), percent);
   RightBack.spin(forward, Controller1.Axis2.position(), percent);
+  RightStack.spin(forward, Controller1.Axis2.position(), percent);
 }
 
 /********** Driver Control Function **********/
@@ -78,8 +72,7 @@ void driverControl(){
   while (true){
     runDrive();
     runIntake();
-    runDropIntake();
-    runCatapult();
+    runKicker();
     runBlocker();
     runWings();
 
