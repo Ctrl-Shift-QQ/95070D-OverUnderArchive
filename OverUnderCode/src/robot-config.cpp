@@ -22,7 +22,7 @@ motor RightStack = motor(PORT15, ratio6_1, false);
 motor Intake = motor(PORT11, ratio6_1, false);
 motor Kicker = motor(PORT9, ratio36_1, false);
 inertial Inertial = inertial(PORT4);
-digital_out Wings = digital_out(Brain.ThreeWirePort.H);
+digital_out Wings = digital_out(Brain.ThreeWirePort.A);
 digital_out Blocker = digital_out(Brain.ThreeWirePort.F);
 
 // VEXcode generated functions

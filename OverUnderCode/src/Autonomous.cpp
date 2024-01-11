@@ -30,12 +30,12 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   double previousRightError = rightDriveError;
   double rightDriveTotal;
 
-  LeftBack.resetPosition();
-  RightBack.resetPosition();
+  LeftFront.resetPosition();
+  RightFront.resetPosition();
   
   while ((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance){
     //Left Side
-    leftDriveError = target - LeftBack.position(turns) * 3.25 * M_PI / (5/4);
+    leftDriveError = target - LeftFront.position(turns) * 3.25 * M_PI * 4/5;
     leftDerivative = (previousLeftError - leftDriveError) * 100;
     leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd;
 
@@ -55,7 +55,7 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     }
     
     //Right Side
-    rightDriveError = target - RightBack.position(turns) * 3.25 * M_PI / (5/4);
+    rightDriveError = target - RightFront.position(turns) * 3.25 * M_PI * 4/5;
     rightDerivative = (previousRightError - rightDriveError) * 100;
     rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd;
 
@@ -78,6 +78,7 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     previousRightError = rightDriveError;    
 
     wait(10, msec);
+    std::cout << leftDriveError << "   " << leftDerivative << "   " << leftIntegral << "   " << leftDriveTotal << std::endl;
   }
 
   LeftFront.stop(brake);
@@ -124,7 +125,7 @@ static void turnWithPID(double kp, double ki, double kd, double tolerance, doubl
     derivative = (previousError - error) * 100;
     total = error * kp + integral * ki - derivative * kd;
 
-    if (fabs(error) < minimumSpeed){
+    if (fabs(total) < minimumSpeed){
       LeftFront.spin(forward, getSign(error) * minimumSpeed, percent);
       LeftBack.spin(forward, getSign(error) * minimumSpeed, percent);
       LeftStack.spin(forward, getSign(error) * minimumSpeed, percent);
@@ -148,6 +149,8 @@ static void turnWithPID(double kp, double ki, double kd, double tolerance, doubl
     previousError = error;
 
     wait(10, msec);
+    std::cout << error << "   " << derivative << "   " << integral << "   " << total << std::endl;
+
   }
 
   LeftFront.stop(brake);
@@ -216,7 +219,7 @@ static void swingWithPID(Direction drive, Direction turn, double kp, double ki, 
     derivative = (previousError - error) * 100;
     total = error * kp + integral * ki - derivative * kd;
 
-    if (fabs(error) < minimumSpeed){
+    if (fabs(total) < minimumSpeed){
       LeftFront.spin(driveDirection, leftDriveFactor * getSign(error) * minimumSpeed, percent);
       LeftBack.spin(driveDirection, leftDriveFactor * getSign(error) * minimumSpeed, percent);
       LeftStack.spin(driveDirection, leftDriveFactor * getSign(error) * minimumSpeed, percent);
@@ -263,19 +266,19 @@ static void slowDrive(Direction direction, double target){
 
 static void defaultDrive(Direction direction, double target){
   if (direction == Forward){
-    //driveWithPID();
+    driveWithPID(1.5, 0.1, 0.03, 0.25, 20, 30, target);
   }
   if (direction == Reverse){
-    //driveWithPID();
+    driveWithPID(1.5, 0.1, 0.03, 0.25, 20, 30, -target);
   }
 }
 
 static void turnTo(double target){
-  //turnWithPID();
+  turnWithPID(0.45, 0.4, 0.02, 1, 5, 30, target);
 }
 
-static void swingTo(double target){
-  //swingWithPID();
+static void swingTo(Direction drive, Direction turn, double percentage, double target){
+  swingWithPID(drive, turn, 0.6, 1, 0.04, 1, 25, 0, percentage, target);
 }
 
 static void intake(){

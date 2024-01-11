@@ -1,11 +1,12 @@
 #include "vex.h"
+#include "DriverControl.h"
 #include <iostream>
 
 /********** Functions for Driver Control **********/
 
 static void setSpeeds(){
   Intake.setVelocity(80, percent);
-  Kicker.setVelocity(55, percent);
+  Kicker.setVelocity(50, percent);
 }
 
 static void runIntake(){
