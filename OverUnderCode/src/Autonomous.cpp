@@ -87,8 +87,6 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   RightFront.stop(brake);
   RightBack.stop(brake);
   RightStack.stop(brake);
-
-  wait(100, msec);
 }
 
 static double turnError(double target){
@@ -157,8 +155,6 @@ static void turnWithPID(double kp, double ki, double kd, double tolerance, doubl
   RightFront.stop(brake);
   RightBack.stop(brake);
   RightStack.stop(brake);
-
-  wait(100, msec);
 }
 
 /********** Tunings **********/
@@ -191,7 +187,7 @@ static void ram(Direction direction, double target){
 }
 
 static void turnTo(double target){
-  turnWithPID(0.35, 0, 0.015, 2, 10, 0, target);
+  turnWithPID(0.5, -05, 0.005, 3, 0, 10, target);
 }
 
 static void intake(){
@@ -222,7 +218,7 @@ void runAutonLeftAWP(){
 
   drive(Forward, 8);
   turnTo(0);
-  drive(Reverse, 23);
+  drive(Reverse, 26);
   turnTo(315);
   Blocker.set(true);
   crawl(Reverse, 35); //Elevation Bar Touched
@@ -256,34 +252,34 @@ void runAutonRightSafe(){
   double currentTime = Brain.Timer.time();
   intake();
   BackWings.set(true);
-  wait(0.3, sec);
-  crawl(Reverse, 12);
-  turnTo(315);
-  ram(Reverse, 20); //Match Load Scored
+  wait(0.2, sec);
+  drive(Reverse, 12);
+  turnTo(330);
+  ram(Reverse, 18); //Match Load Scored
 
   drive(Forward, 7);
   BackWings.set(false);
   turnTo(135);
   outake(0.75);
-  ram(Forward, 6); //Pre Load Scored
+  ram(Forward, 7); //Pre Load Scored
 
   turnTo(135);
   drive(Reverse, 8);
-  turnTo(70);
+  turnTo(65);
   intake();
-  drive(Forward, 50);
-  turnTo(200);
-  drive(Forward, 10);
+  drive(Forward, 46);
+  turnTo(180);
+  drive(Forward, 8);
   Intake.setVelocity(40, percent);
   Intake.spin(reverse);
   wait(0.75, sec);
   Intake.stop();
-  turnTo(85);
+  turnTo(90);
   intake();
-  drive(Forward, 14);
+  drive(Forward, 20);
   turnTo(45);
   BackWings.set(true);
-  ram(Reverse, 36); //Middle and Back Triballs Scored
+  ram(Reverse, 32); //Middle and Back Triballs Scored
 
   drive(Forward, 8);
   BackWings.set(false);
@@ -291,7 +287,7 @@ void runAutonRightSafe(){
   outake(0.5);
   ram(Forward, 8); //Corner Triball Scored
 
-  std::cout << Brain.Timer.time() - currentTime << std::endl;
+  std::cout << (Brain.Timer.time() - currentTime) / 1000 << std::endl;
 }
 
 void runAutonRightSixTB(){ 
