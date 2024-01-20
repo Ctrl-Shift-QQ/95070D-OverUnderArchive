@@ -22,8 +22,9 @@ motor RightStack = motor(PORT15, ratio6_1, false);
 motor Intake = motor(PORT11, ratio6_1, false);
 motor Kicker = motor(PORT9, ratio36_1, false);
 inertial Inertial = inertial(PORT4);
-digital_out Wings = digital_out(Brain.ThreeWirePort.A);
-digital_out Blocker = digital_out(Brain.ThreeWirePort.F);
+digital_out BackWings = digital_out(Brain.ThreeWirePort.A);
+digital_out Balance = digital_out(Brain.ThreeWirePort.G);
+digital_out Blocker = digital_out(Brain.ThreeWirePort.B);
 
 // VEXcode generated functions
 // define variable for remote controller enable/disable

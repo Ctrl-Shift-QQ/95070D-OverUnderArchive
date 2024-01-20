@@ -13,7 +13,8 @@ extern motor RightStack;
 extern motor Intake;
 extern motor Kicker;
 extern inertial Inertial;
-extern digital_out Wings;
+extern digital_out BackWings;
+extern digital_out Balance;
 extern digital_out Blocker;
 
 /**

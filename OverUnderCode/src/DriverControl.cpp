@@ -44,16 +44,30 @@ static void runBlocker(){
   }
 }
 
-static void runWings(){
+static void runBackWings(){
   static bool pistonExtended;
   static bool buttonPressed;
 
   if (Controller1.ButtonR2.pressing() && !buttonPressed){ //Button Pressed
     buttonPressed = true;
     pistonExtended = !pistonExtended;
-    Wings.set(pistonExtended);
+    BackWings.set(pistonExtended);
   }
   if (!Controller1.ButtonR2.pressing() && buttonPressed){ //Button Released
+    buttonPressed = false;
+  }
+}
+
+static void runBalance(){
+  static bool pistonExtended;
+  static bool buttonPressed;
+
+  if (Controller1.ButtonY.pressing() && !buttonPressed){ //Button Pressed
+    buttonPressed = true;
+    pistonExtended = !pistonExtended;
+    Balance.set(pistonExtended);
+  }
+  if (!Controller1.ButtonY.pressing() && buttonPressed){ //Button Released
     buttonPressed = false;
   }
 }
@@ -74,10 +88,10 @@ void driverControl(){
     runDrive();
     runIntake();
     runKicker();
+    runBackWings();
+    runBalance();
     runBlocker();
-    runWings();
 
     wait(20, msec);
   }
-
 }
