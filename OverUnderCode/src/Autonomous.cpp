@@ -95,14 +95,14 @@ static double turnError(double target){
   double smallerDegree = std::min(target, Inertial.heading(degrees));
   double largerDegree = std::max(target, Inertial.heading(degrees));
 
-  if(smallerDegree == target){
+  if (smallerDegree == target){
     throughZeroDirection = 1;
   }
   else{
     throughZeroDirection = -1; 
   }
 
-  if(largerDegree - smallerDegree > 180){
+  if  (largerDegree - smallerDegree > 180){
     return throughZeroDirection * (360 - largerDegree + smallerDegree);
   }
   else{
@@ -179,15 +179,15 @@ static void drive(Direction direction, double target){
 
 static void ram(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(0, 0, 0, 0.5, 95, 0, target);
+    driveWithPID(0, 0, 0, 1, 70, 0, target);
   }
   if (direction == Reverse){
-    driveWithPID(0, 0, 0, 0.5, 95, 0, -target);  
+    driveWithPID(0, 0, 0, 1, 70, 0, -target);  
   }
 }
 
 static void turnTo(double target){
-  turnWithPID(0.5, -05, 0.005, 3, 0, 10, target);
+  turnWithPID(0.6, -0.05, 0.05, 3, 0, 20, target);
 }
 
 static void intake(){
@@ -225,7 +225,11 @@ void runAutonLeftAWP(){
 }
 
 void runAutonLeftNoAWP(){
-  turnTo(90);
+  turnTo(45);
+  wait(2, sec);
+  turnTo(135);
+  wait(2, sec);
+  turnTo(315);
 }
 
 void runAutonLeftSabotage(){
@@ -250,42 +254,45 @@ void runAutonLeftSabotage(){
 
 void runAutonRightSafe(){
   double currentTime = Brain.Timer.time();
-  intake();
+  Blocker.set(true);
   BackWings.set(true);
   wait(0.2, sec);
   drive(Reverse, 12);
-  turnTo(330);
-  ram(Reverse, 18); //Match Load Scored
-
-  drive(Forward, 7);
   BackWings.set(false);
+  drive(Reverse, 2);
+  turnTo(315);
+  ram(Reverse, 8); //Match Load Scored
+
+  drive(Forward, 6);
   turnTo(135);
   outake(0.75);
-  ram(Forward, 7); //Pre Load Scored
+  ram(Forward, 8.5); //Pre Load Scored
 
-  turnTo(135);
-  drive(Reverse, 8);
-  turnTo(65);
+  drive(Reverse, 10);
+  turnTo(70);
   intake();
-  drive(Forward, 46);
+  drive(Forward, 48);
   turnTo(180);
   drive(Forward, 8);
-  Intake.setVelocity(40, percent);
+  Intake.setVelocity(50, percent);
   Intake.spin(reverse);
-  wait(0.75, sec);
+  wait(1, sec);
   Intake.stop();
-  turnTo(90);
+  turnTo(100);
   intake();
-  drive(Forward, 20);
+  drive(Forward, 15);
   turnTo(45);
   BackWings.set(true);
-  ram(Reverse, 32); //Middle and Back Triballs Scored
+  ram(Reverse, 24); //Middle and Back Triballs Scored
 
-  drive(Forward, 8);
+  drive(Forward, 4);
   BackWings.set(false);
+  wait(10, msec);
   turnTo(225);
   outake(0.5);
-  ram(Forward, 8); //Corner Triball Scored
+  ram(Forward, 9); //Corner Triball Scored
+
+  drive(Reverse, 10);
 
   std::cout << (Brain.Timer.time() - currentTime) / 1000 << std::endl;
 }
