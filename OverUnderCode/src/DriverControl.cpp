@@ -6,7 +6,7 @@
 
 static void setSpeeds(){
   Intake.setVelocity(80, percent);
-  Kicker.setVelocity(50, percent);
+  Kicker.setVelocity(57, percent);
 }
 
 static void runIntake(){
@@ -34,12 +34,12 @@ static void runBlocker(){
   static bool pistonExtended;
   static bool buttonPressed;
 
-  if (Controller1.ButtonX.pressing() && !buttonPressed){ //Button Pressed
+  if (Controller1.ButtonX.pressing() && !buttonPressed){ //Button pressed
     buttonPressed = true;
-    pistonExtended = !pistonExtended;
+    pistonExtended = !pistonExtended; //Changes piston direction to opposite
     Blocker.set(pistonExtended);
   }
-  if (!Controller1.ButtonX.pressing() && buttonPressed){ //Button Released
+  if (!Controller1.ButtonX.pressing() && buttonPressed){ //Button released
     buttonPressed = false;
   }
 }
@@ -48,12 +48,12 @@ static void runBackWings(){
   static bool pistonExtended;
   static bool buttonPressed;
 
-  if (Controller1.ButtonR2.pressing() && !buttonPressed){ //Button Pressed
+  if (Controller1.ButtonR2.pressing() && !buttonPressed){ //Button pressed
     buttonPressed = true;
-    pistonExtended = !pistonExtended;
+    pistonExtended = !pistonExtended; //Changes piston direction to opposite
     BackWings.set(pistonExtended);
   }
-  if (!Controller1.ButtonR2.pressing() && buttonPressed){ //Button Released
+  if (!Controller1.ButtonR2.pressing() && buttonPressed){ //Button released
     buttonPressed = false;
   }
 }
@@ -62,23 +62,23 @@ static void runBalance(){
   static bool pistonExtended;
   static bool buttonPressed;
 
-  if (Controller1.ButtonY.pressing() && !buttonPressed){ //Button Pressed
+  if (Controller1.ButtonY.pressing() && !buttonPressed){ //Button pressed
     buttonPressed = true;
-    pistonExtended = !pistonExtended;
+    pistonExtended = !pistonExtended; //Changes piston direction to opposite
     Balance.set(pistonExtended);
   }
-  if (!Controller1.ButtonY.pressing() && buttonPressed){ //Button Released
+  if (!Controller1.ButtonY.pressing() && buttonPressed){ //Button released
     buttonPressed = false;
   }
 }
 
-static void runDrive(){
-  LeftFront.spin(forward, Controller1.Axis3.position(), percent);
+static void runDrive(){ //Tank Drive
+  LeftFront.spin(forward, Controller1.Axis3.position(), percent); //Base left drive speed off of left joystick
   LeftBack.spin(forward, Controller1.Axis3.position(), percent);
   LeftStack.spin(forward, Controller1.Axis3.position(), percent);
-  RightFront.spin(forward, Controller1.Axis2.position(), percent);
+  RightFront.spin(forward, Controller1.Axis2.position(), percent); //Base right drive speed off of Right joystick
   RightBack.spin(forward, Controller1.Axis2.position(), percent);
-  RightStack.spin(forward, Controller1.Axis2.position(), percent);
+  RightStack.spin(forward, Controller1.Axis2.position(), percent); 
 }
 
 /********** Driver Control Function **********/
@@ -92,6 +92,6 @@ void driverControl(){
     runBalance();
     runBlocker();
 
-    wait(20, msec);
+    wait(20, msec); //Delay prevents brain from crashing
   }
 }

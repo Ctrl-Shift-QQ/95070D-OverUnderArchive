@@ -5,10 +5,10 @@
 /********** Functions for Auton **********/
 
 static int getSign(double input){
-  if (input > 0){
+  if (input > 0){ //Returns 1 if positive
     return 1;
   }
-  else if (input < 0){
+  else if (input < 0){ //Returns -1 if negative
     return -1;
   }
   else{
@@ -33,12 +33,12 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   LeftFront.resetPosition();
   RightFront.resetPosition();
   
-  while ((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance){
+  while ((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance){ //Runs while not within tolerance
     //Left Side
-    leftDerivative = (previousLeftError - leftDriveError) * 50;
-    leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd;
+    leftDerivative = (previousLeftError - leftDriveError) * 50; //Calculate derivative
+    leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd; //Calculates total output
 
-    if (fabs(leftDriveTotal) < minimumSpeed){
+    if (fabs(leftDriveTotal) < minimumSpeed){ //Runs at minimum speed when calculated output is less
       LeftFront.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
       LeftBack.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
       LeftStack.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
@@ -50,14 +50,14 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     }
 
     if(fabs(leftDriveError) < maxI){
-      leftIntegral += leftDriveError / 50;
+      leftIntegral += leftDriveError / 50; //Calculates integral
     }
     
     //Right Side
-    rightDerivative = (previousRightError - rightDriveError) * 50;
-    rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd;
+    rightDerivative = (previousRightError - rightDriveError) * 50; //Calculate derivative
+    rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd; //Calculates total output
 
-    if (fabs(rightDriveTotal) < minimumSpeed){
+    if (fabs(rightDriveTotal) < minimumSpeed){ //Runs at minimum speed when calculated output is less
       RightFront.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
       RightBack.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
       RightStack.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
@@ -69,10 +69,10 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     }
 
     if(fabs(rightDriveError) < maxI){
-      rightIntegral += rightDriveError / 50;
+      rightIntegral += rightDriveError / 50; //Calculates integral
     }
 
-    previousLeftError = leftDriveError;
+    previousLeftError = leftDriveError; //Makes current error previous error for next loop
     previousRightError = rightDriveError;    
 
     wait(20, msec);
@@ -89,25 +89,27 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   RightStack.stop(brake);
 }
 
-static double turnError(double target){
+static double turnError(double target){ //Calculates error for the shortest path to target heading
   
-  int throughZeroDirection;
+  double output;
   double smallerDegree = std::min(target, Inertial.heading(degrees));
   double largerDegree = std::max(target, Inertial.heading(degrees));
 
-  if (smallerDegree == target){
-    throughZeroDirection = 1;
-  }
-  else{
-    throughZeroDirection = -1; 
-  }
 
-  if  (largerDegree - smallerDegree > 180){
-    return throughZeroDirection * (360 - largerDegree + smallerDegree);
+  if (largerDegree - smallerDegree > 180){
+    output = (360 - largerDegree + smallerDegree);
+    if (smallerDegree = Inertial.heading()){
+      return -output;
+    }
   }
-  else{
-    return target - Inertial.heading(degrees);
+  else {
+    output = target - Inertial.heading(degrees);
+    if (smallerDegree = target){
+      return -output;
+    }
   }
+  
+  return output;
 }
 
 static void turnWithPID(double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){
@@ -117,11 +119,11 @@ static void turnWithPID(double kp, double ki, double kd, double tolerance, doubl
   double previousError = error;
   double total;
   
-  while (fabs(error) > tolerance){
-    derivative = (previousError - error) * 100;
-    total = error * kp + integral * ki - derivative * kd;
+  while ((fabs(error) > tolerance) || fabs(RightFront.velocity(percent) > 1)){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
+    derivative = (previousError - error) * 100; //Calculates derivative
+    total = error * kp + integral * ki - derivative * kd; //Calculates total output
 
-    if (fabs(total) < minimumSpeed){
+    if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
       LeftFront.spin(forward, getSign(error) * minimumSpeed, percent);
       LeftBack.spin(forward, getSign(error) * minimumSpeed, percent);
       LeftStack.spin(forward, getSign(error) * minimumSpeed, percent);
@@ -139,10 +141,90 @@ static void turnWithPID(double kp, double ki, double kd, double tolerance, doubl
     }
 
     if (fabs(error) < maxI){
-      integral += error / 100;
+      integral += error / 100; //Calculates integral
     }
 
-    previousError = error;
+    previousError = error; //Makes current error previous error for next loop
+
+    wait(10, msec);
+
+    error = turnError(target);
+  }
+
+  LeftFront.stop(brake);
+  LeftBack.stop(brake);
+  LeftStack.stop(brake);
+  RightFront.stop(brake);
+  RightBack.stop(brake);
+  RightStack.stop(brake);
+}
+
+static double swingError(double target, Direction direction, Direction side){ //Calculates error for desired direction and drivetrain side
+  
+  double output;
+  double smallerDegree = std::min(target, Inertial.heading(degrees));
+  double largerDegree = std::max(target, Inertial.heading(degrees));
+
+  if ((largerDegree == target && direction == Clockwise) || 
+    (largerDegree == Inertial.heading() && direction == CounterClockwise)){
+    output = fabs(largerDegree - smallerDegree);
+  }
+  else{
+    output = (360 - largerDegree + smallerDegree);
+  }
+  
+  if (direction == CounterClockwise){
+    output = -output;
+  }
+
+  if (side == Left){
+    return -output;
+  }
+  
+  return output;
+}
+
+static void swingWithPID(Direction direction, Direction side, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){
+  double error = swingError(target, direction, side);
+  double integral = 0;
+  double derivative;
+  double previousError = error;
+  double total;
+  
+  while ((fabs(error) > tolerance) || fabs(RightFront.velocity(percent) > 1)){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
+    derivative = (previousError - error) * 100; //Calculates derivative
+    total = error * kp + integral * ki - derivative * kd; //Calculates total output
+
+    if (side == Left){
+      if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
+        LeftFront.spin(forward, getSign(error) * minimumSpeed, percent);
+        LeftBack.spin(forward, getSign(error) * minimumSpeed, percent);
+        LeftStack.spin(forward, getSign(error) * minimumSpeed, percent);
+      }
+      else {
+        LeftFront.spin(forward, total, percent);
+        LeftBack.spin(forward, total, percent);
+        LeftStack.spin(forward, total, percent);
+      }
+    }
+    else{
+      if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
+        RightFront.spin(reverse, getSign(error) * minimumSpeed, percent);
+        RightBack.spin(reverse, getSign(error) * minimumSpeed, percent);
+        RightStack.spin(reverse, getSign(error) * minimumSpeed, percent);
+      }
+      else {
+        RightFront.spin(reverse, total, percent);
+        RightBack.spin(reverse, total, percent);
+        RightStack.spin(reverse, total, percent);
+      }
+    }
+
+    if (fabs(error) < maxI){
+      integral += error / 100; //Calculates integral
+    }
+
+    previousError = error; //Makes current error previous error for next loop
 
     wait(10, msec);
 
@@ -187,7 +269,11 @@ static void ram(Direction direction, double target){
 }
 
 static void turnTo(double target){
-  turnWithPID(0.6, -0.05, 0.05, 3, 0, 20, target);
+  turnWithPID(0.6, -0.06, 0.0575, 2, 0, 20, target);
+}
+
+static void swingTo(double target, Direction direction, Direction side){
+  swingWithPID(direction, side, 0, 0, 0, 2, 0, 0, target);
 }
 
 static void intake(){
@@ -197,104 +283,160 @@ static void intake(){
 static void outake(double waitTime){
   Intake.spin(reverse, 90, percent);
   wait(waitTime, sec);
-  Intake.stop();
 }
 
 /********** Autons **********/
 
 void runAutonLeftAWP(){
-  intake();
-  drive(Forward, 6);
+  drive(Forward, 7);
   BackWings.set(true);
-  turnTo(330); //Match Load Retrieved
+  turnTo(320); //Match Load Retrieved
 
+  wait(100, msec);
   BackWings.set(false);
   turnTo(0);
-  drive(Forward, 10);
+  wait(100, msec);
+  drive(Forward, 6);
+  turnTo(20);
+  wait(100, msec);
+  drive(Forward, 5);
   turnTo(45);
-  outake(1.5);
+  wait(100, msec);
+  drive(Forward, 4);
+  outake(2);
+  drive(Reverse, 2);
+  Intake.stop();
   turnTo(225);
-  ram(Reverse, 8); //Pre Load Scored
+  wait(100, msec);
+  ram(Reverse, 10); //Pre Load Scored
 
-  drive(Forward, 8);
+  wait(100, msec);
+  turnTo(225);
+  wait(100, msec);
+  drive(Forward, 2);
   turnTo(0);
-  drive(Reverse, 26);
-  turnTo(315);
-  Blocker.set(true);
-  crawl(Reverse, 35); //Elevation Bar Touched
+  wait(100, msec);
+  drive(Reverse, 28.5);
+  turnTo(135);
+  wait(400, msec);
+  turnTo(135);
+  wait(400, msec);
+  turnTo(135);
+  outake(0);
+  crawl(Forward, 27); //Elevation Bar Touched
 }
 
 void runAutonLeftNoAWP(){
+  drive(Forward, 7);
+  BackWings.set(true);
+  turnTo(320); //Match Load Retrieved
+
+  wait(100, msec);
+  BackWings.set(false);
+  turnTo(0);
+  wait(100, msec);
+  drive(Forward, 6);
+  turnTo(20);
+  wait(100, msec);
+  drive(Forward, 5);
   turnTo(45);
-  wait(2, sec);
+  wait(100, msec);
+  drive(Forward, 4);
+  outake(2);
+  drive(Reverse, 2);
+  Intake.stop();
+  turnTo(225);
+  wait(100, msec);
+  ram(Reverse, 10); //Pre Load Scored
+
+  wait(100, msec);
+  turnTo(225);
+  wait(100, msec);
+  drive(Forward, 2);
+  turnTo(0);
+  wait(100, msec);
+  drive(Reverse, 28.5);
   turnTo(135);
-  wait(2, sec);
-  turnTo(315);
+  wait(400, msec);
+  turnTo(135);
+  wait(400, msec);
+  turnTo(135);
+  outake(0);
+  drive(Forward, 27);
+  ram(Reverse, 29); //Match Load Bar Touched
 }
 
 void runAutonLeftSabotage(){
   intake();
-  drive(Forward, 36);
-  turnTo(285);
-  outake(0.5);
-  turnTo(90);
-  drive(Forward, 10);
-  turnTo(0);
-  intake();
-  drive(Forward, 8);
-  wait(0.5, sec);
-  turnTo(90);
-  drive(Forward, 26); 
-  outake(1); //Triball Popped Over
+  drive(Forward, 37);
+  wait(250, msec);
+  turnTo(290);
+  outake(1.5);
+  turnTo(270);
+  Intake.stop();
+  BackWings.set(true);
+  wait(500, msec);
+  ram(Reverse, 30); //Triballs Messed Up
 
-  drive(Reverse, 42);
+  BackWings.set(false);
+  turnTo(270);
+  drive(Forward, 22);
+  turnTo(90);
+  BackWings.set(true);
+  ram(Reverse, 15); //Preload Scored
+
+  drive(Forward, 3);
+  BackWings.set(false);
   turnTo(180);
-  drive(Forward, 72);
+  drive(Forward, 38);
+  wait(100, msec);
+  turnTo(225);
+  drive(Forward, 14); //Ready To Match Load
 }
 
 void runAutonRightSafe(){
-  double currentTime = Brain.Timer.time();
-  Blocker.set(true);
-  BackWings.set(true);
-  wait(0.2, sec);
-  drive(Reverse, 12);
-  BackWings.set(false);
-  drive(Reverse, 2);
-  turnTo(315);
-  ram(Reverse, 8); //Match Load Scored
-
-  drive(Forward, 6);
+  // BackWings.set(true);
+  // wait(0.2, sec);
+  ram(Reverse, 13);
+  // wait(750, msec);
+  // BackWings.set(false);
   turnTo(135);
-  outake(0.75);
-  ram(Forward, 8.5); //Pre Load Scored
+  wait(50, msec);
+  outake(1.2);
+  ram(Forward, 8); //Pre Load Scored
 
-  drive(Reverse, 10);
+  turnTo(135);
+  ram(Reverse, 8);
+  turnTo(62);
+  intake();
+  drive(Forward, 52);
+  turnTo(180);
+  drive(Forward, 12);
+  turnTo(195);
+  Intake.setVelocity(30, percent);
+  Intake.spin(reverse);
+  wait(0.75, sec);
+  Intake.stop();
   turnTo(70);
   intake();
-  drive(Forward, 48);
-  turnTo(180);
-  drive(Forward, 8);
-  Intake.setVelocity(50, percent);
-  Intake.spin(reverse);
-  wait(1, sec);
-  Intake.stop();
-  turnTo(100);
-  intake();
-  drive(Forward, 15);
+  drive(Forward, 16);
+  wait(100, msec);
   turnTo(45);
+  turnTo(45);
+  wait(40, msec);
   BackWings.set(true);
-  ram(Reverse, 24); //Middle and Back Triballs Scored
+  ram(Reverse, 23); //Middle and Back Triballs Scored
 
+  turnTo(45);
   drive(Forward, 4);
   BackWings.set(false);
   wait(10, msec);
   turnTo(225);
   outake(0.5);
-  ram(Forward, 9); //Corner Triball Scored
+  Intake.stop();
+  ram(Forward, 12); //Corner Triball Scored
 
   drive(Reverse, 10);
-
-  std::cout << (Brain.Timer.time() - currentTime) / 1000 << std::endl;
 }
 
 void runAutonRightSixTB(){ 
@@ -308,7 +450,8 @@ static void autonSelector(){
   bool runningSelector = true;
 
   int columns[5] = {2, 3, 3, 5, 2};
-  std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", "Right-Side Safe", "Right-Side Six Triball"};
+  std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
+                               "Right-Side Safe", "Right-Side Six Triball"};
   Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightSafe, AutonRightSixTB};
 
   bool buttonLeftPressed;
@@ -325,13 +468,13 @@ static void autonSelector(){
     }
 
     for (int i = 0; i < 5; i++){
-      if (currentAuton == autons[i]){
+      if (currentAuton == autons[i]){ //Displays auton label
         Controller1.Screen.setCursor(3, columns[i]);
         Controller1.Screen.print(autonNames[i].c_str());
       }
     }
 
-    if (Controller1.ButtonLeft.pressing() && !buttonLeftPressed){
+    if (Controller1.ButtonLeft.pressing() && !buttonLeftPressed){ //Pressing left button go left on auton list
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
         currentAuton = AutonRightSixTB;
@@ -346,7 +489,7 @@ static void autonSelector(){
       buttonLeftPressed = false;
     }
 
-    if (Controller1.ButtonRight.pressing() && !buttonRightPressed){
+    if (Controller1.ButtonRight.pressing() && !buttonRightPressed){ //Pressing right button go left on auton list
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonRightSixTB){
         currentAuton = AutonLeftAWP;
@@ -361,7 +504,7 @@ static void autonSelector(){
       buttonRightPressed = false; 
     }
 
-    if (Controller1.ButtonUp.pressing()){
+    if (Controller1.ButtonUp.pressing()){ //Exits selector when up button is pressed
       Controller1.Screen.clearScreen();
       runningSelector = false;
     }
@@ -371,7 +514,7 @@ static void autonSelector(){
   Controller1.rumble("-.-.");
 }
 
-void calibrateInertial(){
+void calibrateInertial(){ //Calibrates inertial sensor for three seconds
   Controller1.Screen.setCursor(2, 6);
   Inertial.calibrate();
   Controller1.Screen.print("CALIBRATING!!!");
@@ -380,23 +523,30 @@ void calibrateInertial(){
 }
 
 void tempCheck(double warningTemp){
-  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftBack.temperature(fahrenheit)), LeftStack.temperature(fahrenheit));
-  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightBack.temperature(fahrenheit)), RightStack.temperature(fahrenheit));
+  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), //Gets average left drive temperature
+                         LeftBack.temperature(fahrenheit)), LeftStack.temperature(fahrenheit));
+  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), //Gets average right drive temperature
+                          RightBack.temperature(fahrenheit)), RightStack.temperature(fahrenheit));
   double kickerTemp = Kicker.temperature(fahrenheit);
   double intakeTemp = Intake.temperature(fahrenheit);
 
-  double columns[4] = {4, 3, 6, 6};
+  double columns[4] = {4, 3, 6, 6}; //Makes the text centered on controller
   double temperatures[4] = {leftDriveTemp, rightDriveTemp, kickerTemp, intakeTemp};
   std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "KICKER", "INTAKE"};
 
-  for (int i = 0; i < 4; i++){
-    if (temperatures[i] > warningTemp){
+  for (int i = 0; i < 4; i++){ //Runs once for each mechanism
+    if (temperatures[i] > warningTemp){ //Checks if temperature is exceeding warning temp
       Controller1.Screen.setCursor(1, columns[i]);
       Controller1.Screen.print(mechs[i].c_str());
-      Controller1.Screen.print(" HOT!!!");
+      Controller1.Screen.print(" HOT!!!"); 
       Controller1.Screen.setCursor(3, 10);
       Controller1.Screen.print(temperatures[i]);
+      //Example on controller screen:
+
+      //LEFT DRIVE HOT!!!
       
+      //    125
+
       wait(1.5, sec);
       Controller1.Screen.clearScreen();
     }
@@ -448,7 +598,7 @@ void autonomous(){
 }
 
 void testAuton(Auton testedAuton){
-  double startTime = Brain.Timer.time();
+  double startTime = Brain.Timer.time(); //Records start time
 
   switch (testedAuton){
     case AutonNone: {
@@ -456,7 +606,7 @@ void testAuton(Auton testedAuton){
     }
     case AutonLeftAWP: {
       runAutonLeftAWP();
-      std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl;  
+      std::cout << "Time: " << (Brain.Timer.time() - startTime) / 1000 << std::endl; //Records time spent
       break;
     }
     case AutonLeftNoAWP: {

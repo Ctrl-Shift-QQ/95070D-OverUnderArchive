@@ -5,14 +5,16 @@ typedef enum {
     AutonLeftSabotage,
     AutonRightSafe,
     AutonRightSixTB
-} Auton;
+} Auton; //Enum for each of the autons
 
 typedef enum {
     Forward = 0,
     Reverse,
+    Left,
+    Right,
     Clockwise,
     CounterClockwise
-} Direction;
+} Direction; //Enum for different directions
 
 void calibrateInertial();
 
