@@ -39,14 +39,10 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd; //Calculates total output
 
     if (fabs(leftDriveTotal) < minimumSpeed){ //Runs at minimum speed when calculated output is less
-      LeftFront.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
-      LeftBack.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
-      LeftStack.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
+      LeftDrive.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
     }
     else {
-      LeftFront.spin(forward, leftDriveTotal, percent);
-      LeftBack.spin(forward, leftDriveTotal, percent);
-      LeftStack.spin(forward, leftDriveTotal, percent);
+      LeftDrive.spin(forward, leftDriveTotal, percent);
     }
 
     if(fabs(leftDriveError) < maxI){
@@ -58,14 +54,10 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
     rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd; //Calculates total output
 
     if (fabs(rightDriveTotal) < minimumSpeed){ //Runs at minimum speed when calculated output is less
-      RightFront.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
-      RightBack.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
-      RightStack.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
+      RightDrive.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
     }
     else {
-      RightFront.spin(forward, rightDriveTotal, percent);
-      RightBack.spin(forward, rightDriveTotal, percent);
-      RightStack.spin(forward, rightDriveTotal, percent);
+      RightDrive.spin(forward, rightDriveTotal, percent);
     }
 
     if(fabs(rightDriveError) < maxI){
@@ -77,38 +69,30 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
 
     wait(20, msec);
 
-    leftDriveError = target - LeftFront.position(turns) * 3.25 * M_PI * 4/5;
-    rightDriveError = target - RightFront.position(turns) * 3.25 * M_PI * 4/5;
+    leftDriveError = target - LeftFront.position(turns) * 3.25 * M_PI * 3/4;
+    rightDriveError = target - RightFront.position(turns) * 3.25 * M_PI * 3/4;
   }
 
-  LeftFront.stop(brake);
-  LeftBack.stop(brake);
-  LeftStack.stop(brake);
-  RightFront.stop(brake);
-  RightBack.stop(brake);
-  RightStack.stop(brake);
+  LeftDrive.stop(brake);
+  RightDrive.stop(brake);
 }
 
 static double turnError(double target){ //Calculates error for the shortest path to target heading
-  
   double output;
-  double smallerDegree = std::min(target, Inertial.heading(degrees));
-  double largerDegree = std::max(target, Inertial.heading(degrees));
-
-
-  if (largerDegree - smallerDegree > 180){
+  double currentHeading = Inertial.heading(degrees);
+  double smallerDegree = std::min(target, currentHeading);
+  double largerDegree = std::max(target, currentHeading);
+  
+  if ((largerDegree - smallerDegree) > 180){
     output = (360 - largerDegree + smallerDegree);
-    if (smallerDegree = Inertial.heading()){
+    if (smallerDegree == currentHeading){
       return -output;
     }
   }
   else {
-    output = target - Inertial.heading(degrees);
-    if (smallerDegree = target){
-      return -output;
-    }
+    output = target - currentHeading;
   }
-  
+
   return output;
 }
 
@@ -119,25 +103,17 @@ static void turnWithPID(double kp, double ki, double kd, double tolerance, doubl
   double previousError = error;
   double total;
   
-  while ((fabs(error) > tolerance) || fabs(RightFront.velocity(percent) > 1)){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
+  while ((fabs(error) > tolerance) || derivative > 3){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
     derivative = (previousError - error) * 100; //Calculates derivative
     total = error * kp + integral * ki - derivative * kd; //Calculates total output
 
     if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
-      LeftFront.spin(forward, getSign(error) * minimumSpeed, percent);
-      LeftBack.spin(forward, getSign(error) * minimumSpeed, percent);
-      LeftStack.spin(forward, getSign(error) * minimumSpeed, percent);
-      RightFront.spin(reverse, getSign(error) * minimumSpeed, percent);
-      RightBack.spin(reverse, getSign(error) * minimumSpeed, percent);
-      RightStack.spin(reverse, getSign(error) * minimumSpeed, percent);
+      LeftDrive.spin(forward, getSign(error) * minimumSpeed, percent);
+      RightDrive.spin(reverse, getSign(error) * minimumSpeed, percent);
     }
     else {
-      LeftFront.spin(forward, total, percent);
-      LeftBack.spin(forward, total, percent);
-      LeftStack.spin(forward, total, percent);
-      RightFront.spin(reverse, total, percent);
-      RightBack.spin(reverse, total, percent);
-      RightStack.spin(reverse, total, percent);
+      LeftDrive.spin(forward, total, percent);
+      RightDrive.spin(reverse, total, percent);
     }
 
     if (fabs(error) < maxI){
@@ -151,72 +127,66 @@ static void turnWithPID(double kp, double ki, double kd, double tolerance, doubl
     error = turnError(target);
   }
 
-  LeftFront.stop(brake);
-  LeftBack.stop(brake);
-  LeftStack.stop(brake);
-  RightFront.stop(brake);
-  RightBack.stop(brake);
-  RightStack.stop(brake);
+  LeftDrive.stop(brake);
+  RightDrive.stop(brake);
 }
 
-static double swingError(double target, Direction direction, Direction side){ //Calculates error for desired direction and drivetrain side
-  
+static double swingError(double target, Direction side, Direction direction){ //Calculates error for desired direction and drivetrain side
   double output;
-  double smallerDegree = std::min(target, Inertial.heading(degrees));
-  double largerDegree = std::max(target, Inertial.heading(degrees));
+  double currentHeading = Inertial.heading(degrees);
+  double smallerDegree = std::min(target, currentHeading);
+  double largerDegree = std::max(target, currentHeading);
+  Direction rotation;
 
-  if ((largerDegree == target && direction == Clockwise) || 
-    (largerDegree == Inertial.heading() && direction == CounterClockwise)){
-    output = fabs(largerDegree - smallerDegree);
+
+  if ((side == Left && direction == Forward) || (side == Right && direction == Reverse)){
+    rotation = Clockwise;
   }
   else{
-    output = (360 - largerDegree + smallerDegree);
-  }
-  
-  if (direction == CounterClockwise){
-    output = -output;
+    rotation = CounterClockwise;
   }
 
-  if (side == Left){
+  if ((largerDegree - smallerDegree) > 180){
+    if ((rotation == Clockwise && largerDegree == currentHeading) || (rotation == CounterClockwise && largerDegree == target)){
+      output = fabs(360 - largerDegree + smallerDegree);
+    }
+  }
+  else{
+    output = largerDegree - smallerDegree;
+  }
+
+  if (direction == Reverse){
     return -output;
   }
   
   return output;
 }
 
-static void swingWithPID(Direction direction, Direction side, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){
-  double error = swingError(target, direction, side);
+static void swingWithPID(Direction side, Direction direction, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){
+  double error = swingError(target, side, direction);
   double integral = 0;
   double derivative;
   double previousError = error;
   double total;
   
-  while ((fabs(error) > tolerance) || fabs(RightFront.velocity(percent) > 1)){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
+  while ((fabs(error) > tolerance) || derivative > 3){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
     derivative = (previousError - error) * 100; //Calculates derivative
     total = error * kp + integral * ki - derivative * kd; //Calculates total output
 
     if (side == Left){
       if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
-        LeftFront.spin(forward, getSign(error) * minimumSpeed, percent);
-        LeftBack.spin(forward, getSign(error) * minimumSpeed, percent);
-        LeftStack.spin(forward, getSign(error) * minimumSpeed, percent);
+        LeftDrive.spin(forward, getSign(error) * minimumSpeed, percent);
       }
       else {
-        LeftFront.spin(forward, total, percent);
-        LeftBack.spin(forward, total, percent);
-        LeftStack.spin(forward, total, percent);
+        LeftDrive.spin(forward, total, percent);
       }
     }
     else{
       if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
-        RightFront.spin(reverse, getSign(error) * minimumSpeed, percent);
-        RightBack.spin(reverse, getSign(error) * minimumSpeed, percent);
-        RightStack.spin(reverse, getSign(error) * minimumSpeed, percent);
+        RightDrive.spin(forward, getSign(error) * minimumSpeed, percent);
       }
       else {
-        RightFront.spin(reverse, total, percent);
-        RightBack.spin(reverse, total, percent);
-        RightStack.spin(reverse, total, percent);
+        RightDrive.spin(forward, total, percent);
       }
     }
 
@@ -231,22 +201,18 @@ static void swingWithPID(Direction direction, Direction side, double kp, double 
     error = turnError(target);
   }
 
-  LeftFront.stop(brake);
-  LeftBack.stop(brake);
-  LeftStack.stop(brake);
-  RightFront.stop(brake);
-  RightBack.stop(brake);
-  RightStack.stop(brake);
+  LeftDrive.stop(brake);
+  RightDrive.stop(brake);
 }
 
 /********** Tunings **********/
 
 static void crawl(Direction direction, double target){ 
   if (direction == Forward){
-    driveWithPID(0, 0, 0, 0.5, 20, 0, target);
+    driveWithPID(0, 0, 0, 0.5, 15, 0, target);
   }
   if (direction == Reverse){
-    driveWithPID(0, 0, 0, 0.5, 20, 0, -target);
+    driveWithPID(0, 0, 0, 0.5, 15, 0, -target);
   }
 }
 
@@ -269,11 +235,11 @@ static void ram(Direction direction, double target){
 }
 
 static void turnTo(double target){
-  turnWithPID(0.6, -0.06, 0.0575, 2, 0, 20, target);
+  turnWithPID(0.45, -0.2, 0.0085, 3, 5, 20, target);
 }
 
-static void swingTo(double target, Direction direction, Direction side){
-  swingWithPID(direction, side, 0, 0, 0, 2, 0, 0, target);
+static void swingTo(double target, Direction side, Direction direction){
+  swingWithPID(side, direction, 0.7, 0.2, 0.01, 2, 20, 90, target);
 }
 
 static void intake(){
@@ -289,154 +255,89 @@ static void outake(double waitTime){
 
 void runAutonLeftAWP(){
   drive(Forward, 7);
-  BackWings.set(true);
-  turnTo(320); //Match Load Retrieved
+  LeftWing.set(true);
+  turnTo(330); //Match Load Descored
 
+  LeftWing.set(false);
+  turnTo(25);
+  drive(Forward, 14);
   wait(100, msec);
-  BackWings.set(false);
-  turnTo(0);
-  wait(100, msec);
-  drive(Forward, 6);
-  turnTo(20);
-  wait(100, msec);
-  drive(Forward, 5);
   turnTo(45);
   wait(100, msec);
-  drive(Forward, 4);
   outake(2);
-  drive(Reverse, 2);
   Intake.stop();
+  wait(100, msec);
+  drive(Reverse, 4);
   turnTo(225);
   wait(100, msec);
-  ram(Reverse, 10); //Pre Load Scored
+  ram(Reverse, 10); //Preload Scored
 
-  wait(100, msec);
   turnTo(225);
+  drive(Forward, 10);
+  turnTo(180);
+  drive(Forward, 28);
   wait(100, msec);
-  drive(Forward, 2);
-  turnTo(0);
-  wait(100, msec);
-  drive(Reverse, 28.5);
-  turnTo(135);
-  wait(400, msec);
-  turnTo(135);
-  wait(400, msec);
   turnTo(135);
   outake(0);
-  crawl(Forward, 27); //Elevation Bar Touched
+  crawl(Forward, 30); //Elevation Bar Touched
+  wait(3, sec);
+  Intake.stop();
 }
 
 void runAutonLeftNoAWP(){
-  drive(Forward, 7);
-  BackWings.set(true);
-  turnTo(320); //Match Load Retrieved
-
-  wait(100, msec);
-  BackWings.set(false);
-  turnTo(0);
-  wait(100, msec);
-  drive(Forward, 6);
-  turnTo(20);
-  wait(100, msec);
-  drive(Forward, 5);
-  turnTo(45);
-  wait(100, msec);
-  drive(Forward, 4);
-  outake(2);
-  drive(Reverse, 2);
-  Intake.stop();
-  turnTo(225);
-  wait(100, msec);
-  ram(Reverse, 10); //Pre Load Scored
-
-  wait(100, msec);
-  turnTo(225);
-  wait(100, msec);
-  drive(Forward, 2);
-  turnTo(0);
-  wait(100, msec);
-  drive(Reverse, 28.5);
-  turnTo(135);
-  wait(400, msec);
-  turnTo(135);
-  wait(400, msec);
-  turnTo(135);
-  outake(0);
-  drive(Forward, 27);
-  ram(Reverse, 29); //Match Load Bar Touched
 }
 
 void runAutonLeftSabotage(){
-  intake();
-  drive(Forward, 37);
-  wait(250, msec);
-  turnTo(290);
-  outake(1.5);
-  turnTo(270);
-  Intake.stop();
-  BackWings.set(true);
-  wait(500, msec);
-  ram(Reverse, 30); //Triballs Messed Up
-
-  BackWings.set(false);
-  turnTo(270);
-  drive(Forward, 22);
-  turnTo(90);
-  BackWings.set(true);
-  ram(Reverse, 15); //Preload Scored
-
-  drive(Forward, 3);
-  BackWings.set(false);
-  turnTo(180);
-  drive(Forward, 38);
-  wait(100, msec);
-  turnTo(225);
-  drive(Forward, 14); //Ready To Match Load
 }
 
 void runAutonRightSafe(){
-  // BackWings.set(true);
-  // wait(0.2, sec);
-  ram(Reverse, 13);
-  // wait(750, msec);
-  // BackWings.set(false);
+  double currentTime = Brain.Timer.time(msec);
+
+  LeftWing.set(true);
+  drive(Reverse, 6);
+  turnTo(330);
+  LeftWing.set(false);
+  turnTo(0);
+  drive(Reverse, 17);
+  turnTo(315);
+  ram(Reverse, 3); //Match Load Scored
+
+  turnTo(315);
+  drive(Forward, 8);
   turnTo(135);
-  wait(50, msec);
-  outake(1.2);
-  ram(Forward, 8); //Pre Load Scored
+  outake(0.75);
+  ram(Forward, 10); //Preload Scored  
 
   turnTo(135);
   ram(Reverse, 8);
-  turnTo(62);
+  turnTo(67.5);
   intake();
-  drive(Forward, 52);
-  turnTo(180);
-  drive(Forward, 12);
-  turnTo(195);
-  Intake.setVelocity(30, percent);
+  drive(Forward, 48);
+  turnTo(190);
+  drive(Forward, 8);
+  Intake.setVelocity(40, percent);
   Intake.spin(reverse);
-  wait(0.75, sec);
-  Intake.stop();
-  turnTo(70);
+  wait(1, sec);
+  turnTo(85);
   intake();
   drive(Forward, 16);
   wait(100, msec);
   turnTo(45);
-  turnTo(45);
-  wait(40, msec);
-  BackWings.set(true);
-  ram(Reverse, 23); //Middle and Back Triballs Scored
+  LeftWing.set(true);
+  RightWing.set(true);
+  ram(Reverse, 20); //Middle, Back, and Corner Triballs Scored
 
-  turnTo(45);
-  drive(Forward, 4);
-  BackWings.set(false);
-  wait(10, msec);
+  drive(Forward, 6);
+  LeftWing.set(false);
+  RightWing.set(false);
   turnTo(225);
-  outake(0.5);
-  Intake.stop();
-  ram(Forward, 12); //Corner Triball Scored
+  ram(Forward, 10);
+  ram(Reverse, 10);
+  turnTo(150);
+  drive(Reverse, 30); 
 
-  drive(Reverse, 10);
+
+  std::cout << (Brain.Timer.time(msec) - currentTime) / 1000 << std::endl;
 }
 
 void runAutonRightSixTB(){ 
@@ -524,9 +425,9 @@ void calibrateInertial(){ //Calibrates inertial sensor for three seconds
 
 void tempCheck(double warningTemp){
   double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), //Gets average left drive temperature
-                         LeftBack.temperature(fahrenheit)), LeftStack.temperature(fahrenheit));
+                         LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
   double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), //Gets average right drive temperature
-                          RightBack.temperature(fahrenheit)), RightStack.temperature(fahrenheit));
+                          RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
   double kickerTemp = Kicker.temperature(fahrenheit);
   double intakeTemp = Intake.temperature(fahrenheit);
 
