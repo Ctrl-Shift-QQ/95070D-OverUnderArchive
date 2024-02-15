@@ -54,7 +54,7 @@ static void runDrive(){ //Tank drive, button X to toggle speed
     buttonPressed = true;
     slowDrive = !slowDrive;
     if (slowDrive){
-      driveSpeed = 0.2;
+      driveSpeed = 0.25;
     }
     else{
       driveSpeed = 1;

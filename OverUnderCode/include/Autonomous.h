@@ -1,10 +1,12 @@
+/********** Enums for Auton **********/
+
 typedef enum {
     AutonNone = 0,
     AutonLeftAWP,
     AutonLeftNoAWP,
     AutonLeftSabotage,
-    AutonRightSafe,
-    AutonRightSixTB
+    AutonRightQuals,
+    AutonRightElims
 } Auton; //Enum for each of the autons
 
 typedef enum {
@@ -16,15 +18,39 @@ typedef enum {
     CounterClockwise
 } Direction; //Enum for different directions
 
-void calibrateInertial();
+/********** Tuned Auton Functions **********/
 
-void tempCheck(double warningTemp);
+void crawl(Direction direction, double target);
 
-//For Testing
+void drive(Direction direction, double target);
+
+void ram(Direction direction, double target);
+
+void turnTo(double target);
+
+void swingTo(double target, Direction side, Direction direction);
+
+void intake();
+
+void outake(double waitTime);
+
+/********** Autons **********/
+
+void runAutonLeftAWP();
+
+void runAutonLeftNoAWP();
+
+void runAutonLeftSabotage();
+
+void runAutonRightQuals();
+
+void runAutonRightElims();
+
+/********** For Testing **********/
 
 void testAuton(Auton testedAuton);
 
-//For Competition
+/********** For Competition **********/
 
 void preAuton();
 
