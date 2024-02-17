@@ -136,40 +136,27 @@ static double swingError(double target, Direction side, Direction direction){ //
   Direction rotation;
 
 
-  if (((side == Left) && (direction == Forward)) || ((side == Right) && (direction == Reverse))){
+  if ((side == Left && direction == Forward) || (side == Right && direction == Reverse)){
     rotation = Clockwise;
   }
   else{
     rotation = CounterClockwise;
   }
 
-  if ((fabs(target - Inertial.heading(degrees))) || (360 - fabs(target - Inertial.heading(degrees))) > 5){
-    if (rotation == Clockwise){
-      if (target > Inertial.heading(degrees)){
-        output = target - Inertial.heading(degrees);
-      }
-      else {
-        output = 360 - Inertial.heading(degrees) + target;
-      }
-    }
-    else {
-      if (target < Inertial.heading(degrees)){
-        output = target - Inertial.heading();
-      }
-      else {
-        output = -(360 - target + Inertial.heading(degrees));
-      }
-    }
-  }
-  else {
-    if (fabs(target - Inertial.heading(degrees)) < 180){
+  if(rotation == Clockwise){
+    if (target > Inertial.heading(degrees)){
       output = target - Inertial.heading(degrees);
     }
     else {
-      output = (360 - fabs(target - Inertial.heading(degrees)));
-      if (target > Inertial.heading(degrees)){
-        return -output;
-      }
+      output = 360 - Inertial.heading(degrees) + target;
+    }
+  }
+  else {
+    if (target < Inertial.heading(degrees)){
+      output = target - Inertial.heading();
+    }
+    else {
+      output = -(360 - target + Inertial.heading(degrees));
     }
   }
 
@@ -216,7 +203,7 @@ static void swingWithPID(Direction side, Direction direction, double kp, double 
 
     wait(10, msec);
 
-    error = swingError(target, side, direction);
+    error = turnError(target);
   }
 
   LeftDrive.stop(brake);
@@ -236,10 +223,10 @@ void crawl(Direction direction, double target){
 
 void drive(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(4.5, 0, 0.004, 0.5, 15, 0, target);
+    driveWithPID(4.5, 0, 0.004, 0.5, 10, 0, target);
   }
   if (direction == Reverse){
-    driveWithPID(4.5, 0, 0.004, 0.5, 15, 0, -target);
+    driveWithPID(4.5, 0, 0.004, 0.5, 10, 0, -target);
   }
 }
 
@@ -248,16 +235,16 @@ void ram(Direction direction, double target){
     driveWithPID(0, 0, 0, 2, 70, 0, target);
   }
   if (direction == Reverse){
-    driveWithPID(0, 0, 0, 2, 70, 0, -target);
+    driveWithPID(0, 0, 0, 2, 70, 0, -target);  
   }
 }
 
 void turnTo(double target){
-  turnWithPID(0.4, 0.1, 0.00115, 2, 3, 20, target);
+  turnWithPID(0.4, 0.1, 0.0015, 1, 2, 20, target);
 }
 
 void swingTo(double target, Direction side, Direction direction){
-  swingWithPID(side, direction, 0.6, 0.1, 0.01, 3, 15, 90, target);
+  swingWithPID(side, direction, 0.7, 0.2, 0.01, 2, 20, 90, target);
 }
 
 void intake(){
@@ -265,7 +252,7 @@ void intake(){
 }
 
 void outake(double waitTime){
-  Intake.spin(reverse, 100, percent);
+  Intake.spin(reverse, 90, percent);
   wait(waitTime, sec);
 }
 
@@ -274,7 +261,15 @@ void outake(double waitTime){
 static Auton currentAuton = ProgSkills;
 
 static void autonSelector(){
-  bool runningSelector;
+  bool runningSelector = true;
+
+  int columns[5] = {2, 3, 3, 5, 2};
+  std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
+                               "Right-Side Safe", "Right-Side Six Triball"};
+  Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightQuals, AutonRightElims};
+
+  bool buttonLeftPressed;
+  bool buttonRightPressed;
 
   while (runningSelector){
     Controller1.Screen.setCursor(1, 0);
