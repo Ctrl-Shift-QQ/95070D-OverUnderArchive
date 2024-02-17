@@ -45,27 +45,9 @@ static void runWings(){ //Button R2 to toggle wings
   }
 }
 
-static void runDrive(){ //Tank drive, button X to toggle speed
-  static double driveSpeed = 1;
-  static bool slowDrive;
-  static bool buttonPressed;
-
-  if (Controller1.ButtonX.pressing() && !buttonPressed){ //Button pressed
-    buttonPressed = true;
-    slowDrive = !slowDrive;
-    if (slowDrive){
-      driveSpeed = 0.25;
-    }
-    else{
-      driveSpeed = 1;
-    }
-  }
-  if (!Controller1.ButtonX.pressing() && buttonPressed){ //Button released
-    buttonPressed = false;
-  }
-
-  LeftDrive.spin(forward, driveSpeed * Controller1.Axis3.position(percent), percent); //Base left drive speed off of left joystick
-  RightDrive.spin(forward, driveSpeed * Controller1.Axis2.position(percent), percent); //Base right drive speed off of Right joystick
+static void runDrive(){ //Tank drive
+  LeftDrive.spin(forward, Controller1.Axis3.position(percent), percent); //Base left drive speed off of left joystick
+  RightDrive.spin(forward, Controller1.Axis2.position(percent), percent); //Base right drive speed off of Right joystick
 }
 
 /********** Driver Control Function **********/
