@@ -23,7 +23,7 @@ motor_group LeftDrive(LeftFront, LeftMiddle, LeftBack);
 motor_group RightDrive(RightFront, RightMiddle, RightBack);
 motor Intake = motor(PORT1, ratio6_1, false);
 motor Kicker = motor(PORT8, ratio36_1, false);
-inertial Inertial = inertial(PORT21);
+inertial Inertial = inertial(PORT20);
 digital_out LeftWing = digital_out(Brain.ThreeWirePort.A);
 digital_out RightWing = digital_out(Brain.ThreeWirePort.B);
 
