@@ -1,7 +1,12 @@
 /********** Enums for Auton **********/
 
 typedef enum {
-    ProgSkills = 0
+    AutonNone = 0,
+    AutonLeftAWP,
+    AutonLeftNoAWP,
+    AutonLeftSabotage,
+    AutonRightQuals,
+    AutonRightElims
 } Auton; //Enum for each of the autons
 
 typedef enum {
@@ -29,9 +34,23 @@ void intake();
 
 void outake(double waitTime);
 
-/********** Skills **********/
+/********** Autons **********/
 
-void runProgrammingSkills();
+void runAutonLeftAWP();
+
+void runAutonLeftNoAWP();
+
+void runAutonLeftSabotage();
+
+void runAutonRightQuals();
+
+void runAutonRightElims();
+
+/********** For Testing **********/
+
+void testAuton(Auton testedAuton);
+
+/********** For Competition **********/
 
 void preAuton();
 

@@ -136,27 +136,40 @@ static double swingError(double target, Direction side, Direction direction){ //
   Direction rotation;
 
 
-  if ((side == Left && direction == Forward) || (side == Right && direction == Reverse)){
+  if (((side == Left) && (direction == Forward)) || ((side == Right) && (direction == Reverse))){
     rotation = Clockwise;
   }
   else{
     rotation = CounterClockwise;
   }
 
-  if(rotation == Clockwise){
-    if (target > Inertial.heading(degrees)){
-      output = target - Inertial.heading(degrees);
+  if ((fabs(target - Inertial.heading(degrees))) || (360 - fabs(target - Inertial.heading(degrees))) > 5){
+    if (rotation == Clockwise){
+      if (target > Inertial.heading(degrees)){
+        output = target - Inertial.heading(degrees);
+      }
+      else {
+        output = 360 - Inertial.heading(degrees) + target;
+      }
     }
     else {
-      output = 360 - Inertial.heading(degrees) + target;
+      if (target < Inertial.heading(degrees)){
+        output = target - Inertial.heading();
+      }
+      else {
+        output = -(360 - target + Inertial.heading(degrees));
+      }
     }
   }
   else {
-    if (target < Inertial.heading(degrees)){
-      output = target - Inertial.heading();
+    if (fabs(target - Inertial.heading(degrees)) < 180){
+      output = target - Inertial.heading(degrees);
     }
     else {
-      output = -(360 - target + Inertial.heading(degrees));
+      output = (360 - fabs(target - Inertial.heading(degrees)));
+      if (target > Inertial.heading(degrees)){
+        return -output;
+      }
     }
   }
 
@@ -203,7 +216,7 @@ static void swingWithPID(Direction side, Direction direction, double kp, double 
 
     wait(10, msec);
 
-    error = turnError(target);
+    error = swingError(target, side, direction);
   }
 
   LeftDrive.stop(brake);
@@ -223,10 +236,10 @@ void crawl(Direction direction, double target){
 
 void drive(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(4.5, 0, 0.004, 0.5, 10, 0, target);
+    driveWithPID(4.5, 0, 0.004, 0.5, 15, 0, target);
   }
   if (direction == Reverse){
-    driveWithPID(4.5, 0, 0.004, 0.5, 10, 0, -target);
+    driveWithPID(4.5, 0, 0.004, 0.5, 15, 0, -target);
   }
 }
 
@@ -235,16 +248,16 @@ void ram(Direction direction, double target){
     driveWithPID(0, 0, 0, 2, 70, 0, target);
   }
   if (direction == Reverse){
-    driveWithPID(0, 0, 0, 2, 70, 0, -target);  
+    driveWithPID(0, 0, 0, 2, 70, 0, -target);
   }
 }
 
 void turnTo(double target){
-  turnWithPID(0.4, 0.1, 0.0015, 1, 2, 20, target);
+  turnWithPID(0.4, 0.1, 0.00115, 2, 3, 20, target);
 }
 
 void swingTo(double target, Direction side, Direction direction){
-  swingWithPID(side, direction, 0.7, 0.2, 0.01, 2, 20, 90, target);
+  swingWithPID(side, direction, 0.6, 0.1, 0.01, 3, 15, 90, target);
 }
 
 void intake(){
@@ -252,30 +265,71 @@ void intake(){
 }
 
 void outake(double waitTime){
-  Intake.spin(reverse, 90, percent);
+  Intake.spin(reverse, 100, percent);
   wait(waitTime, sec);
 }
 
 /********** Pre Auton **********/
 
-static Auton currentAuton = ProgSkills;
+static Auton currentAuton = AutonNone;
 
 static void autonSelector(){
   bool runningSelector = true;
 
   int columns[5] = {2, 3, 3, 5, 2};
   std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
-                               "Right-Side Safe", "Right-Side Six Triball"};
+                               "Right-Side Quals", "Right-Side Goal Rush"};
   Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightQuals, AutonRightElims};
 
   bool buttonLeftPressed;
   bool buttonRightPressed;
 
   while (runningSelector){
-    Controller1.Screen.setCursor(1, 0);
-    Controller1.Screen.print("Programming Skills");
-    Controller1.Screen.setCursor(3, 5);
-    Controller1.Screen.print("Pray Good Grouping");
+    if (currentAuton == AutonNone){
+      Controller1.Screen.setCursor(2, 3);
+      Controller1.Screen.print("No Auton Selected");
+    }
+    else{
+      Controller1.Screen.setCursor(1, 5);
+      Controller1.Screen.print("Auton Selected:");
+    }
+
+    for (int i = 0; i < 5; i++){
+      if (currentAuton == autons[i]){ //Displays auton label
+        Controller1.Screen.setCursor(3, columns[i]);
+        Controller1.Screen.print(autonNames[i].c_str());
+      }
+    }
+
+    if (Controller1.ButtonLeft.pressing() && !buttonLeftPressed){ //Pressing left button go left on auton list
+      Controller1.Screen.clearScreen();
+      if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
+        currentAuton = AutonRightElims;
+      }
+      else{
+        currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
+      }
+
+      buttonLeftPressed = true;
+    }
+    if (!Controller1.ButtonLeft.pressing() && buttonLeftPressed){
+      buttonLeftPressed = false;
+    }
+
+    if (Controller1.ButtonRight.pressing() && !buttonRightPressed){ //Pressing right button go left on auton list
+      Controller1.Screen.clearScreen();
+      if (currentAuton == AutonRightElims){
+        currentAuton = AutonLeftAWP;
+      }
+      else{
+        currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) + 1);
+      }
+
+      buttonRightPressed = true;
+    }
+    if (!Controller1.ButtonRight.pressing() && buttonRightPressed){
+      buttonRightPressed = false; 
+    }
 
     if (Controller1.ButtonUp.pressing()){ //Exits selector when up button is pressed
       Controller1.Screen.clearScreen();
@@ -340,5 +394,68 @@ void preAuton(){
 /********** Auton Function **********/
 
 void autonomous(){
-  runProgrammingSkills();
+  switch (currentAuton){
+    case AutonNone: {
+      break;
+    }
+    case AutonLeftAWP: {
+      runAutonLeftAWP();
+      break;
+    }
+    case AutonLeftNoAWP: {
+      runAutonLeftNoAWP();
+      break;
+    }
+    case AutonLeftSabotage: {
+      runAutonLeftSabotage();
+      break;
+    }
+    case AutonRightQuals: {
+      runAutonRightQuals();
+      break;
+    }
+    case AutonRightElims: {
+      runAutonRightElims();
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+}
+
+void testAuton(Auton testedAuton){
+  double startTime = Brain.Timer.time(); //Records start time
+  Controller1.Screen.setCursor(2, 3);
+
+  switch (testedAuton){
+    case AutonNone: {
+      break;
+    }
+    case AutonLeftAWP: {
+      runAutonLeftAWP();
+      break;
+    }
+    case AutonLeftNoAWP: {
+      runAutonLeftNoAWP();
+      break;
+    }
+    case AutonLeftSabotage: {
+      runAutonLeftSabotage();
+      break;
+    }
+    case AutonRightQuals: {
+      runAutonRightQuals();
+      break;
+    }
+    case AutonRightElims: {
+      runAutonRightElims();
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+
+  Controller1.Screen.print((Brain.Timer.time() - startTime) / 1000); //Records time spent
 }
