@@ -258,65 +258,16 @@ void outake(double waitTime){
 
 /********** Pre Auton **********/
 
-static Auton currentAuton = AutonNone;
+static Auton currentAuton = ProgSkills;
 
 static void autonSelector(){
-  bool runningSelector = true;
-
-  int columns[5] = {2, 3, 3, 5, 2};
-  std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
-                               "Right-Side Safe", "Right-Side Six Triball"};
-  Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightQuals, AutonRightElims};
-
-  bool buttonLeftPressed;
-  bool buttonRightPressed;
+  bool runningSelector;
 
   while (runningSelector){
-    if (currentAuton == AutonNone){
-      Controller1.Screen.setCursor(2, 3);
-      Controller1.Screen.print("No Auton Selected");
-    }
-    else{
-      Controller1.Screen.setCursor(1, 5);
-      Controller1.Screen.print("Auton Selected:");
-    }
-
-    for (int i = 0; i < 5; i++){
-      if (currentAuton == autons[i]){ //Displays auton label
-        Controller1.Screen.setCursor(3, columns[i]);
-        Controller1.Screen.print(autonNames[i].c_str());
-      }
-    }
-
-    if (Controller1.ButtonLeft.pressing() && !buttonLeftPressed){ //Pressing left button go left on auton list
-      Controller1.Screen.clearScreen();
-      if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
-        currentAuton = AutonRightElims;
-      }
-      else{
-        currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
-      }
-
-      buttonLeftPressed = true;
-    }
-    if (!Controller1.ButtonLeft.pressing() && buttonLeftPressed){
-      buttonLeftPressed = false;
-    }
-
-    if (Controller1.ButtonRight.pressing() && !buttonRightPressed){ //Pressing right button go left on auton list
-      Controller1.Screen.clearScreen();
-      if (currentAuton == AutonRightElims){
-        currentAuton = AutonLeftAWP;
-      }
-      else{
-        currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) + 1);
-      }
-
-      buttonRightPressed = true;
-    }
-    if (!Controller1.ButtonRight.pressing() && buttonRightPressed){
-      buttonRightPressed = false; 
-    }
+    Controller1.Screen.setCursor(1, 0);
+    Controller1.Screen.print("Programming Skills");
+    Controller1.Screen.setCursor(3, 5);
+    Controller1.Screen.print("Pray Good Grouping");
 
     if (Controller1.ButtonUp.pressing()){ //Exits selector when up button is pressed
       Controller1.Screen.clearScreen();
@@ -381,68 +332,5 @@ void preAuton(){
 /********** Auton Function **********/
 
 void autonomous(){
-  switch (currentAuton){
-    case AutonNone: {
-      break;
-    }
-    case AutonLeftAWP: {
-      runAutonLeftAWP();
-      break;
-    }
-    case AutonLeftNoAWP: {
-      runAutonLeftNoAWP();
-      break;
-    }
-    case AutonLeftSabotage: {
-      runAutonLeftSabotage();
-      break;
-    }
-    case AutonRightQuals: {
-      runAutonRightQuals();
-      break;
-    }
-    case AutonRightElims: {
-      runAutonRightElims();
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-}
-
-void testAuton(Auton testedAuton){
-  double startTime = Brain.Timer.time(); //Records start time
-  Controller1.Screen.setCursor(2, 3);
-
-  switch (testedAuton){
-    case AutonNone: {
-      break;
-    }
-    case AutonLeftAWP: {
-      runAutonLeftAWP();
-      break;
-    }
-    case AutonLeftNoAWP: {
-      runAutonLeftNoAWP();
-      break;
-    }
-    case AutonLeftSabotage: {
-      runAutonLeftSabotage();
-      break;
-    }
-    case AutonRightQuals: {
-      runAutonRightQuals();
-      break;
-    }
-    case AutonRightElims: {
-      runAutonRightElims();
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-
-  Controller1.Screen.print((Brain.Timer.time() - startTime) / 1000); //Records time spent
+  runProgrammingSkills();
 }
