@@ -143,7 +143,7 @@ static double swingError(double target, Direction side, Direction direction){ //
     rotation = CounterClockwise;
   }
 
-  if ((fabs(target - Inertial.heading(degrees))) || (360 - fabs(target - Inertial.heading(degrees))) > 5){
+  if (fabs(target - Inertial.heading(degrees)) > 5){
     if (rotation == Clockwise){
       if (target > Inertial.heading(degrees)){
         output = target - Inertial.heading(degrees);
@@ -257,7 +257,7 @@ void turnTo(double target){
 }
 
 void swingTo(double target, Direction side, Direction direction){
-  swingWithPID(side, direction, 0.6, 0.1, 0.01, 3, 15, 90, target);
+  swingWithPID(side, direction, 0.6, 0.1, 0.007, 3, 15, 90, target);
 }
 
 void intake(){
@@ -276,10 +276,10 @@ static Auton currentAuton = AutonNone;
 static void autonSelector(){
   bool runningSelector = true;
 
-  int columns[5] = {2, 3, 3, 5, 2};
-  std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
-                               "Right-Side Quals", "Right-Side Goal Rush"};
-  Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightQuals, AutonRightElims};
+  int columns[6] = {2, 3, 3, 5, 2, 2};
+  std::string autonNames[6] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
+                               "Right-Side Quals", "Right-Side Elims Safe", "Right-Side Elims Risky"};
+  Auton autons[6] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightQuals, AutonRightElimsSafe, AutonRightElimsRisky};
 
   bool buttonLeftPressed;
   bool buttonRightPressed;
@@ -294,7 +294,7 @@ static void autonSelector(){
       Controller1.Screen.print("Auton Selected:");
     }
 
-    for (int i = 0; i < 5; i++){
+    for (int i = 0; i < 6; i++){
       if (currentAuton == autons[i]){ //Displays auton label
         Controller1.Screen.setCursor(3, columns[i]);
         Controller1.Screen.print(autonNames[i].c_str());
@@ -304,7 +304,7 @@ static void autonSelector(){
     if (Controller1.ButtonLeft.pressing() && !buttonLeftPressed){ //Pressing left button go left on auton list
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
-        currentAuton = AutonRightElims;
+        currentAuton = AutonRightElimsRisky;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
@@ -318,7 +318,7 @@ static void autonSelector(){
 
     if (Controller1.ButtonRight.pressing() && !buttonRightPressed){ //Pressing right button go left on auton list
       Controller1.Screen.clearScreen();
-      if (currentAuton == AutonRightElims){
+      if (currentAuton == AutonRightElimsRisky){
         currentAuton = AutonLeftAWP;
       }
       else{
@@ -414,9 +414,12 @@ void autonomous(){
       runAutonRightQuals();
       break;
     }
-    case AutonRightElims: {
-      runAutonRightElims();
+    case AutonRightElimsSafe: {
+      runAutonRightElimsSafe();
       break;
+    }
+    case AutonRightElimsRisky: {
+      runAutonRightElimsRisky();
     }
     default: {
       break;
@@ -444,13 +447,12 @@ void testAuton(Auton testedAuton){
       runAutonLeftSabotage();
       break;
     }
-    case AutonRightQuals: {
-      runAutonRightQuals();
+    case AutonRightElimsSafe: {
+      runAutonRightElimsSafe();
       break;
     }
-    case AutonRightElims: {
-      runAutonRightElims();
-      break;
+    case AutonRightElimsRisky: {
+      runAutonRightElimsRisky();
     }
     default: {
       break;

@@ -6,7 +6,8 @@ typedef enum {
     AutonLeftNoAWP,
     AutonLeftSabotage,
     AutonRightQuals,
-    AutonRightElims
+    AutonRightElimsSafe,
+    AutonRightElimsRisky
 } Auton; //Enum for each of the autons
 
 typedef enum {
@@ -44,7 +45,9 @@ void runAutonLeftSabotage();
 
 void runAutonRightQuals();
 
-void runAutonRightElims();
+void runAutonRightElimsSafe();
+
+void runAutonRightElimsRisky();
 
 /********** For Testing **********/
 
