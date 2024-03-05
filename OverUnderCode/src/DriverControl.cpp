@@ -6,7 +6,7 @@
 
 static void setSpeeds(){
   Intake.setVelocity(80, percent);
-  Kicker.setVelocity(57, percent);
+  Kicker.setVelocity(25, percent);
 }
 
 static void runIntake(){ //Button A for intake, Button B for outake, Button Up for stop
@@ -30,15 +30,15 @@ static void runKicker(){ //Button L2 to run kicker
   }
 }
 
-static void runWings(){ //Button R2 to toggle wings
+static void runBackWings(){ //Button R2 to toggle back wings
   static bool pistonExtended;
   static bool buttonPressed;
 
   if (Controller1.ButtonR2.pressing() && !buttonPressed){ //Button pressed
     buttonPressed = true;
     pistonExtended = !pistonExtended; //Changes piston direction to opposite
-    LeftWing.set(pistonExtended);
-    RightWing.set(pistonExtended);
+    LeftBackWing.set(pistonExtended);
+    RightBackWing.set(pistonExtended);
   }
   if (!Controller1.ButtonR2.pressing() && buttonPressed){ //Button released
     buttonPressed = false;
@@ -57,7 +57,7 @@ void driverControl(){
     runDrive();
     runIntake();
     runKicker();
-    runWings();
+    runBackWings();
 
     wait(20, msec); //Delay prevents brain from crashing
   }

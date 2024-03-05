@@ -16,7 +16,7 @@ static int getSign(double input){
   }
 }
 
-static void driveWithPID(double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){ //Drives straight
+static void driveWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Drives straight
   
   double leftDriveError = target;
   double leftIntegral = 0;
@@ -93,7 +93,7 @@ static double turnError(double target){ //Calculates error for the shortest path
   return output;
 }
 
-static void turnWithPID(double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){ //Turns in place
+static void turnWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Turns in place
   double error = turnError(target);
   double integral = 0;
   double derivative;
@@ -180,7 +180,7 @@ static double swingError(double target, Direction side, Direction direction){ //
   return output;
 }
 
-static void swingWithPID(Direction side, Direction direction, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){ //Turns one side of drivetrain
+static void swingWithPID(double target, Direction side, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Turns one side of drivetrain
   double error = swingError(target, side, direction);
   double integral = 0;
   double derivative;
@@ -194,16 +194,28 @@ static void swingWithPID(Direction side, Direction direction, double kp, double 
     if (side == Left){
       if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
         LeftDrive.spin(forward, getSign(error) * minimumSpeed, percent);
+        RightDrive.spin(forward, percentage / 100 * getSign(error) * minimumSpeed, percent);
+      }
+      else if (fabs(total) > 100){
+        LeftDrive.spin(forward, getSign(error) * 100, percent);
+        RightDrive.spin(forward, getSign(error) * percentage, percent);
       }
       else {
         LeftDrive.spin(forward, total, percent);
+        RightDrive.spin(forward, percentage / 100 * total, percent);
       }
     }
     else{
       if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
+        LeftDrive.spin(forward, percentage / 100 * getSign(error) * minimumSpeed, percent);
         RightDrive.spin(forward, getSign(error) * minimumSpeed, percent);
       }
+      else if (fabs(total > 100)){
+       LeftDrive.spin(forward, getSign(error) * percentage, percent);
+        RightDrive.spin(forward, getSign(error) * 100, percent);
+      }
       else {
+        LeftDrive.spin(forward, percentage / 100 * total, percent);
         RightDrive.spin(forward, total, percent);
       }
     }
@@ -211,7 +223,7 @@ static void swingWithPID(Direction side, Direction direction, double kp, double 
     if (fabs(error) < maxI){
       integral += error / 100; //Calculates integral
     }
-
+  
     previousError = error; //Makes current error previous error for next loop
 
     wait(10, msec);
@@ -236,28 +248,39 @@ void crawl(Direction direction, double target){
 
 void drive(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(4.5, 0, 0.004, 0.5, 15, 0, target);
+    driveWithPID(target, 4.5, 0.1, 0.005, 0.5, 15, 10);
   }
   if (direction == Reverse){
-    driveWithPID(4.5, 0, 0.004, 0.5, 15, 0, -target);
+    driveWithPID(-target, 4.5, 0.1, 0.005, 0.5, 15, 10);
   }
 }
 
 void ram(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(0, 0, 0, 2, 70, 0, target);
+    driveWithPID(target, 0, 0, 0, 2, 70, 0);
   }
   if (direction == Reverse){
-    driveWithPID(0, 0, 0, 2, 70, 0, -target);
+    driveWithPID(-target, 0, 0, 0, 2, 70, 0);
   }
 }
 
 void turnTo(double target){
-  turnWithPID(0.4, 0.1, 0.00115, 2, 3, 20, target);
+  turnWithPID(target, 0.45, 0, 0.0008, 2, 7, 20);
 }
 
-void swingTo(double target, Direction side, Direction direction){
-  swingWithPID(side, direction, 0.6, 0.1, 0.007, 3, 15, 90, target);
+void swingTo(double target, Direction side, Direction direction, double percentage){
+  if (percentage < 25){
+    swingWithPID(target, side, direction, percentage, 0.45, 0.1, 0.0005, 2, 7, 0);
+  }
+  else if (percentage < 50){
+    swingWithPID(target, side, direction, percentage, 1, 0, 0.0005, 2, 10, 0);
+  }
+  else if (percentage < 75){
+    swingWithPID(target, side, direction, percentage, 1.5, 0.1, 0.0003, 2, 15, 10);
+  }
+  else{
+    swingWithPID(target, side, direction, percentage, 1.5, 0.1, 0.0001, 1, 50, 10);
+  }
 }
 
 void intake(){
@@ -276,10 +299,10 @@ static Auton currentAuton = AutonNone;
 static void autonSelector(){
   bool runningSelector = true;
 
-  int columns[6] = {2, 3, 3, 5, 2, 2};
-  std::string autonNames[6] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
-                               "Right-Side Quals", "Right-Side Elims Safe", "Right-Side Elims Risky"};
-  Auton autons[6] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightQuals, AutonRightElimsSafe, AutonRightElimsRisky};
+  int columns[5] = {2, 3, 3, 5, 2};
+  std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
+                               "Right-Side Quals", "Right-Side Goal Rush"};
+  Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightQuals, AutonRightElimsRush};
 
   bool buttonLeftPressed;
   bool buttonRightPressed;
@@ -304,7 +327,7 @@ static void autonSelector(){
     if (Controller1.ButtonLeft.pressing() && !buttonLeftPressed){ //Pressing left button go left on auton list
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
-        currentAuton = AutonRightElimsRisky;
+        currentAuton = AutonRightElimsRush;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) - 1);
@@ -318,7 +341,7 @@ static void autonSelector(){
 
     if (Controller1.ButtonRight.pressing() && !buttonRightPressed){ //Pressing right button go left on auton list
       Controller1.Screen.clearScreen();
-      if (currentAuton == AutonRightElimsRisky){
+      if (currentAuton == AutonRightElimsRush){
         currentAuton = AutonLeftAWP;
       }
       else{
@@ -414,12 +437,8 @@ void autonomous(){
       runAutonRightQuals();
       break;
     }
-    case AutonRightElimsSafe: {
-      runAutonRightElimsSafe();
-      break;
-    }
-    case AutonRightElimsRisky: {
-      runAutonRightElimsRisky();
+    case AutonRightElimsRush: {
+      runAutonRightElimsRush();
     }
     default: {
       break;
@@ -447,12 +466,12 @@ void testAuton(Auton testedAuton){
       runAutonLeftSabotage();
       break;
     }
-    case AutonRightElimsSafe: {
-      runAutonRightElimsSafe();
+    case AutonRightQuals: {
+      runAutonRightQuals();
       break;
     }
-    case AutonRightElimsRisky: {
-      runAutonRightElimsRisky();
+    case AutonRightElimsRush: {
+      runAutonRightElimsRush();
     }
     default: {
       break;
@@ -460,4 +479,5 @@ void testAuton(Auton testedAuton){
   }
 
   Controller1.Screen.print((Brain.Timer.time() - startTime) / 1000); //Records time spent
+  Controller1.Screen.print(" Seconds");
 }

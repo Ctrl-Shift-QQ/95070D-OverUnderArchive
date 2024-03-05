@@ -6,10 +6,10 @@
 
 void runAutonLeftAWP(){
   drive(Forward, 7);
-  LeftWing.set(true);
-  turnTo(320); //Match Load Descored
+  LeftBackWing.set(true);
+  turnTo(270); //Match Load Descored
 
-  LeftWing.set(false);
+  LeftBackWing.set(false);
   turnTo(25);
   drive(Forward, 14);
   wait(100, msec);
@@ -27,11 +27,12 @@ void runAutonLeftAWP(){
   turnTo(225);
   drive(Forward, 9);
   turnTo(180);
-  drive(Forward, 28);
+  drive(Forward, 27);
   wait(100, msec);
   turnTo(135);
+  turnTo(135);
   outake(0);
-  crawl(Forward, 30); //Elevation Bar Touched
+  crawl(Forward, 31.5); //Elevation Bar Touched
   wait(3, sec);
   Intake.stop();
 }
@@ -40,171 +41,83 @@ void runAutonLeftNoAWP(){
 }
 
 void runAutonLeftSabotage(){
-  drive(Forward, 38);
+  drive(Forward, 41);
   turnTo(270);
-  RightWing.set(true);
-  // wait(0.25, sec);
-  // ram(Reverse, 30); //Middle and Back Triballs Popped Over
+  outake(0.3);
+  drive(Reverse, 4);
+  turnTo(90);
+  wait(100, msec);
+  ram(Reverse, 12); //Preload Scored
 
-  // wait(0.5, sec);
-  // RightWing.set(false);
-  // turnTo(270); 
-  // drive(Forward, 20);
-  // outake(0.5);
-  // turnTo(90);
-  // Intake.stop();
-  // RightWing.set(true);
-  // ram(Reverse, 10); //Preload Scored
-
-  // turnTo(90);
-  // drive(Forward, 15); 
-  // RightWing.set(false); //Middle of Field Blocked
+  turnTo(90);
+  wait(100, msec);
+  ram(Forward, 10); //Middle of Field Blocked
 }
 
 void runAutonRightQuals(){
-  LeftWing.set(true);
+  double startTime = Brain.Timer.time();
+  intake();
+  LeftBackWing.set(true);
   drive(Reverse, 6);
   turnTo(325);
-  LeftWing.set(false);
+  LeftBackWing.set(false);
   turnTo(0);
   drive(Reverse, 15);
   turnTo(315);
-  ram(Reverse, 6); //Match Load Scored
+  ram(Reverse, 7); //Match Load Scored
 
   turnTo(315);
-  drive(Forward, 8);
+  drive(Forward, 4);
   turnTo(135);
   outake(0);
-  ram(Forward, 11); //Preload Scored  
+  ram(Forward, 9); //Preload Scored  
 
   turnTo(135);
   ram(Reverse, 8);
-  turnTo(65);
+  turnTo(60);
   intake();
   drive(Forward, 48);
   turnTo(190);
   drive(Forward, 8);
-  Intake.setVelocity(60, percent);
-  Intake.spin(reverse);
-  wait(0.25, sec);
-  turnTo(100);
+  outake(0.3);
+  turnTo(95);
   intake();
-  drive(Forward, 16);
+  drive(Forward, 21);
   wait(100, msec);
   turnTo(45);
-  LeftWing.set(true);
-  RightWing.set(true);
-  ram(Reverse, 25); //Middle and Corner Triballs Scored
+  LeftBackWing.set(true);
+  RightBackWing.set(true);
+  ram(Reverse, 26); //Middle and Corner Triballs Scored
 
-  drive(Forward, 5);
-  LeftWing.set(false);
-  RightWing.set(false);
+  turnTo(45);
+  drive(Forward, 6);
+  LeftBackWing.set(false);
+  RightBackWing.set(false);
   turnTo(225);
+  wait(100, msec);
   outake(0);
   ram(Forward, 12); //Back Triball Scored
   
   turnTo(225);
+  wait(100, msec);
   ram(Reverse, 10); 
   turnTo(160);
-  ram(Reverse, 36);
-  RightWing.set(true);
+  ram(Reverse, 34);
+  RightBackWing.set(true);
   turnTo(225);
   ram(Reverse, 6); //Elevation Bar Touched
+  
+  std::cout << (Brain.Timer.time() - startTime) / 1000 << std::endl;
 }
 
-void runAutonRightElimsSafe(){ 
-  double a = Brain.Timer.time();
+void runAutonRightElimsRush(){
+  double startTime = Brain.Timer.time();
+
   intake();
-  drive(Forward, 2);
-  wait(100, msec);
-  drive(Reverse, 32);
-  crawl(Reverse, 3);
-  turnTo(315);
-  drive(Reverse, 10);
-  wait(100, msec);
-  LeftWing.set(true);
-  wait(200, msec);
-  turnTo(290); //Match Load Descored
-
-  LeftWing.set(false);
-  turnTo(315);
-  drive(Reverse, 15);
-  turnTo(270);
-  RightWing.set(true);
-  ram(Reverse, 10); //Preload and Match Load Scored
-
-  RightWing.set(false);
-  turnTo(270);
-  drive(Forward, 8);
-  turnTo(90);
+  swingTo(340, Right, Forward, 87);
+  drive(Forward, 10);
+  drive(Reverse, 40);
   outake(0);
-  ram(Forward, 11); //Below Bar Triball Scored
-
-  drive(Reverse, 2);
-  swingTo(0, Right, Reverse);
-  intake();
-  drive(Forward, 28);
-  swingTo(240, Left, Reverse);
-  turnTo(180);
-  outake(0);
-  ram(Forward, 18); //Side Triball Scored
-
-  turnTo(180);
-  drive(Reverse, 14); //Backed Out
-  std::cout << (Brain.Timer.time() - a) / 1000 << std::endl;
-}
-
-void runAutonRightElimsRisky(){
-  double a = Brain.Timer.time();
-  intake();
-  drive(Forward, 2);
-  wait(100, msec);
-  drive(Reverse, 32);
-  crawl(Reverse, 3);
-  turnTo(315);
-  drive(Reverse, 10);
-  wait(100, msec);
-  LeftWing.set(true);
-  wait(200, msec);
-  turnTo(290); //Match Load Descored
-
-  LeftWing.set(false);
-  turnTo(315);
-  drive(Reverse, 15);
-  turnTo(270);
-  RightWing.set(true);
-  ram(Reverse, 10); //Preload and Match Load Scored
-
-  RightWing.set(false);
-  turnTo(270);
-  drive(Forward, 8);
-  turnTo(90);
-  outake(0);
-  ram(Forward, 11); //Below Bar Triball Scored
-
-  drive(Reverse, 2);
-  swingTo(0, Right, Reverse);
-  intake();
-  drive(Forward, 28);
-  swingTo(220, Left, Reverse);
-  turnTo(180);
-  outake(0);
-  ram(Forward, 18); //Side Triball Scored
-
-  turnTo(180);
-  drive(Reverse, 16);
   turnTo(45);
-  intake();
-  drive(Forward, 16);
-  turnTo(0);
-  LeftWing.set(true);
-  RightWing.set(true);
-  ram(Reverse, 24); //Middle Triball Scored
-
-  drive(Forward, 8);
-  LeftWing.set(false);
-  RightWing.set(false); 
-  turnTo(180);
-  outake(0);
-  ram(Forward, 11); //Back Triball Scored
+  std::cout << (Brain.Timer.time() - startTime) / 1000 << std::endl;
 }

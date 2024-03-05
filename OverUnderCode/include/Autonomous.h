@@ -6,8 +6,7 @@ typedef enum {
     AutonLeftNoAWP,
     AutonLeftSabotage,
     AutonRightQuals,
-    AutonRightElimsSafe,
-    AutonRightElimsRisky
+    AutonRightElimsRush
 } Auton; //Enum for each of the autons
 
 typedef enum {
@@ -29,7 +28,7 @@ void ram(Direction direction, double target);
 
 void turnTo(double target);
 
-void swingTo(double target, Direction side, Direction direction);
+void swingTo(double target, Direction side, Direction direction, double percentage);
 
 void intake();
 
@@ -45,9 +44,7 @@ void runAutonLeftSabotage();
 
 void runAutonRightQuals();
 
-void runAutonRightElimsSafe();
-
-void runAutonRightElimsRisky();
+void runAutonRightElimsRush();
 
 /********** For Testing **********/
 

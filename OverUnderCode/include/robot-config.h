@@ -13,10 +13,12 @@ extern motor RightBack;
 extern motor_group LeftDrive;
 extern motor_group RightDrive;
 extern motor Intake;
-extern motor Kicker;
+extern motor FrontKicker;
+extern motor BackKicker;
+extern motor_group Kicker;
 extern inertial Inertial;
-extern digital_out LeftWing;
-extern digital_out RightWing;
+extern digital_out LeftBackWing;
+extern digital_out RightBackWing;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
