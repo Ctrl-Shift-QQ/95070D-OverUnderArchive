@@ -6,7 +6,7 @@
 
 static void setSpeeds(){
   Intake.setVelocity(80, percent);
-  Kicker.setVelocity(57, percent);
+  Kicker.setVelocity(40, percent);
 }
 
 static void runIntake(){ //Button A for intake, Button B for outake, Button Up for stop

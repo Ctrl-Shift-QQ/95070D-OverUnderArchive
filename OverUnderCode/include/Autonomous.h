@@ -23,7 +23,9 @@ void ram(Direction direction, double target);
 
 void turnTo(double target);
 
-void swingTo(double target, Direction side, Direction direction);
+void swingTo(double target, Direction side, Direction direction, double percentage);
+
+void swingWithPID(double target, Direction side, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI);
 
 void intake();
 

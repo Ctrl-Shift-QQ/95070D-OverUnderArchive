@@ -16,8 +16,9 @@ static int getSign(double input){
   }
 }
 
-static void driveWithPID(double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){ //Drives straight
+static void driveWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Drives straight
   
+  double startTime = Brain.Timer.time(msec);
   double leftDriveError = target;
   double leftIntegral = 0;
   double leftDerivative;
@@ -33,7 +34,7 @@ static void driveWithPID(double kp, double ki, double kd, double tolerance, doub
   LeftFront.resetPosition();
   RightFront.resetPosition();
   
-  while ((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance){ //Runs while not within tolerance
+  while (((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance) || ((Brain.Timer.time(msec) - startTime) / 1000) < 3){ //Runs while not within tolerance
     //Left Side
     leftDerivative = (previousLeftError - leftDriveError) * 50; //Calculate derivative
     leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd; //Calculates total output
@@ -93,7 +94,7 @@ static double turnError(double target){ //Calculates error for the shortest path
   return output;
 }
 
-static void turnWithPID(double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){ //Turns in place
+static void turnWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Turns in place
   double error = turnError(target);
   double integral = 0;
   double derivative;
@@ -136,27 +137,40 @@ static double swingError(double target, Direction side, Direction direction){ //
   Direction rotation;
 
 
-  if ((side == Left && direction == Forward) || (side == Right && direction == Reverse)){
+  if (((side == Left) && (direction == Forward)) || ((side == Right) && (direction == Reverse))){
     rotation = Clockwise;
   }
   else{
     rotation = CounterClockwise;
   }
 
-  if(rotation == Clockwise){
-    if (target > Inertial.heading(degrees)){
-      output = target - Inertial.heading(degrees);
+  if (fabs(target - Inertial.heading(degrees)) > 5){
+    if (rotation == Clockwise){
+      if (target > Inertial.heading(degrees)){
+        output = target - Inertial.heading(degrees);
+      }
+      else {
+        output = 360 - Inertial.heading(degrees) + target;
+      }
     }
     else {
-      output = 360 - Inertial.heading(degrees) + target;
+      if (target < Inertial.heading(degrees)){
+        output = target - Inertial.heading();
+      }
+      else {
+        output = -(360 - target + Inertial.heading(degrees));
+      }
     }
   }
   else {
-    if (target < Inertial.heading(degrees)){
-      output = target - Inertial.heading();
+    if (fabs(target - Inertial.heading(degrees)) < 180){
+      output = target - Inertial.heading(degrees);
     }
     else {
-      output = -(360 - target + Inertial.heading(degrees));
+      output = (360 - fabs(target - Inertial.heading(degrees)));
+      if (target > Inertial.heading(degrees)){
+        return -output;
+      }
     }
   }
 
@@ -167,7 +181,7 @@ static double swingError(double target, Direction side, Direction direction){ //
   return output;
 }
 
-static void swingWithPID(Direction side, Direction direction, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI, double target){ //Turns one side of drivetrain
+void swingWithPID(double target, Direction side, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Turns one side of drivetrain
   double error = swingError(target, side, direction);
   double integral = 0;
   double derivative;
@@ -181,16 +195,28 @@ static void swingWithPID(Direction side, Direction direction, double kp, double 
     if (side == Left){
       if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
         LeftDrive.spin(forward, getSign(error) * minimumSpeed, percent);
+        RightDrive.spin(forward, percentage / 100 * getSign(error) * minimumSpeed, percent);
+      }
+      else if (fabs(total) > 100){
+        LeftDrive.spin(forward, getSign(error) * 100, percent);
+        RightDrive.spin(forward, getSign(error) * percentage, percent);
       }
       else {
         LeftDrive.spin(forward, total, percent);
+        RightDrive.spin(forward, percentage / 100 * total, percent);
       }
     }
     else{
       if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
+        LeftDrive.spin(forward, percentage / 100 * getSign(error) * minimumSpeed, percent);
         RightDrive.spin(forward, getSign(error) * minimumSpeed, percent);
       }
+      else if (fabs(total > 100)){
+       LeftDrive.spin(forward, getSign(error) * percentage, percent);
+        RightDrive.spin(forward, getSign(error) * 100, percent);
+      }
       else {
+        LeftDrive.spin(forward, percentage / 100 * total, percent);
         RightDrive.spin(forward, total, percent);
       }
     }
@@ -198,12 +224,12 @@ static void swingWithPID(Direction side, Direction direction, double kp, double 
     if (fabs(error) < maxI){
       integral += error / 100; //Calculates integral
     }
-
+  
     previousError = error; //Makes current error previous error for next loop
 
     wait(10, msec);
 
-    error = turnError(target);
+    error = swingError(target, side, direction);
   }
 
   LeftDrive.stop(brake);
@@ -214,37 +240,48 @@ static void swingWithPID(Direction side, Direction direction, double kp, double 
 
 void crawl(Direction direction, double target){ 
   if (direction == Forward){
-    driveWithPID(0, 0, 0, 0.5, 15, 0, target);
+    driveWithPID(target, 0, 0, 0, 0.5, 15, 0);
   }
   if (direction == Reverse){
-    driveWithPID(0, 0, 0, 0.5, 15, 0, -target);
+    driveWithPID(-target, 0, 0, 0, 0.5, 15, 0);
   }
 }
 
 void drive(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(4.5, 0, 0.004, 0.5, 10, 0, target);
+    driveWithPID(target, 4.5, 0.1, 0.005, 0.5, 15, 10);
   }
   if (direction == Reverse){
-    driveWithPID(4.5, 0, 0.004, 0.5, 10, 0, -target);
+    driveWithPID(-target, 4.5, 0.1, 0.005, 0.5, 15, 10);
   }
 }
 
 void ram(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(0, 0, 0, 2, 70, 0, target);
+    driveWithPID(target, 0, 0, 0, 2, 70, 0);
   }
   if (direction == Reverse){
-    driveWithPID(0, 0, 0, 2, 70, 0, -target);  
+    driveWithPID(-target, 0, 0, 0, 2, 70, 0);
   }
 }
 
 void turnTo(double target){
-  turnWithPID(0.4, 0.1, 0.0015, 1, 2, 20, target);
+  turnWithPID(target, 0.45, 0, 0.0008, 2, 7, 20);
 }
 
-void swingTo(double target, Direction side, Direction direction){
-  swingWithPID(side, direction, 0.7, 0.2, 0.01, 2, 20, 90, target);
+void swingTo(double target, Direction side, Direction direction, double percentage){
+  if (percentage < 25){
+    swingWithPID(target, side, direction, percentage, 0.7, 0, 0.0001, 2, 15, 0);
+  }
+  else if (percentage < 50){
+    swingWithPID(target, side, direction, percentage, 1, 0, 0.0002, 2, 25, 0);
+  }
+  else if (percentage < 75){
+    swingWithPID(target, side, direction, percentage, 1.5, 0.1, 0.0003, 2, 30, 10);
+  }
+  else{
+    swingWithPID(target, side, direction, percentage, 1.5, 0.1, 0.0001, 1, 50, 10);
+  }
 }
 
 void intake(){
@@ -252,25 +289,24 @@ void intake(){
 }
 
 void outake(double waitTime){
-  Intake.spin(reverse, 90, percent);
+  Intake.spin(reverse, 100, percent);
   wait(waitTime, sec);
 }
 
 /********** Pre Auton **********/
 
-static Auton currentAuton = ProgSkills;
-
 static void autonSelector(){
-  bool runningSelector;
+  bool runningSelector = true;
 
   while (runningSelector){
-    Controller1.Screen.setCursor(1, 0);
+    Controller1.Screen.setCursor(2, 3);
     Controller1.Screen.print("Programming Skills");
-    Controller1.Screen.setCursor(3, 5);
-    Controller1.Screen.print("Pray Good Grouping");
-
+    
     if (Controller1.ButtonUp.pressing()){ //Exits selector when up button is pressed
       Controller1.Screen.clearScreen();
+      Controller1.Screen.setCursor(2, 2);
+      Controller1.Screen.print("Pray Good Grouping");
+
       runningSelector = false;
     }
 
