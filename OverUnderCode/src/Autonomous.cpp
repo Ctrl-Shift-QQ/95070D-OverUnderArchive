@@ -373,9 +373,9 @@ static void calibrateInertial(){ //Calibrates inertial sensor for three seconds
 }
 
 static void tempCheck(double warningTemp){
-  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), //Gets average left drive temperature
+  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), //Gets highest left drive temperature
                          LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
-  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), //Gets average right drive temperature
+  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), //Gets highest right drive temperature
                           RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
   double kickerTemp = Kicker.temperature(fahrenheit);
   double intakeTemp = Intake.temperature(fahrenheit);
