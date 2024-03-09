@@ -6,6 +6,7 @@
 
 void runAutonLeftAWP(){
   drive(Forward, 7);
+  wait(200, msec);
   LeftBackWing.set(true);
   turnTo(270); //Match Load Descored
 
@@ -21,16 +22,17 @@ void runAutonLeftAWP(){
   drive(Reverse, 4);
   turnTo(225);
   wait(200, msec);
-  ram(Reverse, 9); //Preload Scored
+  ram(Reverse, 10); //Preload Scored
 
   wait(200, msec);
   turnTo(225);
-  drive(Forward, 9);
+  drive(Forward, 10);
   turnTo(180);
   drive(Forward, 27);
   wait(100, msec);
   turnTo(135);
   turnTo(135);
+  wait(100, msec);
   outake(0);
   crawl(Forward, 31.5); //Elevation Bar Touched
   wait(3, sec);
@@ -56,7 +58,7 @@ void runAutonLeftSabotage(){
 
 void runAutonRightQuals(){
   double startTime = Brain.Timer.time();
-  intake();
+
   LeftBackWing.set(true);
   drive(Reverse, 6);
   turnTo(325);
@@ -67,23 +69,27 @@ void runAutonRightQuals(){
   ram(Reverse, 7); //Match Load Scored
 
   turnTo(315);
-  drive(Forward, 4);
+  wait(50, msec);
+  drive(Forward, 5);
   turnTo(135);
   outake(0);
-  ram(Forward, 9); //Preload Scored  
+  wait(100, msec);
+  ram(Forward, 10); //Preload Scored  
 
   turnTo(135);
-  ram(Reverse, 8);
-  turnTo(60);
+  wait(50, msec);
+  ram(Reverse, 10);
+  turnTo(57.5);
   intake();
   drive(Forward, 48);
   turnTo(190);
-  drive(Forward, 8);
-  outake(0.3);
-  turnTo(95);
+  outake(0);
+  drive(Forward, 10);
+  turnTo(90);
   intake();
   drive(Forward, 21);
   wait(100, msec);
+  turnTo(45);
   turnTo(45);
   LeftBackWing.set(true);
   RightBackWing.set(true);
@@ -105,7 +111,7 @@ void runAutonRightQuals(){
   ram(Reverse, 34);
   RightBackWing.set(true);
   turnTo(225);
-  ram(Reverse, 6); //Elevation Bar Touched
+  ram(Reverse, 8); //Elevation Bar Touched
   
   std::cout << (Brain.Timer.time() - startTime) / 1000 << std::endl;
 }

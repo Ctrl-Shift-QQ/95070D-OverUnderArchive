@@ -239,10 +239,10 @@ static void swingWithPID(double target, Direction side, Direction direction, dou
 
 void crawl(Direction direction, double target){ 
   if (direction == Forward){
-    driveWithPID(0, 0, 0, 0.5, 15, 0, target);
+    driveWithPID(target, 0, 0, 0, 0.5, 15, 0);
   }
   if (direction == Reverse){
-    driveWithPID(0, 0, 0, 0.5, 15, 0, -target);
+    driveWithPID(-target, 0, 0, 0, 0.5, 15, 0);
   }
 }
 
