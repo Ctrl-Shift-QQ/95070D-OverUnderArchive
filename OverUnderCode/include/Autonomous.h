@@ -25,6 +25,8 @@ void turnTo(double target);
 
 void swingTo(double target, Direction side, Direction direction, double percentage);
 
+void driveWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI);
+
 void swingWithPID(double target, Direction side, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI);
 
 void intake();

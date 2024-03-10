@@ -16,7 +16,7 @@ static int getSign(double input){
   }
 }
 
-static void driveWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Drives straight
+void driveWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Drives straight
   
   double startTime = Brain.Timer.time(msec);
   double leftDriveError = target;
@@ -34,7 +34,7 @@ static void driveWithPID(double target, double kp, double ki, double kd, double 
   LeftFront.resetPosition();
   RightFront.resetPosition();
   
-  while (((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance) || ((Brain.Timer.time(msec) - startTime) / 1000) < 3){ //Runs while not within tolerance
+  while (((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance) && ((Brain.Timer.time(msec) - startTime) < 3000)){ //Runs while not within tolerance
     //Left Side
     leftDerivative = (previousLeftError - leftDriveError) * 50; //Calculate derivative
     leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd; //Calculates total output
@@ -144,7 +144,18 @@ static double swingError(double target, Direction side, Direction direction){ //
     rotation = CounterClockwise;
   }
 
-  if (fabs(target - Inertial.heading(degrees)) > 5){
+  if (fabs(target - Inertial.heading(degrees)) < 5 || 360 - fabs(target - Inertial.heading(degrees)) < 5) {
+    if (fabs(target - Inertial.heading(degrees)) < 180){
+      output = target - Inertial.heading(degrees);
+    }
+    else {
+      output = (360 - fabs(target - Inertial.heading(degrees)));
+      if (target > Inertial.heading(degrees)){
+        output = -output;
+      }
+    }
+  }
+  else{
     if (rotation == Clockwise){
       if (target > Inertial.heading(degrees)){
         output = target - Inertial.heading(degrees);
@@ -159,17 +170,6 @@ static double swingError(double target, Direction side, Direction direction){ //
       }
       else {
         output = -(360 - target + Inertial.heading(degrees));
-      }
-    }
-  }
-  else {
-    if (fabs(target - Inertial.heading(degrees)) < 180){
-      output = target - Inertial.heading(degrees);
-    }
-    else {
-      output = (360 - fabs(target - Inertial.heading(degrees)));
-      if (target > Inertial.heading(degrees)){
-        return -output;
       }
     }
   }
