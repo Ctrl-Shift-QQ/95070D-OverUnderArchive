@@ -12,10 +12,10 @@ void runProgrammingSkills(){
   turnTo(67.5);
   wait(100, msec);
   crawl(Reverse, 1);
-  // Kicker.setVelocity(40, percent); 
-  // Kicker.spin(forward);
-  // wait(44, sec);
-  // Kicker.stop(); //Kicker Fired
+  Kicker.setVelocity(40, percent); 
+  Kicker.spin(forward);
+  wait(27, sec);
+  Kicker.stop(); //Kicker Fired
 
   drive(Forward, 6);
   wait(100, msec);
