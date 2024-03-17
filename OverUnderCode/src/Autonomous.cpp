@@ -16,61 +16,38 @@ static int getSign(double input){
   }
 }
 
-static void driveWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Drives straight
-  
-  double leftDriveError = target;
-  double leftIntegral = 0;
-  double leftDerivative;
-  double previousLeftError = leftDriveError;
-  double leftDriveTotal;
-  
-  double rightDriveError = target;
-  double rightIntegral = 0;
-  double rightDerivative;
-  double previousRightError = rightDriveError;
-  double rightDriveTotal;
+static void driveWithPID(double target, double kp, double ki, double kd, double correctiveFactor, double tolerance, double minimumSpeed, double maxI){ //Drives straight
+  double initialOrientation = Inertial.heading(degrees);
+  double error = target;
+  double integral = 0;
+  double derivative;
+  double previousError = error;
+  double total;
 
   LeftFront.resetPosition();
   RightFront.resetPosition();
   
-  while ((fabs(leftDriveError) + fabs(rightDriveError)) / 2 > tolerance){ //Runs while not within tolerance
+  while (fabs(error) > tolerance){ //Runs while not within tolerance
     //Left Side
-    leftDerivative = (previousLeftError - leftDriveError) * 50; //Calculate derivative
-    leftDriveTotal = leftDriveError * kp + leftIntegral * ki - leftDerivative * kd; //Calculates total output
+    derivative = (previousError - error) * 50; //Calculate derivative
+    total = error * kp + integral * ki - derivative * kd; //Calculates total output
 
-    if (fabs(leftDriveTotal) < minimumSpeed){ //Runs at minimum speed when calculated output is less
-      LeftDrive.spin(forward, getSign(leftDriveError) * minimumSpeed, percent);
+    if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
+      LeftDrive.spin(forward, getSign(error) * minimumSpeed + (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent); //If orientation is off, drivetrain speeds change accordingly
+      RightDrive.spin(forward, getSign(error) * minimumSpeed - (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent);
     }
     else {
-      LeftDrive.spin(forward, leftDriveTotal, percent);
+      LeftDrive.spin(forward, total + (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent);
+      RightDrive.spin(forward, total - (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent);
     }
 
-    if(fabs(leftDriveError) < maxI){
-      leftIntegral += leftDriveError / 50; //Calculates integral
+    if(fabs(error) < maxI){
+      integral += error / 50; //Calculates integral
     }
-    
-    //Right Side
-    rightDerivative = (previousRightError - rightDriveError) * 50; //Calculate derivative
-    rightDriveTotal = rightDriveError * kp + rightIntegral * ki - rightDerivative * kd; //Calculates total output
-
-    if (fabs(rightDriveTotal) < minimumSpeed){ //Runs at minimum speed when calculated output is less
-      RightDrive.spin(forward, getSign(rightDriveError) * minimumSpeed, percent);
-    }
-    else {
-      RightDrive.spin(forward, rightDriveTotal, percent);
-    }
-
-    if(fabs(rightDriveError) < maxI){
-      rightIntegral += rightDriveError / 50; //Calculates integral
-    }
-
-    previousLeftError = leftDriveError; //Makes current error previous error for next loop
-    previousRightError = rightDriveError;    
 
     wait(20, msec);
 
-    leftDriveError = target - LeftFront.position(turns) * 3.25 * M_PI * 3/4;
-    rightDriveError = target - RightFront.position(turns) * 3.25 * M_PI * 3/4;
+    error = target - (LeftDrive.position(turns) + RightFront.position(turns)) / 2 * 3.25 * M_PI * 3/4; //Calculates error in inches
   }
 
   LeftDrive.stop(brake);
@@ -93,15 +70,25 @@ static double turnError(double target){ //Calculates error for the shortest path
   return output;
 }
 
-static void turnWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Turns in place
+static void turnWithPID(double target, double kp, double ki, double kd, double exitSpeed, double tolerance, double minimumSpeed, double maxI){ //Turns in place
   double error = turnError(target);
   double integral = 0;
   double derivative;
   double previousError = error;
   double total;
+
+  if (fabs(target - Inertial.heading(degrees)) < 180){ //Calculates the error for fastest path to the desired heading
+    error = target - Inertial.heading(degrees);
+  }
+  else {
+    error = (360 - fabs(target - Inertial.heading(degrees)));
+    if (target > Inertial.heading(degrees)){
+      error = -error;
+    }
+  }
   
-  while ((fabs(error) > tolerance) || derivative > 4){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
-    derivative = (previousError - error) * 100; //Calculates derivative
+  while ((fabs(error) > tolerance) || (LeftDrive.velocity(percent) + RightDrive.velocity(percent)) / 2  > exitSpeed){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
+    derivative = (previousError - error) * 100; //Calculates derivative 
     total = error * kp + integral * ki - derivative * kd; //Calculates total output
 
     if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
@@ -239,48 +226,37 @@ static void swingWithPID(double target, Direction side, Direction direction, dou
 
 void crawl(Direction direction, double target){ 
   if (direction == Forward){
-    driveWithPID(target, 0, 0, 0, 0.5, 15, 0);
+    driveWithPID(target, 0, 0, 0, 0, 0.5, 15, 0);
   }
   if (direction == Reverse){
-    driveWithPID(-target, 0, 0, 0, 0.5, 15, 0);
+    driveWithPID(-target, 0, 0, 0, 0, 0.5, 15, 0);
   }
 }
 
 void drive(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(target, 4.5, 0.1, 0.005, 0.5, 15, 10);
+    driveWithPID(target, 4.5, 0.1, 0.005, 0.3, 0.5, 15, 10);
   }
   if (direction == Reverse){
-    driveWithPID(-target, 4.5, 0.1, 0.005, 0.5, 15, 10);
+    driveWithPID(-target, 4.5, 0.1, 0.005, 0.3, 0.5, 15, 10);
   }
 }
 
 void ram(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(target, 0, 0, 0, 2, 70, 0);
+    driveWithPID(target, 0, 0, 0, 0, 2, 70, 0);
   }
   if (direction == Reverse){
-    driveWithPID(-target, 0, 0, 0, 2, 70, 0);
+    driveWithPID(-target, 0, 0, 0, 0, 2, 70, 0);
   }
 }
 
 void turnTo(double target){
-  turnWithPID(target, 0.45, 0, 0.0008, 2, 7, 20);
+  turnWithPID(target, 0.45, 0, 0.0008, 1, 2, 7, 20);
 }
 
 void swingTo(double target, Direction side, Direction direction, double percentage){
-  if (percentage < 25){
-    swingWithPID(target, side, direction, percentage, 0.45, 0.1, 0.0005, 2, 7, 0);
-  }
-  else if (percentage < 50){
-    swingWithPID(target, side, direction, percentage, 1, 0, 0.0005, 2, 10, 0);
-  }
-  else if (percentage < 75){
-    swingWithPID(target, side, direction, percentage, 1.5, 0.1, 0.0003, 2, 15, 10);
-  }
-  else{
-    swingWithPID(target, side, direction, percentage, 1.5, 0.1, 0.0001, 1, 50, 10);
-  }
+  swingWithPID(target, side, direction, percentage, 0, 0, 0, 0, 0, 0);
 }
 
 void intake(){
@@ -385,7 +361,7 @@ static void tempCheck(double warningTemp){
   std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "KICKER", "INTAKE"};
 
   for (int i = 0; i < 4; i++){ //Runs once for each mechanism
-    if (temperatures[i] > warningTemp){ //Checks if temperature is exceeding warning temp
+    if (temperatures[i] > warningTemp){ //Checks if temperature is exceeding warning satemp
       Controller1.Screen.setCursor(1, columns[i]);
       Controller1.Screen.print(mechs[i].c_str());
       Controller1.Screen.print(" HOT!!!"); 

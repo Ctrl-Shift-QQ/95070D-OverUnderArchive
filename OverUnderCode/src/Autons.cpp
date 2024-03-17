@@ -11,32 +11,16 @@ void runAutonLeftAWP(){
   turnTo(270); //Match Load Descored
 
   LeftBackWing.set(false);
-  turnTo(25);
-  drive(Forward, 14);
-  wait(100, msec);
-  turnTo(45);
-  wait(100, msec);
-  outake(2);
-  Intake.stop();
-  wait(100, msec);
-  drive(Reverse, 4);
-  turnTo(225);
-  wait(200, msec);
-  ram(Reverse, 10); //Preload Scored
-
-  wait(200, msec);
-  turnTo(225);
-  drive(Forward, 10);
   turnTo(180);
-  drive(Forward, 27);
+  drive(Forward, 17);
   wait(100, msec);
   turnTo(135);
-  turnTo(135);
-  wait(100, msec);
+  wait(200, msec);
   outake(0);
-  crawl(Forward, 31.5); //Elevation Bar Touched
+  crawl(Forward, 36); //Elevation Bar Touched
+
   wait(3, sec);
-  Intake.stop();
+  Intake.stop(); //Triballs outaked
 }
 
 void runAutonLeftNoAWP(){
