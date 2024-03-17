@@ -442,7 +442,20 @@ void calibrateInertial(){
   Inertial.resetHeading();
 }
 
-void tempCheck(double warningTemp){
+double getTemp(motor m){
+  return m.temperature(celsius);
+}
+
+bool tempCheck(double warningTemp){ // warning temp should be 45-50
+  if (getTemp(LeftFront) > warningTemp || getTemp(LeftMiddle) > warningTemp || getTemp(LeftBack) > warningTemp || getTemp(RightFront) > warningTemp || getTemp(RightMiddle) > warningTemp || getTemp(RightBack) > warningTemp || getTemp(Catapult) > warningTemp || getTemp(Intake) > warningTemp){
+    return 1;
+  }
+  else{
+    return 0;
+  }
+}
+
+/*void tempCheck(double warningTemp){
   double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
   double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
   double cataTemp = Catapult.temperature(fahrenheit);
@@ -464,7 +477,7 @@ void tempCheck(double warningTemp){
       Controller1.Screen.clearScreen();
     }
   }
-}
+}*/
 
 void preAuton(){
   // Initializing Robot Configuration. DO NOT REMOVE!
