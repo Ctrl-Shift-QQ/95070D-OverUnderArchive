@@ -275,10 +275,10 @@ static Auton currentAuton = AutonNone;
 static void autonSelector(){
   bool runningSelector = true;
 
-  int columns[5] = {2, 3, 3, 5, 2};
-  std::string autonNames[5] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
+  int columns[] = {2, 3, 3, 5, 2};
+  std::string autonNames[] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
                                "Right-Side Quals", "Right-Side Goal Rush"};
-  Auton autons[5] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightQuals, AutonRightElimsRush};
+  Auton autons[] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightQuals, AutonRightElimsRush};
 
   bool buttonLeftPressed;
   bool buttonRightPressed;
@@ -349,16 +349,19 @@ static void calibrateInertial(){ //Calibrates inertial sensor for three seconds
 }
 
 static void tempCheck(double warningTemp){
-  double leftDriveTemp = std::max(std::max(LeftFront.temperature(fahrenheit), //Gets highest left drive temperature
-                         LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
-  double rightDriveTemp = std::max(std::max(RightFront.temperature(fahrenheit), //Gets highest right drive temperature
-                          RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
-  double kickerTemp = Kicker.temperature(fahrenheit);
-  double intakeTemp = Intake.temperature(fahrenheit);
+  double startTime = Brain.Timer.time(msec);
+  double columns[] = {4, 3, 6, 6}; //Makes the text centered on controller
+  double temperatures[] = {};
+  std::string mechs[] = {"LEFT DRIVE", "RIGHT DRIVE", "KICKER", "INTAKE"};
 
-  double columns[4] = {4, 3, 6, 6}; //Makes the text centered on controller
-  double temperatures[4] = {leftDriveTemp, rightDriveTemp, kickerTemp, intakeTemp};
-  std::string mechs[4] = {"LEFT DRIVE", "RIGHT DRIVE", "KICKER", "INTAKE"};
+  while (Brain.Timer.time(msec) - startTime < 1000){
+    temperatures[0] = std::max(std::max(LeftFront.temperature(fahrenheit), //Gets highest left drive temperature
+                      LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
+    temperatures[1] = std::max(std::max(RightFront.temperature(fahrenheit), //Gets highest right drive temperature
+                      RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
+    temperatures[2] = Kicker.temperature(fahrenheit);
+    temperatures[3] = Kicker.temperature(fahrenheit);
+  }
 
   for (int i = 0; i < 4; i++){ //Runs once for each mechanism
     if (temperatures[i] > warningTemp){ //Checks if temperature is exceeding warning satemp
@@ -367,6 +370,8 @@ static void tempCheck(double warningTemp){
       Controller1.Screen.print(" HOT!!!"); 
       Controller1.Screen.setCursor(3, 10);
       Controller1.Screen.print(temperatures[i]);
+      Controller1.rumble("..");
+
       //Example on controller screen:
 
       //LEFT DRIVE HOT!!!
@@ -385,9 +390,9 @@ void preAuton(){
 
   Controller1.Screen.clearScreen();
 
-  tempCheck(120);
   calibrateInertial();
-  autonSelector();  
+  autonSelector();
+  tempCheck(120);
 }
 
 /********** Auton Function **********/
