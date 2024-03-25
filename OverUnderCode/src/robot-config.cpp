@@ -13,23 +13,23 @@ brain  Brain;
 // VEXcode device constructors
 
 controller Controller1 = controller(primary);
-motor LeftFront = motor(PORT7, ratio6_1, true);
-motor LeftMiddle = motor(PORT6, ratio6_1, true);
-motor LeftBack = motor(PORT5, ratio6_1, true);
-motor RightFront = motor(PORT2, ratio6_1, false);
-motor RightMiddle = motor(PORT3, ratio6_1, false);
-motor RightBack = motor(PORT4, ratio6_1, false);
+motor LeftFront = motor(PORT19, ratio6_1, true);
+motor LeftMiddle = motor(PORT8, ratio6_1, true);
+motor LeftBack = motor(PORT20, ratio6_1, true);
+motor RightFront = motor(PORT3, ratio6_1, false);
+motor RightMiddle = motor(PORT13, ratio6_1, false);
+motor RightBack = motor(PORT11, ratio6_1, false);
 motor_group LeftDrive(LeftFront, LeftMiddle, LeftBack);
 motor_group RightDrive(RightFront, RightMiddle, RightBack);
-motor LeftIntake = motor(PORT9, ratio6_1, true);
-motor RightIntake = motor(PORT10, ratio6_1, false);
+motor LeftIntake = motor(PORT7, ratio6_1, true);
+motor RightIntake = motor(PORT1, ratio6_1, false);
 motor_group Intake(LeftIntake, RightIntake);
-motor FrontKicker = motor(PORT9, ratio18_1, false);
-motor BackKicker = motor(PORT20, ratio36_1, true);
-motor_group Kicker(FrontKicker, BackKicker);
-inertial Inertial = inertial(PORT10);
+inertial Inertial = inertial(PORT4);
+digital_out Hang = digital_out(Brain.ThreeWirePort.D);
 digital_out LeftBackWing = digital_out(Brain.ThreeWirePort.A);
 digital_out RightBackWing = digital_out(Brain.ThreeWirePort.B);
+digital_out LeftFrontWing = digital_out(Brain.ThreeWirePort.H);
+digital_out RightFrontWing = digital_out(Brain.ThreeWirePort.G);
 
 // VEXcode generated functions
 // define variable for remote controller enable/disable

@@ -19,8 +19,11 @@ extern motor FrontKicker;
 extern motor BackKicker;
 extern motor_group Kicker;
 extern inertial Inertial;
+extern digital_out Hang;
 extern digital_out LeftBackWing;
 extern digital_out RightBackWing;
+extern digital_out LeftFrontWing;
+extern digital_out RightFrontWing;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
