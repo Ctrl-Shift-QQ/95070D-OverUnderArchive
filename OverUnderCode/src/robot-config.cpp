@@ -13,18 +13,18 @@ brain  Brain;
 // VEXcode device constructors
 
 controller Controller1 = controller(primary);
-motor LeftFront = motor(PORT19, ratio6_1, true);
-motor LeftMiddle = motor(PORT8, ratio6_1, true);
-motor LeftBack = motor(PORT20, ratio6_1, true);
-motor RightFront = motor(PORT3, ratio6_1, false);
-motor RightMiddle = motor(PORT13, ratio6_1, false);
-motor RightBack = motor(PORT11, ratio6_1, false);
+motor LeftFront = motor(PORT18, ratio6_1, true);
+motor LeftMiddle = motor(PORT10, ratio6_1, true);
+motor LeftBack = motor(PORT19, ratio6_1, true);
+motor RightFront = motor(PORT14, ratio6_1, false);
+motor RightMiddle = motor(PORT17, ratio6_1, false);
+motor RightBack = motor(PORT1, ratio6_1, false);
 motor_group LeftDrive(LeftFront, LeftMiddle, LeftBack);
 motor_group RightDrive(RightFront, RightMiddle, RightBack);
-motor LeftIntake = motor(PORT7, ratio6_1, true);
-motor RightIntake = motor(PORT1, ratio6_1, false);
+motor LeftIntake = motor(PORT21, ratio6_1, true);
+motor RightIntake = motor(PORT12, ratio6_1, false);
 motor_group Intake(LeftIntake, RightIntake);
-inertial Inertial = inertial(PORT4);
+inertial Inertial = inertial(PORT16);
 digital_out Hang = digital_out(Brain.ThreeWirePort.D);
 digital_out LeftBackWing = digital_out(Brain.ThreeWirePort.A);
 digital_out RightBackWing = digital_out(Brain.ThreeWirePort.B);

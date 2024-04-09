@@ -18,7 +18,7 @@ typedef enum {
     CounterClockwise
 } Direction; //Enum for different directions
 
-/********** Tuned Auton Functions **********/
+/********** Auton Functions **********/
 
 void crawl(Direction direction, double target);
 
@@ -28,7 +28,7 @@ void ram(Direction direction, double target);
 
 void turnTo(double target);
 
-void swingTo(double target, Direction side, Direction direction, double percentage);
+void swingWithPID(double target, Direction leadSide, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI);
 
 void intake();
 
@@ -46,11 +46,7 @@ void runAutonRightQuals();
 
 void runAutonRightElimsRush();
 
-/********** For Testing **********/
-
-void testAuton(Auton testedAuton);
-
-/********** For Competition **********/
+/********** Run In Main **********/
 
 void preAuton();
 

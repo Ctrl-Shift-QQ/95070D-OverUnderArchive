@@ -16,9 +16,13 @@ static int getSign(double input){
   }
 }
 
+static double driveError(double target, double wheelDiameter, double gearRatio){ //Gear ratio in driving over driven
+  return target - (LeftDrive.position(turns) + RightFront.position(turns)) / 2 * wheelDiameter * M_PI * gearRatio; //Calculates error in inches
+}
+
 static void driveWithPID(double target, double kp, double ki, double kd, double correctiveFactor, double tolerance, double minimumSpeed, double maxI){ //Drives straight
+  double error = driveError(target, 3.25, 3/4);
   double initialOrientation = Inertial.heading(degrees);
-  double error = target;
   double integral = 0;
   double derivative;
   double previousError = error;
@@ -31,10 +35,15 @@ static void driveWithPID(double target, double kp, double ki, double kd, double 
     //Left Side
     derivative = (previousError - error) * 50; //Calculate derivative
     total = error * kp + integral * ki - derivative * kd; //Calculates total output
+    
+    //Makes corrections work
+    if (fabs(total) > 100){
+      total = getSign(total) * 100;
+    }
 
     if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
-      LeftDrive.spin(forward, getSign(error) * minimumSpeed + (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent); //If orientation is off, drivetrain speeds change accordingly
-      RightDrive.spin(forward, getSign(error) * minimumSpeed - (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent);
+      LeftDrive.spin(forward, getSign(error) * minimumSpeed - (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent); //If orientation is off, drivetrain speeds change accordingly
+      RightDrive.spin(forward, getSign(error) * minimumSpeed + (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent);
     }
     else {
       LeftDrive.spin(forward, total + (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent);
@@ -48,6 +57,8 @@ static void driveWithPID(double target, double kp, double ki, double kd, double 
     wait(20, msec);
 
     error = target - (LeftDrive.position(turns) + RightFront.position(turns)) / 2 * 3.25 * M_PI * 3/4; //Calculates error in inches
+
+    std::cout << (Inertial.heading(degrees) - initialOrientation) * correctiveFactor << "\n";
   }
 
   LeftDrive.stop(brake);
@@ -77,16 +88,6 @@ static void turnWithPID(double target, double kp, double ki, double kd, double e
   double previousError = error;
   double total;
 
-  if (fabs(target - Inertial.heading(degrees)) < 180){ //Calculates the error for fastest path to the desired heading
-    error = target - Inertial.heading(degrees);
-  }
-  else {
-    error = (360 - fabs(target - Inertial.heading(degrees)));
-    if (target > Inertial.heading(degrees)){
-      error = -error;
-    }
-  }
-  
   while ((fabs(error) > tolerance) || (LeftDrive.velocity(percent) + RightDrive.velocity(percent)) / 2  > exitSpeed){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
     derivative = (previousError - error) * 100; //Calculates derivative 
     total = error * kp + integral * ki - derivative * kd; //Calculates total output
@@ -115,70 +116,49 @@ static void turnWithPID(double target, double kp, double ki, double kd, double e
   RightDrive.stop(brake);
 }
 
-static double swingError(double target, Direction side, Direction direction){ //Calculates error for desired direction and drivetrain side
+static double swingError(double target, Direction leadSide, Direction direction){ //Calculates error for desired direction and drivetrain side
   double output;
-  double currentHeading = Inertial.heading(degrees);
-  double smallerDegree = std::min(target, currentHeading);
-  double largerDegree = std::max(target, currentHeading);
-  Direction rotation;
 
-
-  if (((side == Left) && (direction == Forward)) || ((side == Right) && (direction == Reverse))){
-    rotation = Clockwise;
-  }
-  else{
-    rotation = CounterClockwise;
-  }
-
-  if (fabs(target - Inertial.heading(degrees)) > 5){
-    if (rotation == Clockwise){
-      if (target > Inertial.heading(degrees)){
-        output = target - Inertial.heading(degrees);
-      }
-      else {
-        output = 360 - Inertial.heading(degrees) + target;
-      }
-    }
-    else {
-      if (target < Inertial.heading(degrees)){
-        output = target - Inertial.heading();
-      }
-      else {
-        output = -(360 - target + Inertial.heading(degrees));
-      }
-    }
-  }
-  else {
-    if (fabs(target - Inertial.heading(degrees)) < 180){
-      output = target - Inertial.heading(degrees);
-    }
-    else {
-      output = (360 - fabs(target - Inertial.heading(degrees)));
-      if (target > Inertial.heading(degrees)){
-        return -output;
-      }
-    }
-  }
-
-  if (side == Right){
+  output = target - Inertial.rotation(degrees);
+  
+  if (leadSide == Right){
     return -output;
   }
-  
+
   return output;
 }
 
-static void swingWithPID(double target, Direction side, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Turns one side of drivetrain
-  double error = swingError(target, side, direction);
+void swingWithPID(double target, Direction leadSide, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Turns one side of drivetrain
+  double error;
+  double turnDirection;
   double integral = 0;
   double derivative;
   double previousError = error;
   double total;
+  Inertial.setRotation(Inertial.heading(degrees), degrees);
+
+  if ((leadSide == Left && direction == Forward) || (leadSide == Right && direction == Reverse)){
+    turnDirection = Clockwise;
+  }
+  else {
+    turnDirection = CounterClockwise;
+  }
+
+  //Finds the actual target
+  if (turnDirection == Clockwise && target < Inertial.heading(degrees)){
+    target += 360;
+  }
+  else if (turnDirection == CounterClockwise && target > Inertial.heading(degrees)){
+    target -= 360;
+  }
   
+  error = swingError(target, leadSide, direction);
+
   while ((fabs(error) > tolerance) || derivative > 4){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
     derivative = (previousError - error) * 100; //Calculates derivative
     total = error * kp + integral * ki - derivative * kd; //Calculates total output
 
-    if (side == Left){
+    if (leadSide == Left){
       if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
         LeftDrive.spin(forward, getSign(error) * minimumSpeed, percent);
         RightDrive.spin(forward, percentage / 100 * getSign(error) * minimumSpeed, percent);
@@ -215,7 +195,7 @@ static void swingWithPID(double target, Direction side, Direction direction, dou
 
     wait(10, msec);
 
-    error = swingError(target, side, direction);
+    error = swingError(target, leadSide, direction);
   }
 
   LeftDrive.stop(brake);
@@ -226,19 +206,19 @@ static void swingWithPID(double target, Direction side, Direction direction, dou
 
 void crawl(Direction direction, double target){ 
   if (direction == Forward){
-    driveWithPID(target, 0, 0, 0, 0, 0.5, 15, 0);
+    driveWithPID(target, 0, 0, 0, 0.1, 0.5, 15, 0);
   }
   if (direction == Reverse){
-    driveWithPID(-target, 0, 0, 0, 0, 0.5, 15, 0);
+    driveWithPID(-target, 0, 0, 0, 0.1, 0.5, 15, 0);
   }
 }
 
 void drive(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(target, 4.5, 0.1, 0.005, 0.3, 0.5, 15, 10);
+    driveWithPID(target, 5, 0.1, 0.006, 0.1, 0.5, 0, 10);
   }
   if (direction == Reverse){
-    driveWithPID(-target, 4.5, 0.1, 0.005, 0.3, 0.5, 15, 10);
+    driveWithPID(-target, 5, 0.1, 0.006, 0.1, 0.5, 0, 10);
   }
 }
 
@@ -253,10 +233,6 @@ void ram(Direction direction, double target){
 
 void turnTo(double target){
   turnWithPID(target, 0.45, 0, 0.0008, 1, 2, 7, 20);
-}
-
-void swingTo(double target, Direction side, Direction direction, double percentage){
-  swingWithPID(target, side, direction, percentage, 0, 0, 0, 0, 0, 0);
 }
 
 void intake(){
@@ -350,33 +326,36 @@ static void calibrateInertial(){ //Calibrates inertial sensor for three seconds
 
 static void tempCheck(double warningTemp){
   double startTime = Brain.Timer.time(msec);
-  double columns[] = {4, 3, 6, 6}; //Makes the text centered on controller
-  double temperatures[] = {};
-  std::string mechs[] = {"LEFT DRIVE", "RIGHT DRIVE", "KICKER", "INTAKE"};
+  double columns[] = {4, 3, 6}; //Makes the text centered on controller
+  int temperatures[] = {};
+  std::string mechs[] = {"LEFT DRIVE", "RIGHT DRIVE", "INTAKE"};
 
   while (Brain.Timer.time(msec) - startTime < 1000){
     temperatures[0] = std::max(std::max(LeftFront.temperature(fahrenheit), //Gets highest left drive temperature
                       LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
     temperatures[1] = std::max(std::max(RightFront.temperature(fahrenheit), //Gets highest right drive temperature
                       RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
-    temperatures[2] = Kicker.temperature(fahrenheit);
-    temperatures[3] = Kicker.temperature(fahrenheit);
+    temperatures[2] = Intake.temperature(fahrenheit);
+
+    wait(20, msec);
   }
 
-  for (int i = 0; i < 4; i++){ //Runs once for each mechanism
+  for (int i = 0; i < 3; i++){ //Runs once for each mechanism
     if (temperatures[i] > warningTemp){ //Checks if temperature is exceeding warning satemp
       Controller1.Screen.setCursor(1, columns[i]);
       Controller1.Screen.print(mechs[i].c_str());
       Controller1.Screen.print(" HOT!!!"); 
-      Controller1.Screen.setCursor(3, 10);
+      Controller1.Screen.setCursor(3, 6);
       Controller1.Screen.print(temperatures[i]);
+      Controller1.Screen.print(" degrees");
+
       Controller1.rumble("..");
 
       //Example on controller screen:
 
       //LEFT DRIVE HOT!!!
       
-      //    125
+      // 125 degrees
 
       wait(1.5, sec);
       Controller1.Screen.clearScreen();
@@ -390,48 +369,18 @@ void preAuton(){
 
   Controller1.Screen.clearScreen();
 
+  tempCheck(120);
   calibrateInertial();
   autonSelector();
-  tempCheck(120);
 }
 
 /********** Auton Function **********/
 
 void autonomous(){
-  switch (currentAuton){
-    case AutonNone: {
-      break;
-    }
-    case AutonLeftAWP: {
-      runAutonLeftAWP();
-      break;
-    }
-    case AutonLeftNoAWP: {
-      runAutonLeftNoAWP();
-      break;
-    }
-    case AutonLeftSabotage: {
-      runAutonLeftSabotage();
-      break;
-    }
-    case AutonRightQuals: {
-      runAutonRightQuals();
-      break;
-    }
-    case AutonRightElimsRush: {
-      runAutonRightElimsRush();
-    }
-    default: {
-      break;
-    }
-  }
-}
-
-void testAuton(Auton testedAuton){
   double startTime = Brain.Timer.time(); //Records start time
-  Controller1.Screen.setCursor(2, 3);
+  Controller1.Screen.setCursor(2, 6);
 
-  switch (testedAuton){
+  switch (currentAuton){
     case AutonNone: {
       break;
     }

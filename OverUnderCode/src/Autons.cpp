@@ -24,6 +24,12 @@ void runAutonLeftAWP(){
 }
 
 void runAutonLeftNoAWP(){
+  drive(Forward, 48);
+  turnTo(45);
+  turnTo(90);
+  turnTo(270);
+  turnTo(0);
+  // swingWithPID(90, Left, Forward, 10, 0.6, 0.1, 0.0008, 3, 30, 10);
 }
 
 void runAutonLeftSabotage(){
@@ -101,13 +107,4 @@ void runAutonRightQuals(){
 }
 
 void runAutonRightElimsRush(){
-  double startTime = Brain.Timer.time();
-
-  intake();
-  swingTo(340, Right, Forward, 87);
-  drive(Forward, 10);
-  drive(Reverse, 40);
-  outake(0);
-  turnTo(45);
-  std::cout << (Brain.Timer.time() - startTime) / 1000 << std::endl;
 }
