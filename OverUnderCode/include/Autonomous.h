@@ -2,10 +2,11 @@
 
 typedef enum {
     AutonNone = 0,
-    AutonLeftAWP,
-    AutonLeftNoAWP,
-    AutonLeftSabotage,
+    AutonLeftQuals,
+    AutonLeftElims,
     AutonRightQuals,
+    AutonRightElimsSafe,
+    AutonRightElimsSix,
     AutonRightElimsRush
 } Auton; //Enum for each of the autons
 
@@ -28,7 +29,11 @@ void ram(Direction direction, double target);
 
 void turnTo(double target);
 
-void swingWithPID(double target, Direction leadSide, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI);
+void driveWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI);
+
+void turnWithPID(double target, double kp, double ki, double kd, double tolerance, double exitSpeed, double minimumSpeed, double maxI);
+
+void swingWithPID(double target, Direction leadSide, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double exitSpeed, double minimumSpeed, double maxI);
 
 void intake();
 
@@ -36,13 +41,15 @@ void outake(double waitTime);
 
 /********** Autons **********/
 
-void runAutonLeftAWP();
+void runAutonLeftQuals();
 
-void runAutonLeftNoAWP();
-
-void runAutonLeftSabotage();
+void runAutonLeftElims();
 
 void runAutonRightQuals();
+
+void runAutonRightElimsSafe();
+
+void runAutonRightElimsSix();
 
 void runAutonRightElimsRush();
 

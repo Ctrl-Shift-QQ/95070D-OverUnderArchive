@@ -20,9 +20,8 @@ static double driveError(double target, double wheelDiameter, double gearRatio){
   return target - (LeftDrive.position(turns) + RightFront.position(turns)) / 2 * wheelDiameter * M_PI * gearRatio; //Calculates error in inches
 }
 
-static void driveWithPID(double target, double kp, double ki, double kd, double correctiveFactor, double tolerance, double minimumSpeed, double maxI){ //Drives straight
-  double error = driveError(target, 3.25, 3/4);
-  double initialOrientation = Inertial.heading(degrees);
+void driveWithPID(double target, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Drives straight
+  double error = target;
   double integral = 0;
   double derivative;
   double previousError = error;
@@ -35,19 +34,14 @@ static void driveWithPID(double target, double kp, double ki, double kd, double 
     //Left Side
     derivative = (previousError - error) * 50; //Calculate derivative
     total = error * kp + integral * ki - derivative * kd; //Calculates total output
-    
-    //Makes corrections work
-    if (fabs(total) > 100){
-      total = getSign(total) * 100;
-    }
 
     if (fabs(total) < minimumSpeed){ //Runs at minimum speed when calculated output is less
-      LeftDrive.spin(forward, getSign(error) * minimumSpeed - (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent); //If orientation is off, drivetrain speeds change accordingly
-      RightDrive.spin(forward, getSign(error) * minimumSpeed + (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent);
+      LeftDrive.spin(forward, getSign(error) * minimumSpeed, percent);
+      RightDrive.spin(forward, getSign(error) * minimumSpeed, percent);
     }
     else {
-      LeftDrive.spin(forward, total + (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent);
-      RightDrive.spin(forward, total - (Inertial.heading(degrees) - initialOrientation) * correctiveFactor, percent);
+      LeftDrive.spin(forward, total, percent);
+      RightDrive.spin(forward, total, percent);
     }
 
     if(fabs(error) < maxI){
@@ -56,9 +50,7 @@ static void driveWithPID(double target, double kp, double ki, double kd, double 
 
     wait(20, msec);
 
-    error = target - (LeftDrive.position(turns) + RightFront.position(turns)) / 2 * 3.25 * M_PI * 3/4; //Calculates error in inches
-
-    std::cout << (Inertial.heading(degrees) - initialOrientation) * correctiveFactor << "\n";
+    error = driveError(target, 3.25, 0.75); //Calculates error in inches
   }
 
   LeftDrive.stop(brake);
@@ -81,14 +73,14 @@ static double turnError(double target){ //Calculates error for the shortest path
   return output;
 }
 
-static void turnWithPID(double target, double kp, double ki, double kd, double exitSpeed, double tolerance, double minimumSpeed, double maxI){ //Turns in place
+void turnWithPID(double target, double kp, double ki, double kd, double tolerance, double exitSpeed, double minimumSpeed, double maxI){ //Turns in place
   double error = turnError(target);
   double integral = 0;
   double derivative;
   double previousError = error;
   double total;
 
-  while ((fabs(error) > tolerance) || (LeftDrive.velocity(percent) + RightDrive.velocity(percent)) / 2  > exitSpeed){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
+  while ((fabs(error) > tolerance) || fabs(derivative) > exitSpeed){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
     derivative = (previousError - error) * 100; //Calculates derivative 
     total = error * kp + integral * ki - derivative * kd; //Calculates total output
 
@@ -128,8 +120,8 @@ static double swingError(double target, Direction leadSide, Direction direction)
   return output;
 }
 
-void swingWithPID(double target, Direction leadSide, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double minimumSpeed, double maxI){ //Turns one side of drivetrain
-  double error;
+void swingWithPID(double target, Direction leadSide, Direction direction, double percentage, double kp, double ki, double kd, double tolerance, double exitSpeed, double minimumSpeed, double maxI){ //Turns one side of drivetrain
+  double error = swingError(target, leadSide, direction);
   double turnDirection;
   double integral = 0;
   double derivative;
@@ -154,7 +146,7 @@ void swingWithPID(double target, Direction leadSide, Direction direction, double
   
   error = swingError(target, leadSide, direction);
 
-  while ((fabs(error) > tolerance) || derivative > 4){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
+  while ((fabs(error) > tolerance) || fabs(derivative) > exitSpeed){ //Runs while not within tolerance and motors are still spinning quickly (prevents drift)
     derivative = (previousError - error) * 100; //Calculates derivative
     total = error * kp + integral * ki - derivative * kd; //Calculates total output
 
@@ -206,33 +198,33 @@ void swingWithPID(double target, Direction leadSide, Direction direction, double
 
 void crawl(Direction direction, double target){ 
   if (direction == Forward){
-    driveWithPID(target, 0, 0, 0, 0.1, 0.5, 15, 0);
+    driveWithPID(target, 0, 0, 0, 0.5, 15, 0);
   }
   if (direction == Reverse){
-    driveWithPID(-target, 0, 0, 0, 0.1, 0.5, 15, 0);
+    driveWithPID(-target, 0, 0, 0, 0.5, 15, 0);
   }
 }
 
 void drive(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(target, 5, 0.1, 0.006, 0.1, 0.5, 0, 10);
+    driveWithPID(target, 4.5, 0.1, 0.005, 0.5, 15, 10);
   }
   if (direction == Reverse){
-    driveWithPID(-target, 5, 0.1, 0.006, 0.1, 0.5, 0, 10);
+    driveWithPID(-target, 4.5, 0.1, 0.005, 0.5, 15, 10);
   }
 }
 
 void ram(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(target, 0, 0, 0, 0, 2, 70, 0);
+    driveWithPID(target, 0, 0, 0, 2, 70, 0);
   }
   if (direction == Reverse){
-    driveWithPID(-target, 0, 0, 0, 0, 2, 70, 0);
+    driveWithPID(-target, 0, 0, 0, 2, 70, 0);
   }
 }
 
 void turnTo(double target){
-  turnWithPID(target, 0.45, 0, 0.0008, 1, 2, 7, 20);
+  turnWithPID(target, 0.45, 0.3, 0.007, 3, 150, 5, 10);
 }
 
 void intake(){
@@ -251,10 +243,10 @@ static Auton currentAuton = AutonNone;
 static void autonSelector(){
   bool runningSelector = true;
 
-  int columns[] = {2, 3, 3, 5, 2};
-  std::string autonNames[] = {"Left-Side Safe AWP", "Left-Side NO AWP", "Left-Side Sabotage", 
-                               "Right-Side Quals", "Right-Side Goal Rush"};
-  Auton autons[] = {AutonLeftAWP, AutonLeftNoAWP, AutonLeftSabotage, AutonRightQuals, AutonRightElimsRush};
+  int columns[] = {5, 6, 5, 2, 4, 3};
+  std::string autonNames[] = {"Left-Side Quals", "Left-Side Elims", 
+                               "Right-Side Quals", "Right-Side Elims Safe", "Right-Side Six Ball", "Right-Side Mid Rush"};
+  Auton autons[] = {AutonLeftQuals, AutonLeftElims, AutonRightQuals, AutonRightElimsSafe, AutonRightElimsSix, AutonRightElimsRush};
 
   bool buttonLeftPressed;
   bool buttonRightPressed;
@@ -278,7 +270,7 @@ static void autonSelector(){
 
     if (Controller1.ButtonLeft.pressing() && !buttonLeftPressed){ //Pressing left button go left on auton list
       Controller1.Screen.clearScreen();
-      if (currentAuton == AutonNone || currentAuton == AutonLeftAWP){
+      if (currentAuton == AutonNone || currentAuton == AutonLeftQuals){
         currentAuton = AutonRightElimsRush;
       }
       else{
@@ -294,7 +286,7 @@ static void autonSelector(){
     if (Controller1.ButtonRight.pressing() && !buttonRightPressed){ //Pressing right button go left on auton list
       Controller1.Screen.clearScreen();
       if (currentAuton == AutonRightElimsRush){
-        currentAuton = AutonLeftAWP;
+        currentAuton = AutonLeftQuals;
       }
       else{
         currentAuton = static_cast<Auton> (static_cast<int> (currentAuton) + 1);
@@ -331,13 +323,13 @@ static void tempCheck(double warningTemp){
   std::string mechs[] = {"LEFT DRIVE", "RIGHT DRIVE", "INTAKE"};
 
   while (Brain.Timer.time(msec) - startTime < 1000){
-    temperatures[0] = std::max(std::max(LeftFront.temperature(fahrenheit), //Gets highest left drive temperature
-                      LeftMiddle.temperature(fahrenheit)), LeftBack.temperature(fahrenheit));
-    temperatures[1] = std::max(std::max(RightFront.temperature(fahrenheit), //Gets highest right drive temperature
-                      RightMiddle.temperature(fahrenheit)), RightBack.temperature(fahrenheit));
-    temperatures[2] = Intake.temperature(fahrenheit);
+    temperatures[0] = std::max(std::max(LeftFront.temperature(celsius), //Gets highest left drive temperature
+                      LeftMiddle.temperature(celsius)), LeftBack.temperature(celsius));
+    temperatures[1] = std::max(std::max(RightFront.temperature(celsius), //Gets highest right drive temperature
+                      RightMiddle.temperature(celsius)), RightBack.temperature(celsius));
+    temperatures[2] = Intake.temperature(celsius);
 
-    wait(20, msec);
+    wait(100, msec);
   }
 
   for (int i = 0; i < 3; i++){ //Runs once for each mechanism
@@ -345,7 +337,7 @@ static void tempCheck(double warningTemp){
       Controller1.Screen.setCursor(1, columns[i]);
       Controller1.Screen.print(mechs[i].c_str());
       Controller1.Screen.print(" HOT!!!"); 
-      Controller1.Screen.setCursor(3, 6);
+      Controller1.Screen.setCursor(3, 7);
       Controller1.Screen.print(temperatures[i]);
       Controller1.Screen.print(" degrees");
 
@@ -369,7 +361,7 @@ void preAuton(){
 
   Controller1.Screen.clearScreen();
 
-  tempCheck(120);
+  // tempCheck(0);
   calibrateInertial();
   autonSelector();
 }
@@ -384,24 +376,29 @@ void autonomous(){
     case AutonNone: {
       break;
     }
-    case AutonLeftAWP: {
-      runAutonLeftAWP();
+    case AutonLeftQuals: {
+      runAutonLeftQuals();
       break;
     }
-    case AutonLeftNoAWP: {
-      runAutonLeftNoAWP();
-      break;
-    }
-    case AutonLeftSabotage: {
-      runAutonLeftSabotage();
+    case AutonLeftElims: {
+      runAutonLeftElims();
       break;
     }
     case AutonRightQuals: {
       runAutonRightQuals();
       break;
     }
+    case AutonRightElimsSafe: {
+      runAutonRightElimsSafe();
+      break;
+    }
+    case AutonRightElimsSix: {
+      runAutonRightElimsSix();
+      break;
+    }
     case AutonRightElimsRush: {
       runAutonRightElimsRush();
+      break;
     }
     default: {
       break;
