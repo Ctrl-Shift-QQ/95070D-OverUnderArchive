@@ -49,7 +49,7 @@ void driveWithPID(double target, double kp, double ki, double kd, double toleran
     }
 
     wait(20, msec);
-
+    
     error = driveError(target, 3.25, 0.75); //Calculates error in inches
   }
 
@@ -207,10 +207,10 @@ void crawl(Direction direction, double target){
 
 void drive(Direction direction, double target){
   if (direction == Forward){
-    driveWithPID(target, 4.5, 0.1, 0.005, 0.5, 15, 10);
+    driveWithPID(target, 4.5, 3, 0.005, 0.5, 10, 20);
   }
   if (direction == Reverse){
-    driveWithPID(-target, 4.5, 0.1, 0.005, 0.5, 15, 10);
+    driveWithPID(-target, 4.5, 3, 0.005, 0.5, 10, 20);
   }
 }
 
