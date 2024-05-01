@@ -26,7 +26,7 @@ void runAutonLeftQuals(){
 void runAutonLeftElims(){
   Inertial.setHeading(11.4, degrees);
   intake();
-  drive(Forward, 47);
+  drive(Forward, 48);
   wait(0.1, sec);
   drive(Reverse, 11);
   wait(0.25, sec);
@@ -42,7 +42,7 @@ void runAutonLeftElims(){
   turnTo(170);
   RightFrontWing.set(true);
   Intake.spin(reverse, 100, percent);
-  drive(Forward, 36); //Middle and Back Triballs Pushed to Alley
+  drive(Forward, 32); //Middle and Back Triballs Pushed to Alley
 
   turnTo(180);
   wait(0.25, sec);
@@ -51,7 +51,7 @@ void runAutonLeftElims(){
   turnTo(180);
   swingWithPID(60, Left, Reverse, 0, 0, 0, 0, 2, 150, 35, 10);
   wait(200, msec);
-  drive(Reverse, 40);
+  drive(Reverse, 43);
   turnTo(315);
   LeftBackWing.set(true);
   crawl(Reverse, 7); 
@@ -62,7 +62,8 @@ void runAutonLeftElims(){
   turnTo(135);
   LeftFrontWing.set(true);
   swingWithPID(90, Right, Forward, 65, 0.5, 0.1, 0.003, 2, 150, 20, 10);
-  driveWithPID(20, 0, 0, 0, 0.5, 30, 0); //Elevation Bar Touched
+  turnTo(90);
+  driveWithPID(14, 0, 0, 0, 0.5, 30, 0); //Elevation Bar Touched
 
   LeftFrontWing.set(false);
   Intake.stop(); //Triballs Outaked
@@ -100,6 +101,7 @@ void runAutonRightQuals(){
   turnTo(205);
   Intake.spin(reverse, 60, percent);
   drive(Forward, 10);
+  wait(0.1, sec);
   turnTo(75);
   turnTo(75);
   intake();
@@ -112,6 +114,11 @@ void runAutonRightQuals(){
   RightFrontWing.set(true);
   outake(0);
   ram(Forward, 32); //Middle, Back, and Corner Triballs Scored
+
+  turnTo(225);
+  drive(Reverse, 8);
+  LeftFrontWing.set(false);
+  RightFrontWing.set(false); //Backed Out of Goal
 }
 
 void runAutonRightElimsSafe(){
@@ -193,6 +200,7 @@ void runAutonRightElimsSix(){
   turnTo(160);
   Intake.spin(reverse, 60, percent);
   drive(Forward, 10);
+  wait(0.1, sec);
   turnTo(30);
   turnTo(30);
   intake();
